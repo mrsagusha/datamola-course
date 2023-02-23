@@ -9,6 +9,8 @@
     --complete-color: #16959B;
     --progress-color: #FFC348;
     --low: #84DA5F;
+    --high-color: #9B2237;
+    --medium-color: #F78EA1;
 }
 
 * {
@@ -269,6 +271,24 @@
     border-radius: 24px;
 }
 
+.medium {
+    width: max-content;
+    color: var(--medium-color);
+    font-weight: 600;
+    padding: 4px 6px;
+    background-color: rgba(247, 142, 161, 0.3);
+    border-radius: 24px;
+}
+
+.high {
+    width: max-content;
+    color: var(--high-color);
+    font-weight: 600;
+    padding: 4px 6px;
+    background-color: rgba(155, 34, 55, 0.3);
+    border-radius: 24px;
+}
+
 .card__footer {
     display: flex;
     justify-content: space-between;
@@ -286,10 +306,17 @@
 
 .load-more {
     display: block;
+    border: 1px solid var(--light-gray);
     margin: 0 auto;
     margin-top: 20px;
     margin-bottom: 20px;
     color: var(--main-gray);
+    transition: .2s;
+}
+
+.load-more:hover {
+    border: 1px solid var(--main-gray);
+    cursor: pointer;
 }
 
 .footer {
