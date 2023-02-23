@@ -83,6 +83,12 @@
 
 .button__logout {
     background-color: #EE687F90;
+    transition: .2s;
+}
+
+.button__logout:hover {
+    background-color: #EE687F;
+    cursor: pointer;
 }
 
 .fa-arrow-right-from-bracket {
@@ -150,13 +156,14 @@
 
 .article__cards-wrapper::-webkit-scrollbar {
     width: 6px;
-    background-color: var(--light-gray);
+    background-color: white;
     border-radius: 6px;
 }
 
 .article__cards-wrapper::-webkit-scrollbar-thumb {
-    background-color: var(--main-gray);
+    background-color: var(--light-gray);
     border-radius: 6px;
+    cursor: pointer;
 }
 
 .card {
@@ -169,7 +176,14 @@
     border: 1px var(--light-gray) solid;
     background-color: white;
     border-radius: 16px;
-    box-shadow: 0px 4px 4px 0px rgba(87, 131, 241, 0.25)
+    box-shadow: 0px 4px 4px 0px rgba(87, 131, 241, 0.25);
+    transition: .2s;
+}
+
+.card:hover {
+    cursor: pointer;
+    box-shadow: 0 0 rgba(87, 131, 241, 0.25);
+    border: 1px solid var(--main-gray);
 }
 
 .fa-ellipsis-vertical {
