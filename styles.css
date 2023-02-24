@@ -423,6 +423,13 @@
     width: 176px;
 }
 
+.task-name-input:invalid,
+.task-description:invalid {
+    border-color: red;
+}
+
+.task-name-input:invalid:not(:placeholder-shown) {border-color: red;}
+
 .task-name-input,
 .assignee-input,
 .new-task-form select  {

@@ -744,10 +744,10 @@
             </article>
             <aside>
                 <form class="new-task-form" action="">
-                    <label for="task-name-input">Task name
-                        <input class="task-name-input" id="task-name-input" type="text">
+                    <label for="task-name-input">Task name*
+                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text" required>
                     </label>
-                    <label for="assignee-input">Assignee
+                    <label for="assignee-input">Assignee*
                         <input class="assignee-input" id="assignee-input" type="text" list="assignee-list" >
                         <datalist id="assignee-list">
                             <option value="Aleksandr Golubovskiy">
@@ -779,13 +779,13 @@
                         </select>
                     </label>
                     <label for="description">
-                        Description
-                        <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
+                        Description*
+                        <textarea class="task-description" name="description" id="description" cols="25" rows="10" required></textarea>
                     </label>
-                    <button class="button create-task">
+                    <button class="button create-task" type="submit">
                         <i class="fa-solid fa-plus"></i>
                         CREATE TASK</button>
-                    <button class="button reset-changes">
+                    <button class="button reset-changes" type="reset">
                         <i class="fa-sharp fa-solid fa-rotate-left"></i>
                         RESET CHANGES</button>
                 </form>
