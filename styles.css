@@ -36,9 +36,14 @@
 
 .header {
     display: flex;
+    max-width: 100%;
+}
+
+.header-info {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    max-width: 1090px;
+    width: 1090px;
     height: 60px;
     background-color: var(--main-color-light);
     border-radius: 24px 8px 24px 8px;
@@ -73,6 +78,10 @@
     font-size: 1rem;
     color: white;
     font-weight: 400;
+}
+
+.user-image:hover {
+    cursor: pointer;
 }
 
 .button {
@@ -359,6 +368,11 @@
     cursor: pointer;
 }
 
+.new-task-form {
+    display: flex;
+    flex-direction: column;
+}
+
 .footer {
     display: flex;
     justify-content: space-between;
@@ -382,4 +396,95 @@
 .email-link {
     color: white;
     font-style: normal;
+}
+
+.new-task-form {
+    width: 295px;
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+    padding: 20px 10px;
+    border: 1px solid var(--main-gray);
+    border-radius: 16px;
+    background-color: white;
+    margin: 20px 0 0 15px
+}
+
+.new-task-form label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.task-name-input,
+.assignee-input,
+.new-task-form select {
+    width: 176px;
+}
+
+.task-name-input,
+.assignee-input,
+.new-task-form select  {
+    border: 1px solid var(--main-gray);
+    border-radius: 16px;
+    outline: none;
+    color: var(--black-color);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.new-task-form select:hover {
+    cursor: pointer;
+}
+
+.task-description {
+    width: 176px;
+    height: 90px;
+    border: 1px solid var(--main-gray);
+    border-radius: 16px;
+    padding: 5px;
+    outline: none;
+    color: var(--black-color);
+    font-size: 0.875rem;
+    resize: none
+}
+
+.task-description::-webkit-scrollbar {
+    width: 6px;
+    background-color: var(--light-gray);
+    border-radius: 6px;
+}
+
+.task-description::-webkit-scrollbar-thumb {
+    background-color: var(--main-gray);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.fa-plus,
+.fa-rotate-left {
+    margin-right: 10px;
+}
+
+.create-task {
+    background-color: var(--main-color);
+    height: 40px;
+    transition: .2s;
+}
+
+.create-task:hover {
+    background-color: #5E77B5;
+    cursor: pointer;
+}
+
+.reset-changes {
+    background-color: var(--second-color);
+    height: 40px;
+    transition: .2s;
+}
+
+.reset-changes:hover {
+    background-color: #B36774;
+    cursor: pointer;
 }
