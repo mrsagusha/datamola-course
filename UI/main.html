@@ -27,6 +27,7 @@
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </button>
         </div>
+        <div class="burger-menu"></div>
     </header>
         <main class="main main-page">
             <article class="article">
@@ -39,16 +40,34 @@
                         <i class="fa-solid fa-table-columns"></i>
                         <i class="fa-solid fa-list-ul"></i>
                     </div>
+                    <form class="filters filters-laptop">
+                        <div class="filters__title-wrapper">
+                            <i class="fa-solid fa-sort-down"></i>
+                            <p class="filters__title">Filters</p>
+                        </div>
+                        <button class="button clear-filters-button" type="reset">
+                            <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                            CLEAR
+                        </button>
+                    </form>
+                </div>
+                <div class="article__cards-group-checkboxes">
+                    <p class="article__cards-group-checkboxes-title selected">To Do</p>
+                    <p class="article__cards-group-checkboxes-title">In Progress</p>
+                    <p class="article__cards-group-checkboxes-title">Complete</p>
                 </div>
                 <div class="article__tasks-wrapper">
-                    <section class="article__cards-group">
+                    <section class="article__cards-group todo-group">
                         <h3 class="article__group-name">To Do</h3>
                         <div class="article__cards-wrapper">
                             <div class="card">
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -75,7 +94,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -98,7 +120,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -123,7 +148,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -146,7 +174,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -171,7 +202,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -194,7 +228,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -221,7 +258,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -244,7 +284,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -271,7 +314,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -292,14 +338,17 @@
                             </div>
                         </div>
                     </section>
-                    <section class="article__cards-group">
+                    <section class="article__cards-group in-progress-group">
                         <h3 class="article__group-name">In Progress</h3>
                         <div class="article__cards-wrapper">
                             <div class="card">
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -322,7 +371,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -347,7 +399,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -372,7 +427,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -395,7 +453,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -418,7 +479,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -445,7 +509,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -468,7 +535,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -491,7 +561,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -516,7 +589,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -537,14 +613,17 @@
                             </div>
                         </div>
                     </section>
-                    <section class="article__cards-group">
+                    <section class="article__cards-group complete-group">
                         <h3 class="article__group-name">Complete</h3>
                         <div class="article__cards-wrapper">
                             <div class="card">
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -569,7 +648,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -594,7 +676,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -617,7 +702,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -642,7 +730,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -665,7 +756,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -688,7 +782,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -713,7 +810,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -736,7 +836,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -759,7 +862,10 @@
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                                 <div class="card__main-info">
                                     <div class="card__task-info">
-                                        <p class="card__task-name">Make a design</p>
+                                        <div class="card__task-name-wrapper">
+                                            <p class="card__task-name">Make a design</p>
+                                            <p class="card__privacy card__privacy-laptop">Public</p>
+                                        </div>
                                         <div class="card__task-assignee-wrapper">
                                             <i class="fa-solid fa-user"></i>
                                             <p  class="card__task-assignee">Aleksandr Golubovskiy</p>
@@ -784,7 +890,7 @@
                 <button class="button load-more">Load more</button>
             </article>
             <aside class="aside">
-                <from class="filters">
+                <form class="filters">
                     <div class="filters__title-wrapper">
                         <i class="fa-solid fa-sort-down"></i>
                         <p class="filters__title">Filters</p>
@@ -793,10 +899,10 @@
                         <i class="fa-sharp fa-solid fa-rotate-left"></i>
                         CLEAR
                     </button>
-                </from>
+                </form>
                 <form class="new-task-form" action="">
                     <label for="task-name-input">Task name*
-                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text" required>
+                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text">
                     </label>
                     <label for="assignee-input">Assignee*
                         <input class="assignee-input" id="assignee-input" type="text" list="assignee-list" >
@@ -831,7 +937,7 @@
                     </label>
                     <label for="description">
                         Description*
-                        <textarea class="task-description" name="description" id="description" cols="25" rows="10" required></textarea>
+                        <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
                     </label>
                     <button class="button create-task" type="submit">
                         <i class="fa-solid fa-plus"></i>
@@ -841,8 +947,14 @@
                         <i class="fa-sharp fa-solid fa-rotate-left"></i>
                         RESET CHANGES
                     </button>
+                    <button class="button open-new-task">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
                 </form>
             </aside>
+            <button class="button open-new-task-mobile">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </main>
         <footer class="footer">
             <p class="footer__copyright">Copyright ©2023 Turbo</p>
