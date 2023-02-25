@@ -352,11 +352,27 @@
     font-size: 1.2rem;
 }
 
+.fa-paperclip {
+    position: relative;
+    font-size: 1.2rem;
+}
+
 .message-quantity {
     position: absolute;
-    right: 0;
     top: -10px;
     right: -10px;
+    font-size: 0.5rem;
+    color: white;
+    padding: 1px 6px;
+    background-color: red;
+    border-radius: 100%;
+}
+
+.attachments-quantity {
+    position: absolute;
+    right: 0;
+    top: -8px;
+    right: -12px;
     font-size: 0.5rem;
     color: white;
     padding: 1px 6px;
