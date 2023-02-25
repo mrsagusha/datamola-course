@@ -13,24 +13,21 @@
 <body class="body">
     <div class="container">
         <header class="header task-header">
-            <div class="header-info">
-                <div class="logo">
-                    <img class="logo__image" src="./assets/Logo.png" alt="logo">
-                    <h1 class="logo__text">Turbo</h1>
-                </div>
-                <div class="user-profile-wrapper">
-                    <div class="user-profile">
-                        <p class="user-profile__user-name">Kierra Stanton</p>
-                        <img class="user-image" src="./assets/User_main.png" alt="user">
-                    </div>
-                    <button class="button button__logout">
-                        LOGOUT
-                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                    </button>
-                </div>
+        <div class="logo">
+            <img class="logo__image" src="./assets/Logo.png" alt="logo">
+            <h1 class="logo__text">Turbo</h1>
+        </div>
+        <div class="user-profile-wrapper">
+            <div class="user-profile">
+                <p class="user-profile__user-name">Kierra Stanton</p>
+                <img class="user-image" src="./assets/User_main.png" alt="user">
             </div>
-            <form action=""></form>
-        </header>
+            <button class="button button__logout">
+                LOGOUT
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
         <main class="main main-page">
             <article class="article">
                 <div class="article__tools">
@@ -786,7 +783,17 @@
                 </div>
                 <button class="button load-more">Load more</button>
             </article>
-            <aside>
+            <aside class="aside">
+                <from class="filters">
+                    <div class="filters__title-wrapper">
+                        <i class="fa-solid fa-sort-down"></i>
+                        <p class="filters__title">Filters</p>
+                    </div>
+                    <button class="button clear-filters-button" type="reset">
+                        <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                        CLEAR
+                    </button>
+                </from>
                 <form class="new-task-form" action="">
                     <label for="task-name-input">Task name*
                         <input placeholder=" " class="task-name-input" id="task-name-input" type="text" required>
