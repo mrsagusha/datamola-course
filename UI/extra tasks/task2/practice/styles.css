@@ -1,0 +1,66 @@
+:root {
+    --image-size: 24px;
+    --offset: 10px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 200px;
+}
+
+.container__input-container {
+    display: flex;
+    gap: var(--offset);
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 5px;
+    height: 50px;
+}
+
+.container__input {
+    order: 2;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.2rem;
+}
+
+.label {
+    order: 1;
+    transition: .2s;
+}
+
+.container__input-image {
+    width: var(--image-size);
+    height: var(--image-size);
+}
+
+.container__text {
+    transition: color .2s;
+}
+
+.container__text:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.labeled-container {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+}
+
+.container__input:focus + .label {
+    opacity: 0;
+    font-size: 0;
+}
+
+

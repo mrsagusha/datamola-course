@@ -1,0 +1,399 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: black;
+}
+
+body {
+    background-color: rgb(233, 233, 233);
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ced5df;
+}
+
+.first::before {
+    content: 'Самый дешёвый';
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    max-width: 350px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    padding: 0px 6px;
+    background-color: #32c868;
+    border-radius: 50px;
+}
+
+.second::before {
+    content: 'Самый быстрый';
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    max-width: 350px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    padding: 0px 6px;
+    background-color: #bd89f1;
+    border-radius: 50px;
+}
+
+
+.main {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: auto;
+    height: 63%;
+    width: 38%;
+}
+
+
+.ticket-section {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 16px;
+    transition: .1s linear;
+}
+
+.ticket-section:hover {
+    cursor: pointer;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.ticket-section__select {
+    width: 27%;
+    border-right: 1px solid rgb(233, 233, 233);
+    padding: 20px 12px;
+}
+
+.ticket-section__price {
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.ticket-section__button {
+    font-size: 17px;
+    font-weight: 600;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    background-color: #ff6f2e;
+    display: block;
+    margin: 0 auto;
+    padding: 13px 44px;
+}
+
+.ticket-section__button:hover {
+    cursor: pointer;
+    background-color: #f06d33;
+}
+
+.ticket-section__info {
+    width: 73%;
+    padding: 20px 20px
+} 
+
+.ticket-section__icons {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 20px;
+}
+
+.ticket-section__companies-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.fa-plane {
+    padding: 7px 6px;
+    border-radius: 100%;
+    background-color: #e8d54e;
+    border: 2px solid #ec6a4d;
+    color: #50913f;
+}
+
+.fa-truck-plane {
+    padding: 7px 6px;
+    border-radius: 100%;
+    background-color: #ee303f;
+    border: 2px solid #ee303f;
+    color: white;
+}
+
+.fa-dove {
+    padding: 7px 7px;
+    border-radius: 100%;
+    background-color: #f1f2f5;
+    border: 2px solid #86bad2;
+    color: #86bad2
+}
+
+.fa-moon, 
+.fa-hourglass-start {
+    color: #ee303f;
+    padding: 5px 7px;
+    border-radius: 100%;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 15%);
+}
+
+.fa-moon:hover, 
+.fa-hourglass-start:hover {
+    cursor: auto;
+}
+
+.fa-hourglass-start {
+    margin-right: 10px;
+}
+
+.fa-bell,
+.fa-arrow-up-from-bracket {
+    padding: 5px 6px;
+    color: #b8c1ca;
+    scale: 1.4;
+}
+
+.fa-bell:hover,
+.fa-arrow-up-from-bracket:hover {
+    color: #0474fe;
+} 
+
+.ticket-section__flight-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 5px;
+    height: 191px;
+}
+
+.ticket-section__flight-there,
+.ticket-section__flight-back {
+    display: flex;
+    height: 75px;
+    width: 100%;
+}
+
+.ticket-section__flight-there {
+    margin-bottom: 10px;
+}
+
+.ticket-section__flight-back {
+    margin-top: 10px;
+}
+
+.ticket-section__endpoint {
+    flex: 0 0 105px;
+}
+
+.ticket-section__route {
+    flex: 1 0 auto;
+    margin: 0 7px;
+    padding-top: 12px;
+}
+
+.ticket-section__route-time {
+    color: #a1acb9;
+    font-size: .75rem;
+}
+
+.ticket-section__time-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin-bottom: 5px;
+}
+
+.time-wrapper-takeoff {
+    justify-content: start;
+}
+
+.time {
+    font-size: 26px;
+}
+
+.fa-thumbtack {
+    padding: 3px 5px;
+    color: #a1acb9;
+    border: 1px solid #a1acb9;
+    border-radius: 100%;
+    height: fit-content;
+    margin-top: 2px;
+    margin-right: 5px;
+    float: left;
+    font-size: 0.8rem;
+}
+
+.date,
+.location {
+    font-size: 12px;
+    color: #a1acb9;
+    text-align: end;
+}
+
+.date-takeoff,
+.location-takeoff {
+    font-size: 12px;
+    color: #bbbec7;
+    text-align: start;
+}
+
+.ticket-section__route {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.ticket-section__path-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.takeoff,
+.landing-back {
+    flex-grow: 235;
+}
+
+.fa-plane-departure {
+    position: absolute;
+    top: -22px;
+    color: #a1acb9;
+}
+
+.fa-plane-arrival {
+    position: absolute;
+    color: #a1acb9;
+    right: 0;
+    top: -22px;
+}
+
+.transfer {
+    position: relative;
+    flex-grow: 165;
+    box-sizing: content-box;
+    background-color: #ced5df;
+    background-clip: content-box;
+    padding: 5px 1px;
+    height: 1px;
+}
+
+.transfer:hover {
+    cursor: pointer;
+    background-color: #ff6f2e;
+    border-radius: 2px;
+}
+
+.landing,
+.takeoff-back {
+    flex-grow: 70;
+}
+
+.takeoff,
+.landing,
+.takeoff-back,
+.landing-back {
+    position: relative;
+    height: 5px;
+    border-radius: 2.5px;
+    border: 1px solid transparent;
+    background-color: #ced5df;
+    text-align: center;
+}
+
+.takeoff:after {
+    content: 'MSQ';
+    position: absolute;
+    left: 0;
+    bottom: -30px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.takeoff-back:after {
+    content: 'TBS';
+    position: absolute;
+    left: 0;
+    bottom: -30px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.takeoff-back-second:before {
+    content: 'MSQ';
+    position: absolute;
+    right: 0;
+    bottom: -30px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.takeoff-second:before {
+    content: 'TBS';
+    position: absolute;
+    right: 0;
+    bottom: -30px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.landing:after {
+    content: 'TBS';
+    position: absolute;
+    right: 0;
+    bottom: -30px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.landing-back:after {
+    content: 'MSQ';
+    position: absolute;
+    right: 0;
+    bottom: -30px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.transfer:after {
+    content: 'GYD';
+    position: absolute;
+    right: 35%;
+    bottom: -26px;
+    font-size: .625rem;
+    font-weight: 800;
+    color: #0474fe;
+}
+
+.takeoff:hover,
+.landing:hover,
+.takeoff-back:hover,
+.landing-back:hover {
+    cursor: pointer;
+    background-color: white;
+    border-color: #ff6f2e;
+}
