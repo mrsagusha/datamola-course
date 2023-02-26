@@ -454,6 +454,7 @@
 .filters__title-wrapper {
     display: flex;
     gap: 10px;
+    color: var(--black-color);
 }
 
 .fa-sort-down {
@@ -667,6 +668,7 @@
 
 .task-top__task-name {
     font-size: 1.5rem;
+    color: var(--black-color);
 }
 
 .task-details {
@@ -978,6 +980,7 @@
 .user-page {
     padding: 5px 10px 5px 0;
     border-right: 1px solid var(--main-gray);
+    color: var(--black-color);
 }
 
 .user-page {
@@ -990,6 +993,7 @@
     border: none;
     outline: none;
     width: inherit;
+    color: var(--black-color);
 }
 
 .user-info-form__name {
@@ -1435,9 +1439,20 @@ input:checked + .slider:before {
         bottom: 125px;
         right: 20px;
         box-shadow: 0px 0px 30px 10px rgba(87, 131, 241, 0.5);
+        transition: .2s;
+    }
+
+    .open-new-task-mobile:hover {
+        cursor: pointer;
+        background-color: #5E77B5;
     }
 
     .comment {
         min-width: 100%;
     }
+
+    .task-comments__comments-wrapper::-webkit-scrollbar {
+        width: 0px;
+    }
+
 }
