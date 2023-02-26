@@ -478,6 +478,10 @@
     border: 1px solid var(--main-gray);
 }
 
+.open-new-task-mobile {
+    display: none;
+}
+
 .new-task-form {
     display: flex;
     flex-direction: column;
@@ -990,10 +994,15 @@
     padding: 15px 20px;
 }
 
+
 .edit-mode-toggle-wrapper {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.laptop {
+    display: none;
 }
 
 .edit-mode-toggle-title {
@@ -1142,10 +1151,75 @@ input:checked + .slider:before {
     }
 }
 
+@media screen and (max-width: 870px) {
+    
+    .user-info {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .user-main {
+        justify-content: center;
+    }
+    
+    .edit-mode-toggle-wrapper {
+        display: none;
+    }
+
+    .user-default-images-wrapper {
+        justify-content: center;
+    }
+
+    .user-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .return-to-main-button {
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .laptop {
+        display: flex !important;
+    }
+
+    .edit-mode-toggle {
+        width: 60px;
+        height: 25px;
+    }
+    
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .2s;
+        border-radius: 34px;
+    }
+    
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 12px;
+        bottom: 4px;
+        background-color: white;
+        transition: .2s;
+        border-radius: 50%;
+    }
+    
+}
+
 @media screen and (max-width: 720px) {
     .container {
         padding: 0;
-        height: auto;
     }
 
     .header,
@@ -1162,6 +1236,7 @@ input:checked + .slider:before {
         content: '';
         position: absolute;
         border-bottom: 3px solid white;
+        top: 5px;
         right: 0;
         width: 30px;
     }
@@ -1170,7 +1245,7 @@ input:checked + .slider:before {
         content: '';
         position: absolute;
         border-bottom: 3px solid white;
-        top: -10px;
+        top: -5px;
         right: 0;
         width: 30px;
     }
@@ -1308,6 +1383,7 @@ input:checked + .slider:before {
     }
 
     .open-new-task-mobile {
+        display: block;
         position: absolute;
         background-color: var(--main-color);
         height: 75px;
