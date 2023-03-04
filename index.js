@@ -1,6 +1,6 @@
 const tasksArray = [
   {
-    id: 0,
+    id: '0',
     name: 'Lorem ipsum dolor sit amet.',
     description: 'Fusce sed leo vehicula, facilisis.',
     createdAt: new Date('2023-03-09T23:00:00'),
@@ -10,7 +10,7 @@ const tasksArray = [
     isPrivate: true,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'In non eros tortor. Maecenas et eleifend ex, porta varius libero. Nunc dictum lacus vitae.',
         createdAt: new Date('2023-03-09T23:12:00'),
         author: 'Madeleine Lakshman',
@@ -18,7 +18,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 1,
+    id: '1',
     name: 'Nullam velit ligula.',
     description: 'Aenean rhoncus, magna eget tincidunt sagittis, tellus odio.',
     createdAt: new Date('2023-03-10T13:02:00'),
@@ -28,7 +28,7 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Nam fringilla laoreet purus vel posuere. Suspendisse a est finibus, tincidunt lectus.',
         createdAt: new Date('2023-03-01T08:09:00'),
         author: 'Madeleine Lakshman',
@@ -36,7 +36,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 2,
+    id: '2',
     name: 'Nam lobortis ante ut est.',
     description:
       'Quisque pellentesque, ante a egestas viverra, enim ex ultrices eros, vitae viverra risus nulla vitae.',
@@ -48,7 +48,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 3,
+    id: '3',
     name: 'Ut dictum arcu.',
     description:
       'Duis non ex varius leo aliquet elementum. Etiam egestas nibh tortor, vitae efficitur.',
@@ -59,13 +59,13 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Aliquam interdum elementum turpis ut eleifend. Donec placerat faucibus odio.',
         createdAt: new Date('2023-03-09T13:18:00'),
         author: 'Arnoud Matěj',
       },
       {
-        id: 1,
+        id: '1',
         text: 'Nulla mollis et enim sit amet blandit. Duis rhoncus, quam eu commodo vestibulum, diam nisi molestie.',
         createdAt: new Date('2023-03-10T11:34:00'),
         author: 'Liana Sherif',
@@ -73,7 +73,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 4,
+    id: '4',
     name: 'Orci varius natoque penatibus et magnis dis.',
     description:
       'Cras in diam consequat, facilisis dolor tincidunt, scelerisque purus. Maecenas elementum lobortis sem et blandit. Suspendisse potenti.',
@@ -84,13 +84,13 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Mauris vitae ornare tortor. Integer nibh est, fringilla sed molestie sed, porta sed ex. Nam convallis, erat.',
         createdAt: new Date('2023-03-12T15:02:00'),
         author: 'Rok Bartolomeo',
       },
       {
-        id: 1,
+        id: '1',
         text: 'Aliquam consequat felis in sagittis ullamcorper. Nam consequat sollicitudin felis, at.',
         createdAt: new Date('2023-03-12T19:30:00'),
         author: 'Agafon Nisus',
@@ -98,7 +98,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 5,
+    id: '5',
     name: 'Nulla commodo cursus.',
     description:
       'Nullam varius elementum risus. Curabitur sem ex, dignissim sed enim eget, consequat aliquam sem.',
@@ -109,7 +109,7 @@ const tasksArray = [
     isPrivate: true,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse.',
         createdAt: new Date('2023-03-11T13:16:00'),
         author: 'Melqart Orinthia',
@@ -117,7 +117,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 6,
+    id: '6',
     name: 'Mauris feugiat pulvinar purus id posuere. Nunc.',
     description:
       'Donec eu tristique quam. In turpis velit, posuere sit amet arcu sit amet, hendrerit ultrices elit. Integer.',
@@ -129,7 +129,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 7,
+    id: '7',
     name: 'Mauris magna est, rhoncus sed.',
     description:
       'Vestibulum consequat congue interdum. Phasellus quis dui eros. Vivamus lobortis nec augue vel vehicula. Curabitur.',
@@ -141,7 +141,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 8,
+    id: '8',
     name: 'Nullam vehicula ullamcorper lacus, in.',
     description:
       'Proin lacus odio, luctus ac facilisis non, pellentesque a libero. Integer eget magna ligula. Fusce.',
@@ -153,7 +153,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 9,
+    id: '9',
     name: 'Nullam vehicula ullamcorper lacus, in.',
     description:
       'Sed vitae nisl a orci dignissim mollis eu at orci. Vivamus eget.',
@@ -164,19 +164,19 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Pellentesque interdum placerat ex, quis congue tortor tempor vitae. Nunc interdum sodales.',
         createdAt: new Date('2023-03-16T15:23:00'),
         author: 'Salil Zosime',
       },
       {
-        id: 1,
+        id: '1',
         text: 'Vestibulum varius magna quis nisl porta, in fermentum ante hendrerit.',
         createdAt: new Date('2023-03-17T09:12:00'),
         author: 'Thekla Julius',
       },
       {
-        id: 2,
+        id: '2',
         text: 'Fusce id magna hendrerit, cursus odio id, fermentum mi. Curabitur fermentum tincidunt neque, id sagittis felis malesuada.',
         createdAt: new Date('2023-03-18T15:37:00'),
         author: 'Louisette Bakari',
@@ -184,7 +184,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 10,
+    id: '10',
     name: 'Curabitur commodo suscipit tellus.',
     description:
       'Quisque dictum, libero vitae pretium vestibulum, odio metus eleifend massa, eget laoreet risus leo.',
@@ -196,7 +196,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 11,
+    id: '11',
     name: 'Lorem ipsum dolor sit amet.',
     description: 'Fusce sed leo vehicula, facilisis.',
     createdAt: new Date('2023-04-02T15:02:00'),
@@ -206,7 +206,7 @@ const tasksArray = [
     isPrivate: true,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'In non eros tortor. Maecenas et eleifend ex, porta varius libero. Nunc dictum lacus vitae.',
         createdAt: new Date('2023-04-02T17:12:00'),
         author: 'Gwawl Toma',
@@ -214,7 +214,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 12,
+    id: '12',
     name: 'Nullam velit ligula.',
     description: 'Aenean rhoncus, magna eget tincidunt sagittis, tellus odio.',
     createdAt: new Date('2023-04-06T11:43:00'),
@@ -224,7 +224,7 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Nam fringilla laoreet purus vel posuere. Suspendisse a est finibus, tincidunt lectus.',
         createdAt: new Date('2023-04-07T15:13:00'),
         author: 'Ioann Cibor',
@@ -232,7 +232,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 13,
+    id: '13',
     name: 'Nam lobortis ante ut est.',
     description:
       'Quisque pellentesque, ante a egestas viverra, enim ex ultrices eros, vitae viverra risus nulla vitae.',
@@ -244,7 +244,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 14,
+    id: '14',
     name: 'Ut dictum arcu.',
     description:
       'Duis non ex varius leo aliquet elementum. Etiam egestas nibh tortor, vitae efficitur.',
@@ -255,13 +255,13 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Aliquam interdum elementum turpis ut eleifend. Donec placerat faucibus odio.',
         createdAt: new Date('2023-03-01T16:42:00'),
         author: 'Nirupama Ásbjörn',
       },
       {
-        id: 1,
+        id: '1',
         text: 'Nulla mollis et enim sit amet blandit. Duis rhoncus, quam eu commodo vestibulum, diam nisi molestie.',
         createdAt: new Date('2023-03-01T17:12:00'),
         author: 'Florinus Damaris',
@@ -269,7 +269,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 15,
+    id: '15',
     name: 'Orci varius natoque penatibus et magnis dis.',
     description:
       'Cras in diam consequat, facilisis dolor tincidunt, scelerisque purus. Maecenas elementum lobortis sem et blandit. Suspendisse potenti.',
@@ -280,13 +280,13 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Mauris vitae ornare tortor. Integer nibh est, fringilla sed molestie sed, porta sed ex. Nam convallis, erat.',
         createdAt: new Date('2023-04-12T10:59:00'),
         author: 'Noora Tonatiuh',
       },
       {
-        id: 1,
+        id: '1',
         text: 'Aliquam consequat felis in sagittis ullamcorper. Nam consequat sollicitudin felis, at.',
         createdAt: new Date('2023-04-12T12:43:00'),
         author: 'Ihsan Chaim',
@@ -294,7 +294,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 16,
+    id: '16',
     name: 'Nulla commodo cursus.',
     description:
       'Nullam varius elementum risus. Curabitur sem ex, dignissim sed enim eget, consequat aliquam sem.',
@@ -305,7 +305,7 @@ const tasksArray = [
     isPrivate: true,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse.',
         createdAt: new Date('2023-04-16T23:46:00'),
         author: 'Kliment Ellen',
@@ -313,7 +313,7 @@ const tasksArray = [
     ],
   },
   {
-    id: 17,
+    id: '17',
     name: 'Mauris feugiat pulvinar purus id posuere. Nunc.',
     description:
       'Donec eu tristique quam. In turpis velit, posuere sit amet arcu sit amet, hendrerit ultrices elit. Integer.',
@@ -325,7 +325,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 18,
+    id: '18',
     name: 'Mauris magna est, rhoncus sed.',
     description:
       'Vestibulum consequat congue interdum. Phasellus quis dui eros. Vivamus lobortis nec augue vel vehicula. Curabitur.',
@@ -337,7 +337,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 19,
+    id: '19',
     name: 'Nullam vehicula ullamcorper lacus, in.',
     description:
       'Proin lacus odio, luctus ac facilisis non, pellentesque a libero. Integer eget magna ligula. Fusce.',
@@ -349,7 +349,7 @@ const tasksArray = [
     comments: [],
   },
   {
-    id: 20,
+    id: '20',
     name: 'Nullam vehicula ullamcorper lacus, in.',
     description:
       'Sed vitae nisl a orci dignissim mollis eu at orci. Vivamus eget.',
@@ -360,19 +360,19 @@ const tasksArray = [
     isPrivate: false,
     comments: [
       {
-        id: 0,
+        id: '0',
         text: 'Pellentesque interdum placerat ex, quis congue tortor tempor vitae. Nunc interdum sodales.',
         createdAt: new Date('2023-04-01T20:12:00'),
         author: 'Swathi Selahattin',
       },
       {
-        id: 1,
+        id: '1',
         text: 'Vestibulum varius magna quis nisl porta, in fermentum ante hendrerit.',
         createdAt: new Date('2023-04-02T09:13:00'),
         author: 'Ethelbert Jake',
       },
       {
-        id: 2,
+        id: '2',
         text: 'Fusce id magna hendrerit, cursus odio id, fermentum mi. Curabitur fermentum tincidunt neque, id sagittis felis malesuada.',
         createdAt: new Date('2023-04-03T10:48:00'),
         author: 'Wigbert Philippa',
@@ -381,4 +381,18 @@ const tasksArray = [
   },
 ];
 
-tasksArray.forEach((el) => console.log(el.comments));
+const taskModule = (function () {
+  let user = '';
+
+  function getTask(id) {
+    return tasksArray.find((task) => task.id === id);
+  }
+
+  function changeUser(usr) {
+    user = usr;
+  }
+
+  return { getTask, changeUser };
+})();
+
+console.log(taskModule.changeUser('Aleksandr'));
