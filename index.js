@@ -388,11 +388,29 @@ const taskModule = (function () {
     return tasksArray.find((task) => task.id === id);
   }
 
+  function addComment(id, text) {
+    if (text.length > 280 || !user) return false;
+
+    const task = getTask(id);
+    const comment = {};
+
+    task.comments.length > 0
+      ? (comment.id = `${
+          parseInt(task.comments[task.comments.length - 1].id) + 1
+        }`)
+      : (comment.id = '0');
+    comment.text = text;
+    comment.createdAt = new Date();
+    comment.author = user;
+
+    task.comments.push(comment);
+
+    return true;
+  }
+
   function changeUser(usr) {
     user = usr;
   }
 
-  return { getTask, changeUser };
+  return { getTask, changeUser, addComment };
 })();
-
-console.log(taskModule.changeUser('Aleksandr'));
