@@ -388,9 +388,13 @@ const taskModule = (function () {
     return tasksArray.find((task) => task.id === id);
   }
 
-  function addComment(id, text) {
-    if (text.length > 280 || !user) return false;
+  function validateComment(comment) {
+    if (!comment.text || comment.text.length > 280 || !user) return false;
 
+    return true;
+  }
+
+  function addComment(id, text) {
     const task = getTask(id);
     const comment = {};
 
@@ -403,9 +407,12 @@ const taskModule = (function () {
     comment.createdAt = new Date();
     comment.author = user;
 
-    task.comments.push(comment);
-
-    return true;
+    if (!validateComment(comment)) {
+      return false;
+    } else {
+      task.comments.push(comment);
+      return true;
+    }
   }
 
   function changeUser(usr) {
@@ -414,3 +421,8 @@ const taskModule = (function () {
 
   return { getTask, changeUser, addComment };
 })();
+
+taskModule.changeUser('Aleksandr');
+console.log(taskModule.getTask('2'));
+console.log(taskModule.addComment('2', 'Lorem Ipsum'));
+console.log(taskModule.getTask('2'));
