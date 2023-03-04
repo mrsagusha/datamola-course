@@ -392,7 +392,7 @@ const taskModule = (function () {
     if (
       !task.id ||
       !task.name ||
-      !task.name.length > 100 ||
+      task.name.length > 100 ||
       !task.description ||
       task.description.length > 280 ||
       !task.assignee ||
@@ -404,7 +404,26 @@ const taskModule = (function () {
     return true;
   }
 
-  function addTask() {}
+  function addTask(name, description, assignee, status, priority, isPrivate) {
+    const task = {};
+
+    task.id = `${parseInt(tasksArray[tasksArray.length - 1].id) + 1}`;
+    task.name = name;
+    task.description = description;
+    task.createdAt = new Date();
+    task.assignee = assignee;
+    task.status = status;
+    task.priority = priority;
+    task.isPrivate = isPrivate;
+    task.comments = [];
+
+    if (!validateTask(task)) {
+      return false;
+    } else {
+      tasksArray.push(task);
+      return true;
+    }
+  }
 
   function removeTask(id) {
     if (getTask(id).assignee !== user) return false;
@@ -447,6 +466,3 @@ const taskModule = (function () {
 
   return { getTask, changeUser, addComment, removeTask, validateTask, addTask };
 })();
-
-taskModule.changeUser('Vasu Irati');
-console.log(taskModule.removeTask('1'));
