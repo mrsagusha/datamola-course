@@ -1,4 +1,4 @@
-const tasksArray = [
+let tasksArray = [
   {
     id: '0',
     name: 'Lorem ipsum dolor sit amet.',
@@ -388,6 +388,18 @@ const taskModule = (function () {
     return tasksArray.find((task) => task.id === id);
   }
 
+  function removeTask(id) {
+    if (getTask(id).assignee !== user) return false;
+
+    tasksArray = tasksArray.filter((task) => task.id !== id);
+    tasksArray = tasksArray.map((task) => {
+      if (task.id !== '0') task.id -= 1;
+      return task;
+    });
+
+    return tasksArray;
+  }
+
   function validateComment(comment) {
     if (!comment.text || comment.text.length > 280 || !user) return false;
 
@@ -419,10 +431,8 @@ const taskModule = (function () {
     user = usr;
   }
 
-  return { getTask, changeUser, addComment };
+  return { getTask, changeUser, addComment, removeTask };
 })();
 
-taskModule.changeUser('Aleksandr');
-console.log(taskModule.getTask('2'));
-console.log(taskModule.addComment('2', 'Lorem Ipsum'));
-console.log(taskModule.getTask('2'));
+taskModule.changeUser('Vasu Irati');
+console.log(taskModule.removeTask('1'));
