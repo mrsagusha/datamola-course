@@ -410,10 +410,6 @@ const taskModule = (function () {
     if (getTask(id).assignee !== user) return false;
 
     tasksArray = tasksArray.filter((task) => task.id !== id);
-    tasksArray = tasksArray.map((task) => {
-      if (task.id !== '0') task.id -= 1;
-      return task;
-    });
 
     return tasksArray;
   }
