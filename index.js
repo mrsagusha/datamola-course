@@ -388,6 +388,24 @@ const taskModule = (function () {
     return tasksArray.find((task) => task.id === id);
   }
 
+  function validateTask(task) {
+    if (
+      !task.id ||
+      !task.name ||
+      !task.name.length > 100 ||
+      !task.description ||
+      task.description.length > 280 ||
+      !task.assignee ||
+      !task.status ||
+      !task.priority ||
+      !task.isPrivate
+    )
+      return false;
+    return true;
+  }
+
+  function addTask() {}
+
   function removeTask(id) {
     if (getTask(id).assignee !== user) return false;
 
@@ -431,7 +449,7 @@ const taskModule = (function () {
     user = usr;
   }
 
-  return { getTask, changeUser, addComment, removeTask };
+  return { getTask, changeUser, addComment, removeTask, validateTask, addTask };
 })();
 
 taskModule.changeUser('Vasu Irati');
