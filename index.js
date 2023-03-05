@@ -425,6 +425,38 @@ const taskModule = (function () {
     }
   }
 
+  function editTask(
+    id,
+    name,
+    description,
+    assignee,
+    status,
+    priority,
+    isPrivate
+  ) {
+    if (getTask(id).assignee !== user) return false;
+
+    const task = getTask(id);
+
+    task.name = name ? name : task.name;
+    task.description = description ? description : task.description;
+    task.assignee = assignee ? assignee : task.assignee;
+    task.status = status ? status : task.status;
+    task.priority = priority ? priority : task.priority;
+    task.isPrivate = isPrivate ? isPrivate : task.isPrivate;
+
+    if (!validateTask(task)) {
+      return false;
+    } else {
+      tasksArray.map((task) => {
+        if (task.id === id) {
+          task = task;
+        }
+      });
+      return true;
+    }
+  }
+
   function removeTask(id) {
     if (getTask(id).assignee !== user) return false;
 
@@ -464,5 +496,17 @@ const taskModule = (function () {
     user = usr;
   }
 
-  return { getTask, changeUser, addComment, removeTask, validateTask, addTask };
+  return {
+    getTask,
+    changeUser,
+    addComment,
+    removeTask,
+    validateTask,
+    addTask,
+    editTask,
+  };
 })();
+
+taskModule.changeUser('Zehra Marta');
+console.log(taskModule.editTask('0', ''));
+console.log(tasksArray);
