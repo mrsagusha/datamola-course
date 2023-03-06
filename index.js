@@ -434,23 +434,33 @@ const taskModule = (function () {
     priority,
     isPrivate
   ) {
+    if (arguments.length === 0) return false;
+
     if (getTask(id).assignee !== user) return false;
 
-    const task = getTask(id);
+    const task = JSON.parse(JSON.stringify(getTask(id)));
 
-    task.name = name ? name : task.name;
-    task.description = description ? description : task.description;
-    task.assignee = assignee ? assignee : task.assignee;
-    task.status = status ? status : task.status;
-    task.priority = priority ? priority : task.priority;
-    task.isPrivate = isPrivate ? isPrivate : task.isPrivate;
+    if (name === undefined) name = task.name;
+    if (description === undefined) description = task.description;
+    if (assignee === undefined) assignee = task.assignee;
+    if (status === undefined) status = task.status;
+    if (priority === undefined) priority = task.priority;
+    if (isPrivate === undefined) isPrivate = task.isPrivate;
+
+    task.name = name;
+    task.description = description;
+    task.assignee = assignee;
+    task.status = status;
+    task.priority = priority;
+    task.isPrivate = isPrivate;
 
     if (!validateTask(task)) {
       return false;
     } else {
-      tasksArray.map((task) => {
-        if (task.id === id) {
-          task = task;
+      tasksArray = tasksArray.map((el) => {
+        if (el.id === id) {
+          el = task;
+          return task;
         }
       });
       return true;
@@ -508,5 +518,5 @@ const taskModule = (function () {
 })();
 
 taskModule.changeUser('Zehra Marta');
-console.log(taskModule.editTask('0', ''));
-console.log(tasksArray);
+console.log(taskModule.editTask('0'));
+console.log(tasksArray[0]);
