@@ -384,6 +384,56 @@ let tasksArray = [
 const taskModule = (function () {
   let user = '';
 
+  function getTasks(skip = 0, top = 10, filterConfig) {
+    let slicedArray = tasksArray.slice(skip, skip + top);
+
+    if (filterConfig) {
+      if (filterConfig.assignee) {
+        slicedArray = slicedArray.filter((task) =>
+          task.assignee.includes(filterConfig.assignee)
+        );
+      }
+
+      if (filterConfig.dateFrom) {
+        slicedArray = slicedArray.filter(
+          (task) => task.createdAt >= filterConfig.dateFrom
+        );
+      }
+
+      if (filterConfig.dateTo) {
+        slicedArray = slicedArray.filter(
+          (task) => task.createdAt <= filterConfig.dateTo
+        );
+      }
+
+      if (filterConfig.status) {
+        slicedArray = slicedArray.filter(
+          (task) => task.status === filterConfig.status
+        );
+      }
+
+      if (filterConfig.priority) {
+        slicedArray = slicedArray.filter(
+          (task) => task.priority === filterConfig.priority
+        );
+      }
+
+      if (filterConfig.isPrivate) {
+        slicedArray = slicedArray.filter(
+          (task) => task.isPrivate === filterConfig.isPrivate
+        );
+      }
+
+      if (filterConfig.description) {
+        slicedArray = slicedArray.filter((task) =>
+          task.description.includes(filterConfig.description)
+        );
+      }
+    }
+
+    return slicedArray.sort((a, b) => b.createdAt - a.createdAt);
+  }
+
   function getTask(id) {
     return tasksArray.find((task) => task.id === id);
   }
@@ -507,6 +557,7 @@ const taskModule = (function () {
   }
 
   return {
+    getTasks,
     getTask,
     changeUser,
     addComment,
@@ -517,6 +568,10 @@ const taskModule = (function () {
   };
 })();
 
-taskModule.changeUser('Zehra Marta');
-console.log(taskModule.editTask('0'));
-console.log(tasksArray[0]);
+console.log(
+  taskModule.getTasks(0, 30, {
+    dateFrom: new Date(),
+    dateTo: new Date('2023-03-20'),
+    status: 'Complete',
+  })
+);
