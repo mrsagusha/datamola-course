@@ -390,7 +390,9 @@ const taskModule = (function () {
     if (filterConfig) {
       if (filterConfig.assignee) {
         slicedArray = slicedArray.filter((task) =>
-          task.assignee.includes(filterConfig.assignee)
+          task.assignee
+            .toLowerCase()
+            .includes(filterConfig.assignee.toLowerCase())
         );
       }
 
@@ -408,25 +410,31 @@ const taskModule = (function () {
 
       if (filterConfig.status) {
         slicedArray = slicedArray.filter(
-          (task) => task.status === filterConfig.status
+          (task) =>
+            task.status.toLowerCase() === filterConfig.status.toLowerCase()
         );
       }
 
       if (filterConfig.priority) {
         slicedArray = slicedArray.filter(
-          (task) => task.priority === filterConfig.priority
+          (task) =>
+            task.priority.toLowerCase() === filterConfig.priority.toLowerCase()
         );
       }
 
       if (filterConfig.isPrivate) {
         slicedArray = slicedArray.filter(
-          (task) => task.isPrivate === filterConfig.isPrivate
+          (task) =>
+            task.isPrivate.toLowerCase() ===
+            filterConfig.isPrivate.toLowerCase()
         );
       }
 
       if (filterConfig.description) {
         slicedArray = slicedArray.filter((task) =>
-          task.description.includes(filterConfig.description)
+          task.description
+            .toLowerCase()
+            .includes(filterConfig.description.toLowerCase())
         );
       }
     }
@@ -439,19 +447,23 @@ const taskModule = (function () {
   }
 
   function validateTask(task) {
-    if (
-      !task.id ||
-      !task.name ||
-      task.name.length > 100 ||
-      !task.description ||
-      task.description.length > 280 ||
-      !task.assignee ||
-      !task.status ||
-      !task.priority ||
-      !task.isPrivate
-    )
-      return false;
-    return true;
+    if (task) {
+      if (
+        !task.id ||
+        !task.name ||
+        task.name.length > 100 ||
+        !task.description ||
+        task.description.length > 280 ||
+        !task.assignee ||
+        !task.status ||
+        !task.priority ||
+        typeof task.isPrivate !== 'boolean'
+      )
+        return false;
+      return true;
+    }
+
+    return false;
   }
 
   function addTask(name, description, assignee, status, priority, isPrivate) {
@@ -482,7 +494,7 @@ const taskModule = (function () {
     assignee,
     status,
     priority,
-    isPrivate
+    isPrivate = false
   ) {
     if (arguments.length === 0) return false;
 
@@ -511,18 +523,18 @@ const taskModule = (function () {
         if (el.id === id) {
           el = task;
           return task;
-        }
+        } else return el;
       });
       return true;
     }
   }
 
   function removeTask(id) {
-    if (getTask(id).assignee !== user) return false;
+    if (!getTask(id) || !id || getTask(id).assignee !== user) return false;
 
     tasksArray = tasksArray.filter((task) => task.id !== id);
 
-    return tasksArray;
+    return true;
   }
 
   function validateComment(comment) {
@@ -568,10 +580,99 @@ const taskModule = (function () {
   };
 })();
 
-console.log(
-  taskModule.getTasks(0, 30, {
-    dateFrom: new Date(),
-    dateTo: new Date('2023-03-20'),
-    status: 'Complete',
-  })
-);
+// taskModule.changeUser('Zehra Marta');
+
+// console.log(taskModule.getTasks());
+// console.log(taskModule.getTasks(0, 20));
+// console.log(taskModule.getTasks(10, 20));
+// console.log(taskModule.getTasks(10, 20, { assignee: 'Ara' }));
+// console.log(
+//   taskModule.getTasks(0, 20, {
+//     status: 'to do',
+//     isPrivate: false,
+//     dateFrom: new Date('2023-03-09T23:00:00'),
+//     dateTo: new Date('2023-03-20T23:00:00'),
+//   })
+// );
+
+// console.log(taskModule.getTask('0'))
+// console.log(taskModule.getTask('21'));
+
+// console.log(taskModule.validateTask(taskModule.getTask('10')));
+// console.log(taskModule.validateTask(taskModule.getTask('30')));
+
+// console.log(
+//   taskModule.addTask(
+//     'Add task',
+//     'Confirm adding task',
+//     'Aleksandr Golubovskiy',
+//     'To Do',
+//     'High',
+//     false
+//   )
+// );
+// console.log(taskModule.getTasks(0, 30));
+// console.log(
+//   taskModule.addTask(
+//     'Add task',
+//     'Confirm adding task',
+//     'Aleksandr Golubovskiy',
+//     'To Do',
+//     '',
+//     false
+//   )
+// );
+// console.log(taskModule.getTasks(0, 30));
+
+// console.log(taskModule.editTask());
+// console.log(
+//   taskModule.editTask(
+//     '0',
+//     'Add task',
+//     'Confirm adding task',
+//     'Aleksandr Golubovskiy',
+//     'To Do',
+//     'High'
+//   )
+// );
+// console.log(taskModule.getTask('0'));
+// console.log(
+//   taskModule.editTask(
+//     '0',
+//     'Add task',
+//     'Confirm adding task',
+//     'Aleksandr Golubovskiy',
+//     '',
+//     ''
+//   )
+// );
+// console.log(taskModule.getTask('0'));
+// taskModule.changeUser('Aleksandr');
+// console.log(
+//   taskModule.editTask(
+//     '0',
+//     'Add task',
+//     'Confirm adding task',
+//     'Aleksandr Golubovskiy',
+//     'To Do',
+//     'High'
+//   )
+// );
+// console.log(taskModule.getTask('0'));
+
+// console.log(taskModule.removeTask('0'));
+// console.log(taskModule.getTasks(0, 30));
+// taskModule.changeUser('Aleksandr');
+// console.log(taskModule.removeTask('0'));
+// console.log(taskModule.removeTask('22'));
+// console.log(taskModule.removeTask('0'));
+
+// console.log(taskModule.addComment('0', 'All Good!'));
+// console.log(tasksArray[0]);
+// console.log(taskModule.addComment('0', ''));
+// console.log(
+//   taskModule.addComment(
+//     '0',
+//     'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus nec nunc nulla. In ullamcorper lorem sed purus convallis gravida. Nullam mollis nulla id mi porttitor pellentesque. Fusce dolor leo, porttitor eu eleifend et, auctor consectetur neque. Proin et felis sodales, pellentesque turpis nec, volutpat nibh. Morbi sed ligula eu mauris pharetra sagittis vitae ac ante. Curabitur sit amet tellus eleifend.'
+//   )
+// );
