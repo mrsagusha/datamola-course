@@ -422,11 +422,11 @@ const taskModule = (function () {
         );
       }
 
-      if (filterConfig.isPrivate) {
+      if (filterConfig.isPrivate === true || filterConfig.isPrivate === false) {
         slicedArray = slicedArray.filter(
           (task) =>
-            task.isPrivate.toLowerCase() ===
-            filterConfig.isPrivate.toLowerCase()
+            String(task.isPrivate).toLowerCase() ===
+            String(filterConfig.isPrivate).toLowerCase()
         );
       }
 
@@ -580,12 +580,17 @@ const taskModule = (function () {
   };
 })();
 
-// taskModule.changeUser('Zehra Marta');
+taskModule.changeUser('Zehra Marta');
 
+//GET TASKS
 // console.log(taskModule.getTasks());
+
 // console.log(taskModule.getTasks(0, 20));
+
 // console.log(taskModule.getTasks(10, 20));
+
 // console.log(taskModule.getTasks(10, 20, { assignee: 'Ara' }));
+
 // console.log(
 //   taskModule.getTasks(0, 20, {
 //     status: 'to do',
@@ -594,6 +599,8 @@ const taskModule = (function () {
 //     dateTo: new Date('2023-03-20T23:00:00'),
 //   })
 // );
+
+//GET TASK
 
 // console.log(taskModule.getTask('0'))
 // console.log(taskModule.getTask('21'));
