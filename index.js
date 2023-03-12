@@ -382,7 +382,7 @@ let tasksArray = [
 ];
 
 const taskModule = (function () {
-  let user = '';
+  let user = 'Aleksandr Golubovskiy';
 
   function getTasks(skip = 0, top = 10, filterConfig) {
     let slicedArray = tasksArray.slice(skip, skip + top);
@@ -457,7 +457,8 @@ const taskModule = (function () {
         !task.assignee ||
         !task.status ||
         !task.priority ||
-        typeof task.isPrivate !== 'boolean'
+        typeof task.isPrivate !== 'boolean' ||
+        !task.comments
       )
         return false;
       return true;
@@ -577,6 +578,7 @@ const taskModule = (function () {
     validateTask,
     addTask,
     editTask,
+    user,
   };
 })();
 
@@ -601,24 +603,41 @@ taskModule.changeUser('Zehra Marta');
 // );
 
 //GET TASK
-
 // console.log(taskModule.getTask('0'))
+
 // console.log(taskModule.getTask('21'));
 
+//VALIDATE TASK
 // console.log(taskModule.validateTask(taskModule.getTask('10')));
+
 // console.log(taskModule.validateTask(taskModule.getTask('30')));
 
+// console.log(
+//   taskModule.validateTask({
+//     id: '2',
+//     name: 'Nam lobortis ante ut est.',
+//     description:
+//       'Quisque pellentesque, ante a egestas viverra, enim ex ultrices eros, vitae viverra risus nulla vitae.',
+//     createdAt: new Date('2023-03-08T23:00:00'),
+//     assignee: 'Ludolf Colm',
+//     isPrivate: false,
+//     comments: [],
+//   })
+// );
+
+//ADD TASK
 // console.log(
 //   taskModule.addTask(
 //     'Add task',
 //     'Confirm adding task',
-//     'Aleksandr Golubovskiy',
+//     taskModule.user,
 //     'To Do',
 //     'High',
 //     false
 //   )
 // );
 // console.log(taskModule.getTasks(0, 30));
+
 // console.log(
 //   taskModule.addTask(
 //     'Add task',
@@ -631,7 +650,9 @@ taskModule.changeUser('Zehra Marta');
 // );
 // console.log(taskModule.getTasks(0, 30));
 
+//EDIT TASK
 // console.log(taskModule.editTask());
+
 // console.log(
 //   taskModule.editTask(
 //     '0',
@@ -643,6 +664,7 @@ taskModule.changeUser('Zehra Marta');
 //   )
 // );
 // console.log(taskModule.getTask('0'));
+
 // console.log(
 //   taskModule.editTask(
 //     '0',
@@ -654,7 +676,8 @@ taskModule.changeUser('Zehra Marta');
 //   )
 // );
 // console.log(taskModule.getTask('0'));
-// taskModule.changeUser('Aleksandr');
+
+// taskModule.changeUser('Aleksandr') --- user не совпадает;
 // console.log(
 //   taskModule.editTask(
 //     '0',
@@ -667,16 +690,22 @@ taskModule.changeUser('Zehra Marta');
 // );
 // console.log(taskModule.getTask('0'));
 
+//REMOVE TASK
+// console.log(taskModule.getTask('0'));
 // console.log(taskModule.removeTask('0'));
-// console.log(taskModule.getTasks(0, 30));
+// console.log(taskModule.getTask('0'));
+
 // taskModule.changeUser('Aleksandr');
 // console.log(taskModule.removeTask('0'));
-// console.log(taskModule.removeTask('22'));
-// console.log(taskModule.removeTask('0'));
 
+// console.log(taskModule.removeTask('22'));
+
+//ADD COMMENT
 // console.log(taskModule.addComment('0', 'All Good!'));
 // console.log(tasksArray[0]);
+
 // console.log(taskModule.addComment('0', ''));
+
 // console.log(
 //   taskModule.addComment(
 //     '0',
