@@ -34,7 +34,6 @@
 .container {
     max-width: 1440px;
     height: 100vh;
-    padding: 20px;
     margin: 0 auto;
 }
 
@@ -209,6 +208,7 @@
     height: 680px;
     width: 95%;
     overflow-y: scroll;
+    padding-bottom: 5px;
 }
 
 .article__cards-wrapper::-webkit-scrollbar {
@@ -411,8 +411,8 @@
     display: block;
     border: 1px solid var(--light-gray);
     margin: 0 auto;
-    margin-top: 20px;
     margin-bottom: 20px;
+    margin-top: 20px;
     color: var(--main-gray);
     transition: .2s;
 }
@@ -810,7 +810,7 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    min-width: 440px;
+    min-width: 100%;
     height: fit-content;
     background-color: white;
     padding: 10px 20px;
