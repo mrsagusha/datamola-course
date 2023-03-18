@@ -418,7 +418,7 @@ class Task {
     this._user = newUser;
   }
 
-  static validateTask(task) {
+  static _validateTask(task) {
     if (task) {
       if (
         !task._id ||
@@ -473,7 +473,7 @@ class Comment {
     return this._author;
   }
 
-  static validateComment(comment) {
+  static _validateComment(comment) {
     if (
       !comment._id ||
       typeof comment._id !== 'string' ||
@@ -578,7 +578,7 @@ class TasksCollection {
       isPrivate
     );
 
-    if (!Task.validateTask(newTask)) {
+    if (!Task._validateTask(newTask)) {
       return false;
     }
 
@@ -610,7 +610,7 @@ class TasksCollection {
       ? (isPrivate = editTask.isPrivate)
       : (editTask.isPrivate = isPrivate);
 
-    if (!Task.validateTask(editTask)) {
+    if (!Task._validateTask(editTask)) {
       return false;
     }
 
@@ -635,7 +635,7 @@ class TasksCollection {
     const task = this.get(id);
     const comment = new Comment(text, this._user);
 
-    if (!Comment.validateComment(comment) || !task) {
+    if (!Comment._validateComment(comment) || !task) {
       return false;
     }
 
@@ -651,7 +651,7 @@ class TasksCollection {
     const notValideTasksList = [];
 
     tasks.forEach((task) => {
-      Task.validateTask(task)
+      Task._validateTask(task)
         ? this._tasks.push(task)
         : notValideTasksList.push(task);
     });
