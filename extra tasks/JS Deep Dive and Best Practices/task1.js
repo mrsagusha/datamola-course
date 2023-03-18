@@ -5,9 +5,9 @@ class Node {
   }
 }
 class List {
-  constructor() {
-    this.root = null;
-    this.length = 0;
+  constructor(root) {
+    this.root = root;
+    this.length = 1;
   }
 
   addNode(value, i) {
@@ -16,31 +16,27 @@ class List {
     }
     const node = new Node(value);
 
-    if (this.length === 0) {
-      this.root = node;
-    } else {
-      if (i === undefined) {
-        let current = this.root;
+    if (i === undefined) {
+      let current = this.root;
 
-        while (current.next) {
-          current = current.next;
-        }
-
-        current.next = node;
-      } else {
-        let current = this.root;
-        let prev = null;
-        let index = -1;
-
-        while (index < i) {
-          prev = current;
-          current = current.next;
-          index++;
-        }
-
-        prev.next = node;
-        node.next = current;
+      while (current.next) {
+        current = current.next;
       }
+
+      current.next = node;
+    } else {
+      let current = this.root;
+      let prev = null;
+      let index = -1;
+
+      while (index < i) {
+        prev = current;
+        current = current.next;
+        index++;
+      }
+
+      prev.next = node;
+      node.next = current;
     }
 
     this.length++;
@@ -92,14 +88,11 @@ class List {
   }
 }
 
-const list = new List();
+const list = new List(new Node(0));
 
 list.addNode(1);
 list.addNode(2);
 list.addNode(3);
-list.addNode(4);
-list.removeNode(2);
-list.addNode(5, 2);
-list.addNode(6, 2);
-list.addNode(7, 0);
+list.addNode(4, 1);
+list.removeNode(1);
 list.print();
