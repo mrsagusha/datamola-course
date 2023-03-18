@@ -1,0 +1,24 @@
+{
+  "name": "datamola-course",
+  "version": "1.0.0",
+  "description": "link to the figma project https://www.figma.com/file/dwOQ2mm34ANUItCeF60g2e/DATAMOLA-JS-FROM-ZERO-TO-HERO-2023-(Community)?node-id=2%3A5&t=YuKbWFUtLWccs78n-0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrsagusha/datamola-course.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mrsagusha/datamola-course/issues"
+  },
+  "homepage": "https://github.com/mrsagusha/datamola-course#readme",
+  "devDependencies": {
+    "eslint": "^8.36.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5"
+  }
+}
