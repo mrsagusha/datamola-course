@@ -519,41 +519,40 @@ class TasksCollection {
     if (filterConfig) {
       slicedArray = slicedArray
         .filter((task) => {
-          return filterConfig.assignee
+          return filterConfig.hasOwnProperty('assignee')
             ? task.assignee
                 .toLowerCase()
                 .includes(filterConfig.assignee.toLowerCase())
             : task;
         })
         .filter((task) => {
-          return filterConfig.dateFrom
+          return filterConfig.hasOwnProperty('dateFrom')
             ? task._createdAt >= filterConfig.dateFrom
             : task;
         })
         .filter((task) => {
-          return filterConfig.dateTo
+          return filterConfig.hasOwnProperty('dateTo')
             ? task._createdAt <= filterConfig.dateTo
             : task;
         })
         .filter((task) => {
-          return filterConfig.status
+          return filterConfig.hasOwnProperty('status')
             ? task.status.toLowerCase() === filterConfig.status.toLowerCase()
             : task;
         })
         .filter((task) => {
-          return filterConfig.priority
+          return filterConfig.hasOwnProperty('priority')
             ? task.priority.toLowerCase() ===
                 filterConfig.priority.toLowerCase()
             : task;
         })
         .filter((task) => {
-          return filterConfig.isPrivate === true ||
-            filterConfig.isPrivate === false
+          return filterConfig.hasOwnProperty('isPrivate')
             ? task.isPrivate === filterConfig.isPrivate
             : task;
         })
         .filter((task) => {
-          return filterConfig.description
+          return filterConfig.hasOwnProperty('description')
             ? task.description
                 .toLowerCase()
                 .includes(filterConfig.description.toLowerCase())
@@ -561,7 +560,7 @@ class TasksCollection {
         });
     }
 
-    return slicedArray.sort((a, b) => b.createdAt - a.createdAt);
+    return slicedArray.sort((a, b) => b._createdAt - a._createdAt);
   }
 
   get(id) {
@@ -665,5 +664,11 @@ class TasksCollection {
 }
 
 const list = new TasksCollection(tasks);
-console.log(list.addAll(tasks));
-console.log(list);
+
+console.log(
+  list.getPage(0, 20, {
+    assignee: '',
+    isPrivate: false,
+    status: 'to do',
+  })
+);
