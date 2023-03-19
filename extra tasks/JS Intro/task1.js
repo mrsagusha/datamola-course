@@ -14,4 +14,4 @@ const findMaxSum = (array) => {
   return maxSum;
 };
 
-console.log(findMaxSum([-1, 0, -2, -3, -4]));
+console.log(findMaxSum([-2, 1, -3, 4, -1, 2, 1, -5, 4]));

@@ -18,4 +18,4 @@ const findMaxProfit = (prices) => {
   return profitArrays.reduce((acc, el) => acc + (el[el.length - 1] - el[0]), 0);
 };
 
-console.log(findMaxProfit([1, 7, 13, 6, 1, 5, 5, 3, 3, 6, 8]));
+console.log(findMaxProfit([1, 2, 3, 4, 5]));
