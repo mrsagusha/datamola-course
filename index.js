@@ -664,11 +664,3 @@ class TasksCollection {
 }
 
 const list = new TasksCollection(tasks);
-
-console.log(
-  list.getPage(0, 20, {
-    assignee: '',
-    isPrivate: false,
-    status: 'to do',
-  })
-);
