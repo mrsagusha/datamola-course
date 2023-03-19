@@ -11,7 +11,12 @@ class List {
   }
 
   addNode(value, i) {
-    if (i < 0 || i >= this.length) {
+    if (
+      i < 0 ||
+      i >= this.length ||
+      typeof value !== 'number' ||
+      typeof i !== 'number'
+    ) {
       return false;
     }
     const node = new Node(value);
@@ -44,7 +49,12 @@ class List {
   }
 
   removeNode(i) {
-    if (i < 0 || i >= this.length || this.length === 1) {
+    if (
+      i < 0 ||
+      i >= this.length ||
+      this.length === 1 ||
+      typeof i !== 'number'
+    ) {
       return false;
     }
 
@@ -89,10 +99,7 @@ class List {
 }
 
 const list = new List(new Node(0));
+list.addNode(1, 0);
+list.addNode('1', 1);
 
-list.addNode(1);
-list.addNode(2);
-list.addNode(3);
-list.addNode(4, 1);
-list.removeNode(1);
 list.print();
