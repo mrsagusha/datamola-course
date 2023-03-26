@@ -68,7 +68,7 @@ let tasks = [
         _id: '1',
         text: 'Nulla mollis et enim sit amet blandit. Duis rhoncus, quam eu commodo vestibulum, diam nisi molestie.',
         _createdAt: new Date('2023-03-10T11:34:00'),
-        author: 'Liana Sherif',
+        _author: 'Liana Sherif',
       },
     ],
   },
@@ -386,7 +386,7 @@ class Task {
     this._id = Date.now().toString();
     this.name = name;
     this.description = description;
-    this._createdAT = new Date();
+    this._createdAt = new Date();
     this.assignee = assignee;
     this.status = status;
     this.priority = priority;
@@ -398,16 +398,8 @@ class Task {
     return this._id;
   }
 
-  set id(value) {
-    this._id = value;
-  }
-
   get createdAt() {
     return this._createdAt;
-  }
-
-  set createdAt(value) {
-    this._createdAT = value;
   }
 
   get user() {
@@ -418,24 +410,26 @@ class Task {
     this._user = newUser;
   }
 
-  static _validateTask(task) {
+  static validateTask(task) {
+    const _NAME_MAX_LENGTH = 100;
+    const _DESCRIPTION_MAX_LENGTH = 280;
+
+    const statusList = ['To Do', 'In Progress', 'Complete'];
     if (task) {
       if (
         !task._id ||
         typeof task._id !== 'string' ||
         !task.name ||
         typeof task.name !== 'string' ||
-        task.name.length > 100 ||
+        task.name.length > _NAME_MAX_LENGTH ||
         !task.description ||
         typeof task.description !== 'string' ||
-        task.description.length > 280 ||
+        task.description.length > _DESCRIPTION_MAX_LENGTH ||
         !task.assignee ||
         typeof task.assignee !== 'string' ||
         !task.status ||
         typeof task.status !== 'string' ||
-        (task.status !== 'To Do' &&
-          task.status !== 'In Progress' &&
-          task.status !== 'Complete') ||
+        !statusList.includes(task.status) ||
         !task.priority ||
         typeof task.priority !== 'string' ||
         (task.priority !== 'Low' &&
@@ -457,7 +451,7 @@ class Comment {
   constructor(text, user) {
     this._id = Date.now().toString();
     this.text = text;
-    this._createdAT = new Date();
+    this._createdAt = new Date();
     this._author = user;
   }
 
@@ -465,15 +459,15 @@ class Comment {
     return this._id;
   }
 
-  get createdAT() {
-    return this._createdAT;
+  get createdAt() {
+    return this._createdAt;
   }
 
   get author() {
     return this._author;
   }
 
-  static _validateComment(comment) {
+  static validateComment(comment) {
     if (
       !comment._id ||
       typeof comment._id !== 'string' ||
@@ -495,7 +489,7 @@ class TasksCollection {
     this._tasks = tasks;
   }
 
-  _user = 'Vasu Irati';
+  _user = '';
 
   get tasks() {
     return this.tasks;
@@ -514,10 +508,10 @@ class TasksCollection {
   }
 
   getPage(skip = 0, top = 10, filterConfig) {
-    let slicedArray = this._tasks.slice(skip, skip + top);
+    let taskCopy = this._tasks;
 
     if (filterConfig) {
-      slicedArray = slicedArray
+      taskCopy = taskCopy
         .filter((task) => {
           return filterConfig.hasOwnProperty('assignee')
             ? task.assignee
@@ -560,11 +554,13 @@ class TasksCollection {
         });
     }
 
-    return slicedArray.sort((a, b) => b._createdAt - a._createdAt);
+    return taskCopy
+      .slice(skip, skip + top)
+      .sort((a, b) => b._createdAt - a._createdAt);
   }
 
   get(id) {
-    return this._tasks.find((task) => task._id === id);
+    return this._tasks.find((task) => task._id === String(id));
   }
 
   add(name, description, assignee, status, priority, isPrivate) {
@@ -577,7 +573,7 @@ class TasksCollection {
       isPrivate
     );
 
-    if (!Task._validateTask(newTask)) {
+    if (!Task.validateTask(newTask)) {
       return false;
     }
 
@@ -591,6 +587,8 @@ class TasksCollection {
     }
 
     const editTask = JSON.parse(JSON.stringify(this.get(id)));
+
+    editTask._createdAt = new Date(editTask._createdAt);
 
     name === undefined ? (name = editTask.name) : (editTask.name = name);
     description === undefined
@@ -609,7 +607,7 @@ class TasksCollection {
       ? (isPrivate = editTask.isPrivate)
       : (editTask.isPrivate = isPrivate);
 
-    if (!Task._validateTask(editTask)) {
+    if (!Task.validateTask(editTask)) {
       return false;
     }
 
@@ -634,7 +632,7 @@ class TasksCollection {
     const task = this.get(id);
     const comment = new Comment(text, this._user);
 
-    if (!Comment._validateComment(comment) || !task) {
+    if (!Comment.validateComment(comment) || !task) {
       return false;
     }
 
@@ -650,7 +648,7 @@ class TasksCollection {
     const notValideTasksList = [];
 
     tasks.forEach((task) => {
-      Task._validateTask(task)
+      Task.validateTask(task)
         ? this._tasks.push(task)
         : notValideTasksList.push(task);
     });
@@ -663,4 +661,483 @@ class TasksCollection {
   }
 }
 
+class HeaderView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display(user) {
+    const header = document.getElementById(this._id);
+    let isUser = user === list._user;
+
+    if (!user) {
+      isUser = false;
+    }
+
+    if (header) {
+      header.innerHTML = `
+      <div class="logo">
+      <img class="logo__image" src="./assets/Logo.png" alt="logo">
+      <h1 class="logo__text">Turbo</h1>
+      </div>
+      <div class="user-profile-wrapper">
+            <div class="user-profile">
+              <p class="user-profile__user-name">${user ? user : 'Guest'}</p>
+              ${
+                isUser
+                  ? '<img class="user-image" src="./assets/User_main.png" alt="user"></img>'
+                  : ''
+              }
+          </div>
+          ${
+            isUser
+              ? `<button class="button button__logout">LOGOUT<i class="fa-solid fa-arrow-right-from-bracket"></i></button>`
+              : `<button class="button button__signin">SIGN IN</button>`
+          }
+      </div>
+      <div class="burger-menu"></div>
+      `;
+    }
+  }
+}
+
+class TaskFeedView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display(tasks) {
+    const loadMoreButton = document.querySelector('.load-more');
+    const tasksFeedContainer = document.getElementById(this._id);
+    const tasksFeed = document.createElement('div');
+    tasksFeed.classList.add('article__tasks-wrapper');
+    const toDoGroup = createSection('to-do-group');
+    const inProgressGroup = createSection('in-progress-group');
+    const completeGroup = createSection('complete-group');
+
+    if (loadMoreButton) {
+      if (
+        loadMoreButton.previousElementSibling.className ===
+        'article__tasks-wrapper'
+      ) {
+        loadMoreButton.previousElementSibling.remove();
+      }
+    }
+
+    function formatGroupName(groupName) {
+      const groupNameArray = groupName.replace(/[^A-Z0-9]/gi, ' ').split(' ');
+
+      return groupName
+        .replace(/[^A-Z0-9]/gi, ' ')
+        .split(' ')
+        .slice(0, groupNameArray.length - 1)
+        .map((el) => {
+          return el.charAt(0).toUpperCase() + el.slice(1);
+        })
+        .join(' ');
+    }
+
+    function createSection(groupName) {
+      const tasksFeedGroupWraperr = document.createElement('section');
+      const tasksFeedGroupName = document.createElement('h3');
+      const tasksFeedGroup = document.createElement('div');
+      tasksFeedGroupWraperr.classList.add('article__cards-group');
+      tasksFeedGroupWraperr.classList.add(`${groupName}`);
+      tasksFeedGroupName.classList.add('article__group-name');
+      tasksFeedGroupName.innerText = formatGroupName(groupName);
+      tasksFeedGroup.classList.add('article__cards-wrapper');
+      tasksFeedGroupWraperr.append(tasksFeedGroup);
+      tasksFeedGroupWraperr.prepend(tasksFeedGroupName);
+
+      return tasksFeedGroupWraperr;
+    }
+
+    tasksFeed.append(toDoGroup);
+    tasksFeed.append(inProgressGroup);
+    tasksFeed.append(completeGroup);
+
+    tasks.forEach((task) => {
+      const newTask = document.createElement('div');
+      newTask.classList.add('card');
+      newTask.innerHTML = `
+      <i class="fa-solid fa-ellipsis-vertical ${
+        list._user === task.assignee ? '' : 'forbidden'
+      }"></i>
+      <div class="card__main-info">
+          <div class="card__task-info">
+              <div class="card__task-name-wrapper">
+                <p class="card__task-name">${task.name}</p>
+                <p class="card__privacy card__privacy-laptop">${
+                  task.isPrivate ? 'Private' : 'Public'
+                }</p>
+              </div>
+              <div class="card__task-assignee-wrapper">
+                  <i class="fa-solid fa-user"></i>
+                  <p  class="card__task-assignee">${task.assignee}</p>
+              </div>
+              <p class="card__task-description">${task.description} </p>
+          </div>
+          <div class="card__status-info">
+              <p class="card__privacy">${
+                task.isPrivate ? 'Private' : 'Public'
+              }</p>
+              <p class="card__status ${task.status
+                .split(' ')
+                .join('-')
+                .toLowerCase()}">${task.status}</p>
+              <p class="card__priority ${task.priority.toLowerCase()}">${
+        task.priority
+      }</p>
+          </div>
+      </div>
+      <div class="card__footer">
+          <i class="fa-regular fa-message">
+          ${
+            task.comments.length > 0
+              ? `<span class="message-quantity">
+                ${task.comments.length}
+              </span>`
+              : ''
+          }                             
+          </i>
+          <i class="fa-solid fa-paperclip">
+              <span class="attachments-quantity">3</span>
+          </i>
+          <div class="task-date-wrapper">
+              <time class="card__date">${
+                ('0' + new Date(task._createdAt).getDate()).slice(-2) +
+                '.' +
+                ('0' + (new Date(task._createdAt).getMonth() + 1)).slice(-2) +
+                '.' +
+                new Date(task._createdAt).getFullYear()
+              }</time>
+              <time class="card__date">
+                ${
+                  new Date(task._createdAt).getHours() +
+                  ':' +
+                  (String(new Date(task._createdAt).getMinutes()).length === 1
+                    ? '0' + new Date(task._createdAt).getMinutes()
+                    : new Date(task._createdAt).getMinutes())
+                }
+              </time>
+          </div>
+      </div>
+      `;
+
+      if (task.status === 'To Do') {
+        toDoGroup.lastElementChild.append(newTask);
+      }
+
+      if (task.status === 'In Progress') {
+        inProgressGroup.lastElementChild.append(newTask);
+      }
+
+      if (task.status === 'Complete') {
+        completeGroup.lastElementChild.append(newTask);
+      }
+    });
+
+    if (loadMoreButton) {
+      loadMoreButton.insertAdjacentElement('beforebegin', tasksFeed);
+    }
+  }
+}
+
+class FilterView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display(tasks) {
+    const filters = document.getElementById('filters');
+    if (filters) {
+      filters.classList.toggle('open');
+    }
+    const filtersWrapper = document.getElementById(this._id);
+    const fragment = new DocumentFragment();
+    const assigneeLabel = document.createElement('label');
+    const priorityLabel = document.createElement('label');
+    const privacyLabel = document.createElement('label');
+    const statusLabel = document.createElement('label');
+    const dateFromLabel = document.createElement('label');
+    const dateToLabel = document.createElement('label');
+
+    assigneeLabel.setAttribute('for', 'assignee-input');
+    priorityLabel.setAttribute('for', 'priority-select');
+    privacyLabel.setAttribute('for', 'privacy-select');
+    statusLabel.setAttribute('for', 'status-select');
+
+    if (filtersWrapper) {
+      filtersWrapper.innerHTML = '';
+    }
+
+    assigneeLabel.innerHTML = `
+    Assignee
+    <input class="assignee-input" id="assignee-input" type="text" autocomplete="off" list="assignee-list" >
+        <datalist id="assignee-list">
+            ${tasks
+              .map((task) => {
+                return `
+                <option value='${task.assignee}'></option>
+              `;
+              })
+              .join('')}
+        </datalist>
+    `;
+
+    priorityLabel.innerHTML = `
+    Priority
+    <select name="priority" id="priority-select">
+        <option value="2">Low</option>
+        <option value="1">Medium</option>
+        <option value="0">High</option>
+    </select>
+    `;
+
+    privacyLabel.innerHTML = `
+    Privacy
+    <select name="privacy" id="privacy-select">
+        <option value="1">Public</option>
+        <option value="0">Private</option>
+    </select>
+    `;
+
+    statusLabel.innerHTML = `
+    Status
+    <select name="status" id="status-select">
+        <option value="2">To Do</option>
+        <option value="1">In Progress</option>
+        <option value="0">Complete</option>
+    </select>
+    `;
+
+    dateFromLabel.innerHTML = `
+    Date from
+    <div class="filter-date-container">
+        <input class="filter-date" type="date"></input>
+        <input class="filter-time" type="time"></input>
+    </div>
+    `;
+
+    dateToLabel.innerHTML = `
+    Date to
+    <div class="filter-date-container">
+        <input class="filter-date" type="date"></input>
+        <input class="filter-time" type="time"></input>
+    </div>
+    `;
+
+    fragment.append(
+      assigneeLabel,
+      statusLabel,
+      priorityLabel,
+      privacyLabel,
+      dateFromLabel,
+      dateToLabel
+    );
+    if (filtersWrapper) {
+      filtersWrapper.append(fragment);
+    }
+  }
+}
+
+class TaskView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display(tasks, id) {
+    const taskWrapper = document.getElementById(this._id);
+    const task = tasks.find((task) => task._id === String(id));
+    if (taskWrapper) {
+      taskWrapper.innerHTML = `
+      <div class="task-head">
+          <button class="return-to-main-button">
+              <i class="fa-solid fa-arrow-left"></i>
+                  Return to the main page
+          </button>
+          <div class="task-date-wrapper">
+              <time class="task-date">${
+                ('0' + new Date(task._createdAt).getDate()).slice(-2) +
+                '.' +
+                ('0' + (new Date(task._createdAt).getMonth() + 1)).slice(-2) +
+                '.' +
+                new Date(task._createdAt).getFullYear()
+              }</time>
+              <time class="task-date">${new Date(
+                task._createdAt
+              ).toLocaleTimeString()}</time>
+          </div>
+      </div>
+      <div class="task-top">
+          <h1 class="task-top__task-name">${task.name}</h1>
+          <div class="task-top__buttons-section">
+              <button class="button edit ${
+                list._user === task.assignee ? '' : 'disabled'
+              }">EDIT TASK</button>
+              <button class="button edit edit-mobile ${
+                list._user === task.assignee ? '' : 'disabled'
+              }">EDIT</button>
+              <button class="button delete ${
+                list._user === task.assignee ? '' : 'disabled'
+              }">DELETE TASK</button>
+              <button class="button delete delete-mobile ${
+                list._user === task.assignee ? '' : 'disabled'
+              }">DELETE</button>
+          </div>
+      </div>
+      <div class="task-main">
+          <div class="task-details">
+              <div class="task-assignee-wrapper">
+                  <i class="fa-solid fa-user user-task-page"></i>
+                  <p class="task-assignee">${task.assignee}</p>
+              </div>
+              <p class="task-privace"><span class="privacy-span">privacy:</span> ${
+                task.isPrivate ? 'Private' : 'Public'
+              }</p>
+              <p class="task-description-text">${task.description}</p>
+              <div class="task-status-wrapper">
+                  <p class="task-status ${task.status
+                    .toLowerCase()
+                    .split(' ')
+                    .join('')}-task">${task.status}</p>
+                  <p class="task-priority ${task.priority.toLowerCase()}-task">${
+        task.priority
+      }</p>
+              </div>
+              <div class="task-attachments-wrapper">
+                  <div class="task-attachment-title-wrapper">
+                      <i class="fa-solid fa-paperclip"></i>
+                      <p class="task-attachments-title">Attachments:</p>
+                  </div>
+                  <div class="task-attachments">
+                      <img class="task-attachment-image" src="./assets/attachment 1.png" alt="attachment">
+                  <img class="task-attachment-image" src="./assets/attachment 2.png" alt="attachment">
+                  </div>
+              </div>
+          </div>
+          <div class="task-comments">
+              <div class="task-comments__comments-wrapper">
+                  ${task.comments
+                    .sort((a, b) => a._createdAt - b._createdAt)
+                    .map((comment) => {
+                      return `
+                    <div class="comment">
+                      <div class="comment__info">
+                          <p class="comment__author">${comment._author}</p>
+                          <div>
+                          <time class="comment__date">${
+                            (
+                              '0' + new Date(comment._createdAt).getDate()
+                            ).slice(-2) +
+                            '.' +
+                            (
+                              '0' +
+                              (new Date(comment._createdAt).getMonth() + 1)
+                            ).slice(-2) +
+                            '.' +
+                            new Date(comment._createdAt).getFullYear()
+                          }</time>
+                          <time class="comment__date">${new Date(
+                            comment._createdAt
+                          ).toLocaleTimeString()}</time>
+                          </div>
+                      </div>
+                      <p class="comment__text">${comment.text}
+                      </p>
+                  </div>`;
+                    })
+                    .join('')}
+              </div>
+              <p class="task-comments__title">New comment</p>
+              <div class="task-comments__new-comment-wrapper">
+                  <textarea class="task-comments__new-comment" name="" id="" cols="30" rows="10"></textarea>
+                  <button class="button new-task-button">
+                      <i class="fa-solid fa-plus new-task-plus"></i>
+                  </button>
+              </div>
+          </div>
+      </div>`;
+    }
+  }
+}
+
+function setCurrentUser(user) {
+  list.changeUser(user);
+  header.display(user);
+}
+
+function getFeed(skip, top, filterConfig) {
+  const arr = list.getPage(skip, top, filterConfig);
+
+  taskFeed.display(arr);
+}
+
+function addTask(task) {
+  list.add(
+    task.name,
+    task.description,
+    task.assignee,
+    task.status,
+    task.priority,
+    task.isPrivate
+  );
+  getFeed(0, list._tasks.length);
+}
+
+function editTask(id, task) {
+  list.edit(
+    String(id),
+    task.name,
+    task.description,
+    task.assignee,
+    task.status,
+    task.priority,
+    task.isPrivate
+  );
+  getFeed(0, list._tasks.length);
+}
+
+function removeTask(id) {
+  list.remove(String(id));
+  getFeed(0, list._tasks.length);
+}
+
 const list = new TasksCollection(tasks);
+const taskFeed = new TaskFeedView('article');
+const header = new HeaderView('header');
+const task = new TaskView('taskWrapper');
+const filters = new FilterView('filtersWrapper');
+filters.display(list._tasks);
+setCurrentUser('Chibuzo Hrōþigaizaz');
+// document.addEventListener('click', () => {
+//   filters.display(list._tasks);
+// });
+
+addTask(
+  new Task(
+    'Create new task',
+    'Create my first task',
+    'Aleksandr Golubovskiy',
+    'In Progress',
+    'Medium',
+    true
+  )
+);
+task.display(list._tasks, 9);
