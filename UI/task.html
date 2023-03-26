@@ -12,113 +12,9 @@
 </head>
 <body class="body">
     <div class="container">
-        <header class="header task-header">
-            <div class="logo">
-                <img class="logo__image" src="./assets/Logo.png" alt="logo">
-                <h1 class="logo__text">Turbo</h1>
-            </div>
-            <div class="user-profile-wrapper">
-                <div class="user-profile">
-                    <p class="user-profile__user-name">Kierra Stanton</p>
-                    <img class="user-image" src="./assets/User_main.png" alt="user">
-                </div>
-                <button class="button button__logout">
-                    LOGOUT
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                </button>
-            </div>
-            <div class="burger-menu"></div>
-    </header>
+        <header id="header" class="header task-header"></header>
     <main class="main">
-        <div class="task-wrapper">
-            <div class="task-head">
-                <button class="return-to-main-button">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    Return to the main page
-                </button>
-                <p class="task-date">24.02.2023 13:54</p>
-            </div>
-            <div class="task-top">
-                <h1 class="task-top__task-name">Make a design</h1>
-                <div class="task-top__buttons-section">
-                    <button class="button edit">EDIT TASK</button>
-                    <button class="button edit edit-mobile">EDIT</button>
-                    <button class="button delete">DELETE TASK</button>
-                    <button class="button delete delete-mobile">DELETE</button>
-                </div>
-            </div>
-            <div class="task-main">
-                <div class="task-details">
-                    <div class="task-assignee-wrapper">
-                        <i class="fa-solid fa-user user-task-page"></i>
-                        <p class="task-assignee">Aleksandr Golubovskiy</p>
-                    </div>
-                    <p class="task-privace"><span class="privacy-span">privacy:</span> Private</p>
-                    <p class="task-description-text">Mivis dotoryrade. Pyn. Hemester syns. Primatris. 
-                        Läslov sperenade. Tåpp dede. Astrosuling tjock-tv. Lovis ljudöra. 
-                        Lanas gågging. Dor dektig. Techlash bed. Heteropira denylig. 
-                        Kronar posade. Nens tressade. Anamilingar ultrapöskapet. Brännskräp dilingar. 
-                        </p>
-                    <div class="task-status-wrapper">
-                        <p class="task-status">To Do</p>
-                        <p class="task-priority">Low</p>
-                    </div>
-                    <div class="task-attachments-wrapper">
-                        <div class="task-attachment-title-wrapper">
-                            <i class="fa-solid fa-paperclip"></i>
-                            <p class="task-attachments-title">Attachments:</p>
-                        </div>
-                        <div class="task-attachments">
-                            <img class="task-attachment-image" src="./assets/attachment 1.png" alt="attachment">
-                        <img class="task-attachment-image" src="./assets/attachment 2.png" alt="attachment">
-                        </div>
-                    </div>
-                </div>
-                <div class="task-comments">
-                    <div class="task-comments__comments-wrapper">
-                        <div class="comment">
-                            <div class="comment__info">
-                                <p class="comment__author">Talan Baptista</p>
-                                <p class="comment__date">24.02.2023 16:09</p>
-                            </div>
-                            <p class="comment__text">Telegt mav. Trafficking norsk karaoke. Yrkessåpa sologi. Grexit. 
-                                Jod. Pän. Trabelt derat. Aktiga tebide. 
-                                Nykrolig döstäda. Deligen pobende. Terangar. Natodena hisat. 
-                                Kvasisk. Tetrav multigt. Von bröllopsklänning. Tening tons. 
-                            </p>
-                        </div>
-                        <div class="comment">
-                            <div class="comment__info">
-                                <p class="comment__author">Nolan Aminoff</p>
-                                <p class="comment__date">24.02.2023 17:19</p>
-                            </div>
-                            <p class="comment__text">Lörem ipsum digital-tv mikronde syvukepov även om nekett, liksom spepätengen. Astrotion Maudeffekten i kossade. </p>
-                        </div>
-                        <div class="comment">
-                            <div class="comment__info">
-                                <p class="comment__author">Dulce Calzoni</p>
-                                <p class="comment__date">24.02.2023 19:53</p>
-                            </div>
-                            <p class="comment__text">Lörem ipsum digital-tv mikronde syvukepov även om nekett, liksom spepätengen. Astrotion Maudeffekten i kossade. </p>
-                        </div>
-                        <div class="comment">
-                            <div class="comment__info">
-                                <p class="comment__author">Jordyn Herwitz</p>
-                                <p class="comment__date">24.02.2023 20:01</p>
-                            </div>
-                            <p class="comment__text">Lörem ipsum digital-tv mikronde syvukepov även om nekett, liksom spepätengen. Astrotion Maudeffekten i kossade. </p>
-                        </div>
-                    </div>
-                    <p class="task-comments__title">New comment</p>
-                    <div class="task-comments__new-comment-wrapper">
-                        <textarea class="task-comments__new-comment" name="" id="" cols="30" rows="10"></textarea>
-                        <button class="button new-task-button">
-                            <i class="fa-solid fa-plus new-task-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="taskWrapper" class="task-wrapper"></div>
     </main>
     <footer class="footer">
         <p class="footer__copyright">Copyright ©2023 Turbo</p>
@@ -129,6 +25,7 @@
         <p>23.02.2023 v0.2</p>
     </footer>
     </div>
+    <script src="../index.js"></script>
     <script src="https://kit.fontawesome.com/973cd1cb93.js" crossorigin="anonymous"></script>
 </body>
 </html>
