@@ -1207,6 +1207,10 @@ input:checked + .slider:before {
     padding: 29px 0;
 }
 
+.form-signup {
+    height: 460px;
+}
+
 .form__title {
     font-size: 1.5rem;
     font-weight: 600;
@@ -1300,7 +1304,8 @@ input:checked + .slider:before {
     cursor: pointer;
 }
 
-.form__sigin-button {
+.form__signin-button,
+.form__signup-button {
     border: none;
     background-color: transparent;
     font-size: 0.85rem;
@@ -1308,12 +1313,14 @@ input:checked + .slider:before {
     color: var(--main-gray);
 }
 
-.form__sigin-button span {
+.form__signin-button span,
+.form__signup-button span {
     text-decoration: underline;
     margin-left: 5px;
 }
 
-.form__register-button {
+.form__register-button,
+.form__signin-button-main {
     width: 80%;
     background-color: var(--main-color);
     cursor: pointer;

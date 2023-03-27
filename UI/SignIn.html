@@ -8,14 +8,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-    <title>Registration</title>
+    <title>Sign In</title>
 </head>
 <body>
     <div class="container">
         <header id="header" class="header task-header"></header>
     <main class="main">
-        <form class="form" action="">
-            <p class="form__title">REGISTRATION</p>
+        <form class="form form-signup" action="">
+            <p class="form__title">SIGN IN</p>
             <div class="form__input-wrapper">
                 <i class="fa-solid fa-user user-registartion-ico"></i>
                 <input class="form__input" type="text" placeholder="Login">
@@ -25,28 +25,8 @@
                 <input class="form__input" type="password" placeholder="Password">
                 <i class="fa-solid fa-eye"></i>
             </div>
-            <div class="form__input-wrapper">
-                <i class="fa-solid fa-lock"></i>
-                <input class="form__input" type="password" placeholder="Confirm password">
-                <i class="fa-solid fa-eye"></i>
-            </div>
-            <div class="form__input-wrapper">
-                <i class="fa-solid fa-user user-registartion-ico"></i>
-                <input class="form__input" type="text" placeholder="Username">
-            </div>
-            <div class="form__file-input-wrapper">
-                <label class="form__file-input-label" for="imageInput">
-                    <div class="form__file-select">
-                        <i class="fa-solid fa-file-circle-plus"></i>
-                        <p class="form__file-select-text">Select file</p>
-                    </div>
-                    <input class="form__file-input" id="imageInput" type="file">
-                    <div class="form__file-name"></div>
-                </label>
-                <img class="form__registration-image" src="./assets/user.png" alt="image">
-            </div>
-            <button class="form__sigin-button">Already have an account?<span>SIGN IN</span></button>
-            <button class="button form__register-button" type="submit">REGISTER</button>
+            <button class="form__signup-button">Not a member?<span>SIGN UP NOW</span></button>
+            <button class="button form__signin-button-main" type="submit">SIGN IN</button>
             <button class="return-to-main-button">
                 <i class="fa-solid fa-arrow-left"></i>
                     Return to the main page
