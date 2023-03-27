@@ -134,7 +134,13 @@
 }
 
 .main {
+    height: calc(100% - 120px);
     display: flex;
+    align-items: center;
+}
+
+.main-page {
+    height: auto;
 }
 
 .article__tools {
@@ -1188,6 +1194,138 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 39px;
+    width: 622px;
+    height: 766px;
+    border: 1px var(--main-gray) solid;
+    border-radius: 24px;
+    margin: 0 auto;
+    padding: 29px 0;
+}
+
+.form__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.form__input-wrapper {
+    width: 80%;
+    border: 1px var(--main-gray) solid;
+    border-radius: 24px;
+}
+
+.form__input {
+    width: 80%;
+    height: 54px;
+    border: none;
+    padding-left: 20px;
+    outline: none;
+}
+
+.user-registartion-ico,
+.fa-lock {
+    font-size: 1rem;
+    padding: 5px 20px;
+    border-right: 1px var(--main-gray) solid;
+}
+
+.fa-file-circle-plus {
+    font-size: 1.2rem;
+}
+
+.fa-eye:hover {
+    cursor: pointer;
+}
+
+.form__file-input-wrapper {
+    width: 80%;
+    display: flex;
+    gap: 23px;
+}
+
+.form__file-input-label {
+    position: relative;
+    width: 100%;
+    display: flex;
+    gap: 23px;
+}
+
+.form__file-select, 
+.form__file-name {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    height: 54px;
+    border: 1px var(--main-gray) solid;
+    border-radius: 24px;
+    padding: 0 20px;
+}
+
+.form__file-select:hover {
+    cursor: pointer;
+}
+
+.form__file-select {
+    width: 175px;
+}
+
+.form__file-name {
+    width: 241px;
+}
+
+.form__file-input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+    display: block;
+    width: 0;
+    height: 0;
+}
+
+.form__file-select-text {
+    font-size: 0.85rem;
+    color: var(--main-gray);
+}
+
+.form__registration-image {
+    width: 54px;
+    height: 54px;
+}
+
+.form__registration-image:hover {
+    cursor: pointer;
+}
+
+.form__sigin-button {
+    border: none;
+    background-color: transparent;
+    font-size: 0.85rem;
+    cursor: pointer;
+    color: var(--main-gray);
+}
+
+.form__sigin-button span {
+    text-decoration: underline;
+    margin-left: 5px;
+}
+
+.form__register-button {
+    width: 80%;
+    background-color: var(--main-color);
+    cursor: pointer;
+    transition: .2s;
+    padding: 11px 0;
+    font-size: 0.85rem;
+}
+
+.form__register-button:hover {
+    background-color: #5E77B5;
+}
+
 @media screen and (min-width: 1921px) {
     .container {
         max-width: 100%;
@@ -1441,6 +1579,7 @@ input:checked + .slider:before {
     }
 
     .main-page {
+        height: auto;
         width: 100%;
     }
 

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <title>Registration</title>
+</head>
+<body>
+    <div class="container">
+        <header id="header" class="header task-header"></header>
+    <main class="main">
+        <form class="form" action="">
+            <p class="form__title">REGISTRATION</p>
+            <div class="form__input-wrapper">
+                <i class="fa-solid fa-user user-registartion-ico"></i>
+                <input class="form__input" type="text" placeholder="Login">
+            </div>
+            <div class="form__input-wrapper">
+                <i class="fa-solid fa-lock"></i>
+                <input class="form__input" type="password" placeholder="Password">
+                <i class="fa-solid fa-eye"></i>
+            </div>
+            <div class="form__input-wrapper">
+                <i class="fa-solid fa-lock"></i>
+                <input class="form__input" type="password" placeholder="Confirm password">
+                <i class="fa-solid fa-eye"></i>
+            </div>
+            <div class="form__input-wrapper">
+                <i class="fa-solid fa-user user-registartion-ico"></i>
+                <input class="form__input" type="text" placeholder="Username">
+            </div>
+            <div class="form__file-input-wrapper">
+                <label class="form__file-input-label" for="imageInput">
+                    <div class="form__file-select">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                        <p class="form__file-select-text">Select file</p>
+                    </div>
+                    <input class="form__file-input" id="imageInput" type="file">
+                    <div class="form__file-name"></div>
+                </label>
+                <img class="form__registration-image" src="./assets/user.png" alt="image">
+            </div>
+            <button class="form__sigin-button">Already have an account?<span>SIGN IN</span></button>
+            <button class="button form__register-button" type="submit">REGISTER</button>
+            <button class="return-to-main-button">
+                <i class="fa-solid fa-arrow-left"></i>
+                    Return to the main page
+            </button>
+        </form>
+    </main>
+    <footer class="footer">
+        <p class="footer__copyright">Copyright ©2023 Turbo</p>
+        <address class="footer__email">
+            <i class="fa-regular fa-envelope"></i>
+            <a class="email-link" href="mailto:">golubovskiy.al@mail.ru</a>
+        </address>
+        <p>23.02.2023 v0.2</p>
+    </footer>
+    </div>
+    <script src="../index.js"></script>
+    <script src="https://kit.fontawesome.com/973cd1cb93.js" crossorigin="anonymous"></script>
+</body>
+</html>
