@@ -32,9 +32,29 @@
 }
 
 .container {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
     max-width: 1440px;
     height: 100vh;
     margin: 0 auto;
+}
+
+.confirm {
+    position: relative;
+}
+
+.confirm::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    left: 0;
+    top: 0;
+    opacity: 1;
+    z-index: 2;
 }
 
 .header {
@@ -197,12 +217,31 @@
 
 .article {
     width: 75%;
+    align-self: baseline;
 }
 
 .article__tasks-wrapper {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+}
+
+.article__tasks-not-found-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin: 0 auto;
+}
+
+.robot-image {
+    width: 100px;
+    height: 100px;
+}
+
+.article__tasks-not-found-main-text {
+    font-size: 1.5rem;
+    font-weight: 600;
 }
 
 .article__group-name {
@@ -455,6 +494,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    align-self: flex-start;
     gap: 20px;
     padding: 20px 0 0 15px;
     width: 25%;
@@ -477,7 +517,7 @@
 }
 
 .open {
-    height: 42%;
+    height: 350px;
     animation: open-filters .5s;
     border: 1px solid var(--main-gray);
 }
@@ -495,7 +535,7 @@
 @keyframes open-filters {
     0% {height: 50px;}
     100% {
-        height: 42%;
+        height: 350px;
     }
 }
 
@@ -733,7 +773,7 @@
     cursor: pointer;
 }
 
-.task-wrapper,
+.main-task,
 .user-wrapper {
     width: 100%;
     height: fit-content;
@@ -741,6 +781,39 @@
     border-radius: 24px;
     margin: 20px 0;
     padding: 15px 15px 25px 15px;
+    display: block;
+}
+
+.main-task {
+    height: 100%;
+}
+
+.task-confirm-modal{
+    position: absolute;
+    display: flex;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 310px;
+    height: 155px;
+    background-color: white;
+    border-radius: 24px;
+    padding: 27px;
+    z-index: 3;
+}
+
+.task-confirm-modal__text {
+    text-align: center;
+    font-weight: 600;
+}
+
+.task-confirm-modal__buttons-wrapper {
+    display: flex;
+    justify-content: space-between;
 }
 
 .task-top {
@@ -793,9 +866,18 @@
     transition: .2s;
 }
 
-
 .delete:hover {
     background-color: #B36774;
+    cursor: pointer;
+}
+
+.cancel {
+    background-color: var(--main-color);
+    transition: .2s;
+}
+
+.cancel:hover {
+    background-color: #5E77B5;
     cursor: pointer;
 }
 

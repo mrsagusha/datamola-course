@@ -546,10 +546,8 @@ class TasksCollection {
             : task;
         })
         .filter((task) => {
-          return filterConfig.hasOwnProperty('description')
-            ? task.description
-                .toLowerCase()
-                .includes(filterConfig.description.toLowerCase())
+          return filterConfig.hasOwnProperty('name')
+            ? task.name.toLowerCase().includes(filterConfig.name.toLowerCase())
             : task;
         });
     }
@@ -576,7 +574,6 @@ class TasksCollection {
     if (!Task.validateTask(newTask)) {
       return false;
     }
-
     this._tasks.push(newTask);
     return true;
   }
@@ -672,7 +669,7 @@ class HeaderView {
 
   display(user) {
     const header = document.getElementById(this._id);
-    let isUser = user === list._user;
+    let isUser = user === controller.list._user;
 
     if (!user) {
       isUser = false;
@@ -708,6 +705,11 @@ class HeaderView {
 class TaskFeedView {
   constructor(id) {
     this._id = id;
+    this.controller = null;
+  }
+
+  initController(controller) {
+    this.controller = controller;
   }
 
   get id() {
@@ -715,22 +717,39 @@ class TaskFeedView {
   }
 
   display(tasks) {
-    const loadMoreButton = document.querySelector('.load-more');
     const tasksFeedContainer = document.getElementById(this._id);
     const tasksFeed = document.createElement('div');
-    tasksFeed.classList.add('article__tasks-wrapper');
     const toDoGroup = createSection('to-do-group');
     const inProgressGroup = createSection('in-progress-group');
     const completeGroup = createSection('complete-group');
+    const loadMoreButton = document.createElement('button');
+    loadMoreButton.className = 'button load-more';
+    loadMoreButton.innerText = 'Load more';
 
-    if (loadMoreButton) {
-      if (
-        loadMoreButton.previousElementSibling.className ===
-        'article__tasks-wrapper'
-      ) {
-        loadMoreButton.previousElementSibling.remove();
-      }
-    }
+    tasksFeedContainer.innerHTML = `
+      <div class="article__tools">
+          <div class="input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input class="search-input" type="text" placeholder="Search">
+          </div>
+          <div class="view-wrapper">
+              <i class="fa-solid fa-table-columns"></i>
+              <i class="fa-solid fa-list-ul"></i>
+          </div>
+          <form class="filters filters-laptop">
+              <div class="filters__title-wrapper">
+                  <i class="fa-solid fa-sort-down"></i>
+                  <p class="filters__title">Filters</p>
+              </div>
+              <button class="button clear-filters-button" type="reset">
+                  <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                  CLEAR
+              </button>
+          </form>
+      </div>
+    `;
+
+    tasksFeed.classList.add('article__tasks-wrapper');
 
     function formatGroupName(groupName) {
       const groupNameArray = groupName.replace(/[^A-Z0-9]/gi, ' ').split(' ');
@@ -764,12 +783,22 @@ class TaskFeedView {
     tasksFeed.append(inProgressGroup);
     tasksFeed.append(completeGroup);
 
+    if (tasks.length === 0) {
+      tasksFeed.innerHTML = `
+      <div class="article__tasks-not-found-wrapper">
+          <img class="robot-image" class src="./assets/robot.png" alt="robot">
+          <p class="article__tasks-not-found-main-text">No results found</p>
+          <p class="article__tasks-not-found-text">We couldn't find what you searched for. Try searching again.</p>
+      </div>
+      `;
+    }
+
     tasks.forEach((task) => {
       const newTask = document.createElement('div');
       newTask.classList.add('card');
       newTask.innerHTML = `
       <i class="fa-solid fa-ellipsis-vertical ${
-        list._user === task.assignee ? '' : 'forbidden'
+        controller.list._user === task.assignee ? '' : 'forbidden'
       }"></i>
       <div class="card__main-info">
           <div class="card__task-info">
@@ -832,6 +861,10 @@ class TaskFeedView {
       </div>
       `;
 
+      newTask.addEventListener('click', () => {
+        this.controller.showTask(task._id);
+      });
+
       if (task.status === 'To Do') {
         toDoGroup.lastElementChild.append(newTask);
       }
@@ -845,26 +878,27 @@ class TaskFeedView {
       }
     });
 
-    if (loadMoreButton) {
-      loadMoreButton.insertAdjacentElement('beforebegin', tasksFeed);
-    }
+    tasksFeedContainer.append(tasksFeed);
+    tasksFeedContainer.append(loadMoreButton);
   }
 }
 
 class FilterView {
   constructor(id) {
     this._id = id;
+    this.controller = null;
   }
 
   get id() {
     return this._id;
   }
 
+  initController(controller) {
+    this.controller = controller;
+  }
+
   display(tasks) {
     const filters = document.getElementById('filters');
-    if (filters) {
-      filters.classList.toggle('open');
-    }
     const filtersWrapper = document.getElementById(this._id);
     const fragment = new DocumentFragment();
     const assigneeLabel = document.createElement('label');
@@ -873,6 +907,9 @@ class FilterView {
     const statusLabel = document.createElement('label');
     const dateFromLabel = document.createElement('label');
     const dateToLabel = document.createElement('label');
+    const filtersHead = document.querySelector('.filters-closed-wrapper');
+    const taskNameInput = document.querySelector('.search-input');
+    const filterConfig = {};
 
     assigneeLabel.setAttribute('for', 'assignee-input');
     priorityLabel.setAttribute('for', 'priority-select');
@@ -882,6 +919,68 @@ class FilterView {
     if (filtersWrapper) {
       filtersWrapper.innerHTML = '';
     }
+
+    if (filtersHead) {
+      filtersHead.addEventListener('click', () => {
+        filters.classList.toggle('open');
+      });
+    }
+
+    if (taskNameInput) {
+      filterConfig.name = taskNameInput.value;
+      this.controller.getFeed(0, 40, filterConfig);
+    }
+
+    assigneeLabel.addEventListener('input', (e) => {
+      if (e.target.className === 'assignee-input') {
+        filterConfig.assignee = e.target.value;
+      }
+      this.controller.getFeed(0, 40, filterConfig);
+    });
+
+    statusLabel.addEventListener('change', (e) => {
+      if (e.target.id === 'status-select') {
+        filterConfig.status = e.target.value;
+      }
+
+      this.controller.getFeed(0, 40, filterConfig);
+    });
+
+    priorityLabel.addEventListener('change', (e) => {
+      if (e.target.id === 'priority-select') {
+        filterConfig.priority = e.target.value;
+      }
+
+      this.controller.getFeed(0, 40, filterConfig);
+    });
+
+    privacyLabel.addEventListener('change', (e) => {
+      if (e.target.id === 'privacy-select') {
+        filterConfig.isPrivate = Boolean(Number(e.target.value));
+      }
+
+      this.controller.getFeed(0, 40, filterConfig);
+    });
+
+    dateFromLabel.addEventListener('input', (e) => {
+      if (
+        e.target.className === 'filter-date' ||
+        e.target.className === 'filter-time'
+      ) {
+        filterConfig.dateFrom = new Date(e.target.value);
+        this.controller.getFeed(0, 40, filterConfig);
+      }
+    });
+
+    dateToLabel.addEventListener('input', (e) => {
+      if (
+        e.target.className === 'filter-date' ||
+        e.target.className === 'filter-time'
+      ) {
+        filterConfig.dateTo = new Date(e.target.value);
+        this.controller.getFeed(0, 40, filterConfig);
+      }
+    });
 
     assigneeLabel.innerHTML = `
     Assignee
@@ -900,26 +999,26 @@ class FilterView {
     priorityLabel.innerHTML = `
     Priority
     <select name="priority" id="priority-select">
-        <option value="2">Low</option>
-        <option value="1">Medium</option>
-        <option value="0">High</option>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
     </select>
     `;
 
     privacyLabel.innerHTML = `
     Privacy
     <select name="privacy" id="privacy-select">
-        <option value="1">Public</option>
-        <option value="0">Private</option>
+        <option value='0'>Public</option>
+        <option value='1'>Private</option>
     </select>
     `;
 
     statusLabel.innerHTML = `
     Status
     <select name="status" id="status-select">
-        <option value="2">To Do</option>
-        <option value="1">In Progress</option>
-        <option value="0">Complete</option>
+        <option value="To Do">To Do</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Complete">Complete</option>
     </select>
     `;
 
@@ -947,6 +1046,7 @@ class FilterView {
       dateFromLabel,
       dateToLabel
     );
+
     if (filtersWrapper) {
       filtersWrapper.append(fragment);
     }
@@ -956,19 +1056,101 @@ class FilterView {
 class TaskView {
   constructor(id) {
     this._id = id;
+    this.controller = null;
   }
 
   get id() {
     return this._id;
   }
 
+  initController(controller) {
+    this.controller = controller;
+  }
+
+  renderMainScreen(el) {
+    el.innerHTML = `
+      <article id="article" class="article"></article>
+      <aside class="aside">
+                <form id="filters" class="filters">
+                    <div class="filters-closed-wrapper">
+                        <div class="filters__title-wrapper">
+                            <i class="fa-solid fa-sort-down"></i>
+                            <p class="filters__title">Filters</p>
+                        </div>
+                        <button class="button clear-filters-button" type="reset">
+                            <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                            CLEAR
+                        </button>
+                    </div>
+                    <div id="filtersWrapper"></div>
+                </form>
+                <form class="new-task-form" action="">
+                    <label for="task-name-input">Task name*
+                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text">
+                    </label>
+                    <label for="assignee-input">Assignee*
+                        <input class="assignee-input" id="assignee-input" type="text" list="assignee-list" >
+                        <datalist id="assignee-list">
+                            <option value="Aleksandr Golubovskiy">
+                            <option value="Kaiya Torff">
+                            <option value="Kierra Stanton">
+                            <option value="Charlie Rhiel Madsen">
+                        </datalist>
+                    </label>
+                    <label for="status-select">Status
+                        <select name="status" id="status-select">
+                            <option value="2">To Do</option>
+                            <option value="1">In Progress</option>
+                            <option value="0">Complete</option>
+                        </select>
+                    </label>
+                    <label for="priority-select">
+                        Priority
+                        <select name="priority" id="priority-select">
+                            <option value="2">Low</option>
+                            <option value="1">Medium</option>
+                            <option value="0">High</option>
+                        </select>
+                    </label>
+                    <label for="privacy-select">
+                        Privacy
+                        <select name="privacy" id="privacy-select">
+                            <option value="1">Public</option>
+                            <option value="0">Private</option>
+                        </select>
+                    </label>
+                    <label for="description">
+                        Description*
+                        <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
+                    </label>
+                    <button class="button create-task" type="submit">
+                        <i class="fa-solid fa-plus"></i>
+                        CREATE TASK
+                    </button>
+                    <button class="button reset-changes" type="reset">
+                        <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                        RESET CHANGES
+                    </button>
+                    <button class="button open-new-task">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </form>
+            </aside>`;
+    el.classList.remove('main-task');
+    this.controller.getFilters();
+  }
+
   display(tasks, id) {
-    const taskWrapper = document.getElementById(this._id);
+    const mainTaskWrapper = document.getElementById(this._id);
     const task = tasks.find((task) => task._id === String(id));
-    if (taskWrapper) {
-      taskWrapper.innerHTML = `
+    const body = document.getElementById('.body');
+
+    mainTaskWrapper.classList.add('main-task');
+
+    if (mainTaskWrapper) {
+      mainTaskWrapper.innerHTML = `
       <div class="task-head">
-          <button class="return-to-main-button">
+          <button id="returnToTheMainPage" class="return-to-main-button">
               <i class="fa-solid fa-arrow-left"></i>
                   Return to the main page
           </button>
@@ -989,16 +1171,16 @@ class TaskView {
           <h1 class="task-top__task-name">${task.name}</h1>
           <div class="task-top__buttons-section">
               <button class="button edit ${
-                list._user === task.assignee ? '' : 'disabled'
+                controller.list._user === task.assignee ? '' : 'disabled'
               }">EDIT TASK</button>
               <button class="button edit edit-mobile ${
-                list._user === task.assignee ? '' : 'disabled'
+                controller.list._user === task.assignee ? '' : 'disabled'
               }">EDIT</button>
               <button class="button delete ${
-                list._user === task.assignee ? '' : 'disabled'
+                controller.list._user === task.assignee ? '' : 'disabled'
               }">DELETE TASK</button>
               <button class="button delete delete-mobile ${
-                list._user === task.assignee ? '' : 'disabled'
+                controller.list._user === task.assignee ? '' : 'disabled'
               }">DELETE</button>
           </div>
       </div>
@@ -1075,69 +1257,134 @@ class TaskView {
           </div>
       </div>`;
     }
+
+    const confirmDeleteModal = document.createElement('div');
+    confirmDeleteModal.className = 'task-confirm-modal';
+    confirmDeleteModal.innerHTML = `
+      <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
+      <div class="task-confirm-modal__buttons-wrapper">
+          <button id="cancelDelete" class="button cancel">CANCEL</button>
+          <button id="confirmDelete" class="button delete">DELETE</button>
+      </div>
+    `;
+
+    const deleteButton = document.querySelector('.delete');
+    const returnToTheMainPageButton = document.getElementById(
+      'returnToTheMainPage'
+    );
+    const addCommentButton = document.querySelector('.new-task-button');
+
+    deleteButton.addEventListener('click', () => {
+      body.classList.add('confirm');
+      mainTaskWrapper.prepend(confirmDeleteModal);
+
+      const cancelDelete = document.getElementById('cancelDelete');
+      const confirmDelete = document.getElementById('confirmDelete');
+
+      confirmDelete.addEventListener('click', () => {
+        body.classList.remove('confirm');
+        this.renderMainScreen(mainTaskWrapper);
+        this.controller.removeTask(task._id);
+      });
+
+      cancelDelete.addEventListener('click', () => {
+        body.classList.remove('confirm');
+        this.controller.showTask(task._id);
+      });
+    });
+
+    addCommentButton.addEventListener('click', () => {
+      const commentTextArea = document.querySelector(
+        '.task-comments__new-comment'
+      );
+      this.controller.addComment(task._id, commentTextArea.value);
+      this.controller.showTask(task._id);
+    });
+
+    returnToTheMainPageButton.addEventListener('click', () => {
+      this.renderMainScreen(mainTaskWrapper);
+      this.controller.getFeed(0, 20);
+    });
   }
 }
 
-function setCurrentUser(user) {
-  list.changeUser(user);
-  header.display(user);
-}
+class TasksController {
+  constructor(list, header, taskFeed, filters, taskPage) {
+    this.list = list;
+    this.header = header;
+    this.taskFeed = taskFeed;
+    this.filters = filters;
+    this.taskPage = taskPage;
+  }
 
-function getFeed(skip, top, filterConfig) {
-  const arr = list.getPage(skip, top, filterConfig);
+  setCurrentUser(user) {
+    this.list.changeUser(user);
+    this.header.display(user);
+  }
 
-  taskFeed.display(arr);
-}
+  getFeed(skip, top, filterConfig) {
+    const arr = this.list.getPage(skip, top, filterConfig);
+    this.taskFeed.display(arr);
+  }
 
-function addTask(task) {
-  list.add(
-    task.name,
-    task.description,
-    task.assignee,
-    task.status,
-    task.priority,
-    task.isPrivate
-  );
-  getFeed(0, list._tasks.length);
-}
+  getFilters() {
+    this.filters.display(this.list._tasks);
+  }
 
-function editTask(id, task) {
-  list.edit(
-    String(id),
-    task.name,
-    task.description,
-    task.assignee,
-    task.status,
-    task.priority,
-    task.isPrivate
-  );
-  getFeed(0, list._tasks.length);
-}
+  addTask(task) {
+    this.list.add(
+      task.name,
+      task.description,
+      task.assignee,
+      task.status,
+      task.priority,
+      task.isPrivate
+    );
+    getFeed(0, this.list._tasks.length);
+  }
 
-function removeTask(id) {
-  list.remove(String(id));
-  getFeed(0, list._tasks.length);
+  editTask(id, task) {
+    this.list.edit(
+      String(id),
+      task.name,
+      task.description,
+      task.assignee,
+      task.status,
+      task.priority,
+      task.isPrivate
+    );
+  }
+
+  removeTask(id) {
+    this.list.remove(String(id));
+    this.getFeed(0, 20);
+  }
+
+  showTask(id) {
+    this.taskPage.display(this.list._tasks, id);
+  }
+
+  addComment(id, text) {
+    this.list.addComment(id, text);
+  }
 }
 
 const list = new TasksCollection(tasks);
-const taskFeed = new TaskFeedView('article');
 const header = new HeaderView('header');
-const task = new TaskView('taskWrapper');
+const taskFeed = new TaskFeedView('article');
 const filters = new FilterView('filtersWrapper');
-filters.display(list._tasks);
-setCurrentUser('Chibuzo Hrōþigaizaz');
-// document.addEventListener('click', () => {
-//   filters.display(list._tasks);
-// });
-
-addTask(
-  new Task(
-    'Create new task',
-    'Create my first task',
-    'Aleksandr Golubovskiy',
-    'In Progress',
-    'Medium',
-    true
-  )
+const taskPage = new TaskView('main');
+const controller = new TasksController(
+  list,
+  header,
+  taskFeed,
+  filters,
+  taskPage
 );
-task.display(list._tasks, 9);
+taskFeed.initController(controller);
+filters.initController(controller);
+taskPage.initController(controller);
+
+controller.setCurrentUser('Pentti Theodoros');
+controller.getFeed(0, 40);
+controller.getFilters();
