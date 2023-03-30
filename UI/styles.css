@@ -656,8 +656,22 @@
     border: none;
 }
 
+textarea {
+    padding: 5px;
+}
+
+.card i {
+    pointer-events: none;
+}
+
+.card div {
+    pointer-events: none;
+ }
+
 .new-task-form label,
-#filtersWrapper label{
+#filtersWrapper label,
+.task-top label,
+.task-top label {
     display: flex;
     justify-content: space-between;
     font-size: 0.875rem;
@@ -672,6 +686,11 @@
     cursor: pointer;
 }
 
+.task-main select {
+    cursor: pointer;
+}
+
+
 .task-name-input:invalid,
 .task-description:invalid {
     border-color: red;
@@ -682,13 +701,25 @@
 .task-name-input,
 .assignee-input,
 .new-task-form select,
-#filtersWrapper select {
+#filtersWrapper select,
+.task-main select {
     border: 1px solid var(--main-gray);
     border-radius: 16px;
     outline: none;
     color: var(--black-color);
     font-size: 0.875rem;
     text-align: center;
+}
+
+.task-name-input-edit {
+    text-align: start;
+    border: none;
+    border-radius: 0px;
+    cursor: text;
+}
+
+.assignee-input-edit {
+    width: 40%;
 }
 
 .new-task-form select:hover {

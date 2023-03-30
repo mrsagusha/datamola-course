@@ -8,6 +8,7 @@ let tasks = [
     status: 'To Do',
     priority: 'High',
     isPrivate: true,
+    _author: 'Pentti Theodoros',
     comments: [
       {
         _id: '0',
@@ -26,6 +27,7 @@ let tasks = [
     status: 'In Progress',
     priority: 'Medium',
     isPrivate: false,
+    _author: 'Zehra Marta',
     comments: [
       {
         _id: '0',
@@ -45,6 +47,7 @@ let tasks = [
     status: 'Complete',
     priority: 'Low',
     isPrivate: false,
+    _author: 'Vasu Irati',
     comments: [],
   },
   {
@@ -57,6 +60,7 @@ let tasks = [
     status: 'To Do',
     priority: 'High',
     isPrivate: false,
+    _author: 'Ludolf Colm',
     comments: [
       {
         _id: '0',
@@ -82,6 +86,7 @@ let tasks = [
     status: 'To Do',
     priority: 'High',
     isPrivate: false,
+    _author: 'Marie-Louise Mahavir',
     comments: [
       {
         _id: '0',
@@ -382,7 +387,15 @@ let tasks = [
 ];
 
 class Task {
-  constructor(name, description, assignee, status, priority, isPrivate) {
+  constructor(
+    name,
+    description,
+    assignee,
+    status,
+    priority,
+    isPrivate,
+    author
+  ) {
     this._id = Date.now().toString();
     this.name = name;
     this.description = description;
@@ -392,6 +405,7 @@ class Task {
     this.priority = priority;
     this.isPrivate = isPrivate;
     this.comments = [];
+    this._author = author;
   }
 
   get id() {
@@ -402,12 +416,8 @@ class Task {
     return this._createdAt;
   }
 
-  get user() {
-    return this._user;
-  }
-
-  set user(newUser) {
-    this._user = newUser;
+  get author() {
+    return this._author;
   }
 
   static validateTask(task) {
@@ -561,14 +571,15 @@ class TasksCollection {
     return this._tasks.find((task) => task._id === String(id));
   }
 
-  add(name, description, assignee, status, priority, isPrivate) {
+  add(name, description, assignee, status, priority, isPrivate, author) {
     const newTask = new Task(
       name,
       description,
       assignee,
       status,
       priority,
-      isPrivate
+      isPrivate,
+      author
     );
 
     if (!Task.validateTask(newTask)) {
@@ -579,7 +590,7 @@ class TasksCollection {
   }
 
   edit(id, name, description, assignee, status, priority, isPrivate = false) {
-    if (arguments.length === 0 || this.get(id).assignee !== this._user) {
+    if (arguments.length === 0 || this.get(id)._author !== this._user) {
       return false;
     }
 
@@ -616,7 +627,7 @@ class TasksCollection {
   }
 
   remove(id) {
-    if (!this.get(id) || !id || this.get(id).assignee !== this._user) {
+    if (!this.get(id) || !id || this.get(id)._author !== this._user) {
       return false;
     }
 
@@ -705,11 +716,6 @@ class HeaderView {
 class TaskFeedView {
   constructor(id) {
     this._id = id;
-    this.controller = null;
-  }
-
-  initController(controller) {
-    this.controller = controller;
   }
 
   get id() {
@@ -725,30 +731,6 @@ class TaskFeedView {
     const loadMoreButton = document.createElement('button');
     loadMoreButton.className = 'button load-more';
     loadMoreButton.innerText = 'Load more';
-
-    tasksFeedContainer.innerHTML = `
-      <div class="article__tools">
-          <div class="input-wrapper">
-              <i class="fa-solid fa-magnifying-glass"></i>
-              <input class="search-input" type="text" placeholder="Search">
-          </div>
-          <div class="view-wrapper">
-              <i class="fa-solid fa-table-columns"></i>
-              <i class="fa-solid fa-list-ul"></i>
-          </div>
-          <form class="filters filters-laptop">
-              <div class="filters__title-wrapper">
-                  <i class="fa-solid fa-sort-down"></i>
-                  <p class="filters__title">Filters</p>
-              </div>
-              <button class="button clear-filters-button" type="reset">
-                  <i class="fa-sharp fa-solid fa-rotate-left"></i>
-                  CLEAR
-              </button>
-          </form>
-      </div>
-    `;
-
     tasksFeed.classList.add('article__tasks-wrapper');
 
     function formatGroupName(groupName) {
@@ -796,9 +778,10 @@ class TaskFeedView {
     tasks.forEach((task) => {
       const newTask = document.createElement('div');
       newTask.classList.add('card');
+      newTask.setAttribute('id', task._id);
       newTask.innerHTML = `
       <i class="fa-solid fa-ellipsis-vertical ${
-        controller.list._user === task.assignee ? '' : 'forbidden'
+        controller.list._user === task._author ? '' : 'forbidden'
       }"></i>
       <div class="card__main-info">
           <div class="card__task-info">
@@ -861,10 +844,6 @@ class TaskFeedView {
       </div>
       `;
 
-      newTask.addEventListener('click', () => {
-        this.controller.showTask(task._id);
-      });
-
       if (task.status === 'To Do') {
         toDoGroup.lastElementChild.append(newTask);
       }
@@ -878,23 +857,20 @@ class TaskFeedView {
       }
     });
 
-    tasksFeedContainer.append(tasksFeed);
-    tasksFeedContainer.append(loadMoreButton);
+    if (tasksFeedContainer) {
+      tasksFeedContainer.append(tasksFeed);
+      tasksFeedContainer.append(loadMoreButton);
+    }
   }
 }
 
 class FilterView {
   constructor(id) {
     this._id = id;
-    this.controller = null;
   }
 
   get id() {
     return this._id;
-  }
-
-  initController(controller) {
-    this.controller = controller;
   }
 
   display(tasks) {
@@ -919,68 +895,6 @@ class FilterView {
     if (filtersWrapper) {
       filtersWrapper.innerHTML = '';
     }
-
-    if (filtersHead) {
-      filtersHead.addEventListener('click', () => {
-        filters.classList.toggle('open');
-      });
-    }
-
-    if (taskNameInput) {
-      filterConfig.name = taskNameInput.value;
-      this.controller.getFeed(0, 40, filterConfig);
-    }
-
-    assigneeLabel.addEventListener('input', (e) => {
-      if (e.target.className === 'assignee-input') {
-        filterConfig.assignee = e.target.value;
-      }
-      this.controller.getFeed(0, 40, filterConfig);
-    });
-
-    statusLabel.addEventListener('change', (e) => {
-      if (e.target.id === 'status-select') {
-        filterConfig.status = e.target.value;
-      }
-
-      this.controller.getFeed(0, 40, filterConfig);
-    });
-
-    priorityLabel.addEventListener('change', (e) => {
-      if (e.target.id === 'priority-select') {
-        filterConfig.priority = e.target.value;
-      }
-
-      this.controller.getFeed(0, 40, filterConfig);
-    });
-
-    privacyLabel.addEventListener('change', (e) => {
-      if (e.target.id === 'privacy-select') {
-        filterConfig.isPrivate = Boolean(Number(e.target.value));
-      }
-
-      this.controller.getFeed(0, 40, filterConfig);
-    });
-
-    dateFromLabel.addEventListener('input', (e) => {
-      if (
-        e.target.className === 'filter-date' ||
-        e.target.className === 'filter-time'
-      ) {
-        filterConfig.dateFrom = new Date(e.target.value);
-        this.controller.getFeed(0, 40, filterConfig);
-      }
-    });
-
-    dateToLabel.addEventListener('input', (e) => {
-      if (
-        e.target.className === 'filter-date' ||
-        e.target.className === 'filter-time'
-      ) {
-        filterConfig.dateTo = new Date(e.target.value);
-        this.controller.getFeed(0, 40, filterConfig);
-      }
-    });
 
     assigneeLabel.innerHTML = `
     Assignee
@@ -1056,94 +970,16 @@ class FilterView {
 class TaskView {
   constructor(id) {
     this._id = id;
-    this.controller = null;
   }
 
   get id() {
     return this._id;
   }
 
-  initController(controller) {
-    this.controller = controller;
-  }
-
-  renderMainScreen(el) {
-    el.innerHTML = `
-      <article id="article" class="article"></article>
-      <aside class="aside">
-                <form id="filters" class="filters">
-                    <div class="filters-closed-wrapper">
-                        <div class="filters__title-wrapper">
-                            <i class="fa-solid fa-sort-down"></i>
-                            <p class="filters__title">Filters</p>
-                        </div>
-                        <button class="button clear-filters-button" type="reset">
-                            <i class="fa-sharp fa-solid fa-rotate-left"></i>
-                            CLEAR
-                        </button>
-                    </div>
-                    <div id="filtersWrapper"></div>
-                </form>
-                <form class="new-task-form" action="">
-                    <label for="task-name-input">Task name*
-                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text">
-                    </label>
-                    <label for="assignee-input">Assignee*
-                        <input class="assignee-input" id="assignee-input" type="text" list="assignee-list" >
-                        <datalist id="assignee-list">
-                            <option value="Aleksandr Golubovskiy">
-                            <option value="Kaiya Torff">
-                            <option value="Kierra Stanton">
-                            <option value="Charlie Rhiel Madsen">
-                        </datalist>
-                    </label>
-                    <label for="status-select">Status
-                        <select name="status" id="status-select">
-                            <option value="2">To Do</option>
-                            <option value="1">In Progress</option>
-                            <option value="0">Complete</option>
-                        </select>
-                    </label>
-                    <label for="priority-select">
-                        Priority
-                        <select name="priority" id="priority-select">
-                            <option value="2">Low</option>
-                            <option value="1">Medium</option>
-                            <option value="0">High</option>
-                        </select>
-                    </label>
-                    <label for="privacy-select">
-                        Privacy
-                        <select name="privacy" id="privacy-select">
-                            <option value="1">Public</option>
-                            <option value="0">Private</option>
-                        </select>
-                    </label>
-                    <label for="description">
-                        Description*
-                        <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
-                    </label>
-                    <button class="button create-task" type="submit">
-                        <i class="fa-solid fa-plus"></i>
-                        CREATE TASK
-                    </button>
-                    <button class="button reset-changes" type="reset">
-                        <i class="fa-sharp fa-solid fa-rotate-left"></i>
-                        RESET CHANGES
-                    </button>
-                    <button class="button open-new-task">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </form>
-            </aside>`;
-    el.classList.remove('main-task');
-    this.controller.getFilters();
-  }
-
   display(tasks, id) {
     const mainTaskWrapper = document.getElementById(this._id);
+    const isEditMode = mainTaskWrapper.classList.contains('edit-mode');
     const task = tasks.find((task) => task._id === String(id));
-    const body = document.getElementById('.body');
 
     mainTaskWrapper.classList.add('main-task');
 
@@ -1168,19 +1004,23 @@ class TaskView {
           </div>
       </div>
       <div class="task-top">
-          <h1 class="task-top__task-name">${task.name}</h1>
+          ${
+            !isEditMode
+              ? `<h1 class="task-top__task-name">${task.name}</h1>`
+              : `<input class="task-name-input task-name-input-edit" placeholder='Enter task name...' autofocus/>`
+          }
           <div class="task-top__buttons-section">
               <button class="button edit ${
-                controller.list._user === task.assignee ? '' : 'disabled'
-              }">EDIT TASK</button>
+                controller.list._user === task._author ? '' : 'disabled'
+              }">${!isEditMode ? 'EDIT TASK' : 'SAVE CHANGES'}</button>
               <button class="button edit edit-mobile ${
-                controller.list._user === task.assignee ? '' : 'disabled'
-              }">EDIT</button>
+                controller.list._user === task._author ? '' : 'disabled'
+              }">${!isEditMode ? 'EDIT' : 'SAVE CHANGES'}</button>
               <button class="button delete ${
-                controller.list._user === task.assignee ? '' : 'disabled'
+                controller.list._user === task._author ? '' : 'disabled'
               }">DELETE TASK</button>
               <button class="button delete delete-mobile ${
-                controller.list._user === task.assignee ? '' : 'disabled'
+                controller.list._user === task._author ? '' : 'disabled'
               }">DELETE</button>
           </div>
       </div>
@@ -1188,20 +1028,70 @@ class TaskView {
           <div class="task-details">
               <div class="task-assignee-wrapper">
                   <i class="fa-solid fa-user user-task-page"></i>
-                  <p class="task-assignee">${task.assignee}</p>
+                  ${
+                    !isEditMode
+                      ? `<p class="task-assignee">${task.assignee}</p>`
+                      : `<input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" list="assignee-list" >
+                  <datalist id="assignee-list">
+                      ${tasks
+                        .map((task) => {
+                          return `
+                          <option value='${task.assignee}'></option>
+                        `;
+                        })
+                        .join('')}
+                  </datalist>`
+                  }
               </div>
-              <p class="task-privace"><span class="privacy-span">privacy:</span> ${
-                task.isPrivate ? 'Private' : 'Public'
-              }</p>
-              <p class="task-description-text">${task.description}</p>
+              ${
+                !isEditMode
+                  ? `<p class="task-privace">
+                    <span class="privacy-span">privacy:</span>
+                    ${task.isPrivate ? 'Private' : 'Public'}
+                  </p>`
+                  : `<p class="task-privace"><span class="privacy-span">privacy:</span>
+                      <label for="privacy-select">
+                          <select name="privacy" id="privacy-select">
+                            <option value='0'>${
+                              task.isPrivate ? 'Private' : 'Public'
+                            }</option>
+                            <option value='1'>${
+                              task.isPrivate ? 'Public' : 'Private'
+                            }</option>
+                          </select>
+                      </label>
+                  </p>
+                  `
+              }
+              ${
+                !isEditMode
+                  ? `<p class="task-description-text">${task.description}</p>`
+                  : `<textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>`
+              }
               <div class="task-status-wrapper">
-                  <p class="task-status ${task.status
-                    .toLowerCase()
-                    .split(' ')
-                    .join('')}-task">${task.status}</p>
-                  <p class="task-priority ${task.priority.toLowerCase()}-task">${
-        task.priority
-      }</p>
+                  ${
+                    !isEditMode
+                      ? `<p class="task-status ${task.status
+                          .toLowerCase()
+                          .split(' ')
+                          .join('')}-task">${task.status}</p>`
+                      : `<select name="status" id="status-select">
+                      <option value="2">To Do</option>
+                      <option value="1">In Progress</option>
+                      <option value="0">Complete</option>
+                  </select>`
+                  }
+                  ${
+                    !isEditMode
+                      ? `<p class="task-priority ${task.priority.toLowerCase()}-task">${
+                          task.priority
+                        }</p>`
+                      : `<select name="priority" id="priority-select">
+                      <option value="2">Low</option>
+                      <option value="1">Medium</option>
+                      <option value="0">High</option>
+                  </select>`
+                  }
               </div>
               <div class="task-attachments-wrapper">
                   <div class="task-attachment-title-wrapper">
@@ -1267,44 +1157,6 @@ class TaskView {
           <button id="confirmDelete" class="button delete">DELETE</button>
       </div>
     `;
-
-    const deleteButton = document.querySelector('.delete');
-    const returnToTheMainPageButton = document.getElementById(
-      'returnToTheMainPage'
-    );
-    const addCommentButton = document.querySelector('.new-task-button');
-
-    deleteButton.addEventListener('click', () => {
-      body.classList.add('confirm');
-      mainTaskWrapper.prepend(confirmDeleteModal);
-
-      const cancelDelete = document.getElementById('cancelDelete');
-      const confirmDelete = document.getElementById('confirmDelete');
-
-      confirmDelete.addEventListener('click', () => {
-        body.classList.remove('confirm');
-        this.renderMainScreen(mainTaskWrapper);
-        this.controller.removeTask(task._id);
-      });
-
-      cancelDelete.addEventListener('click', () => {
-        body.classList.remove('confirm');
-        this.controller.showTask(task._id);
-      });
-    });
-
-    addCommentButton.addEventListener('click', () => {
-      const commentTextArea = document.querySelector(
-        '.task-comments__new-comment'
-      );
-      this.controller.addComment(task._id, commentTextArea.value);
-      this.controller.showTask(task._id);
-    });
-
-    returnToTheMainPageButton.addEventListener('click', () => {
-      this.renderMainScreen(mainTaskWrapper);
-      this.controller.getFeed(0, 20);
-    });
   }
 }
 
@@ -1381,10 +1233,206 @@ const controller = new TasksController(
   filters,
   taskPage
 );
-taskFeed.initController(controller);
-filters.initController(controller);
-taskPage.initController(controller);
 
 controller.setCurrentUser('Pentti Theodoros');
 controller.getFeed(0, 40);
-controller.getFilters();
+
+const main = document.getElementById('main');
+const body = document.getElementById('body');
+const editConfig = {};
+const filterConfig = {};
+const cardsList = document.querySelectorAll('.card');
+let currentTaskId = null;
+function renderAsideSection(el) {
+  el.innerHTML = `
+      <article id="article" class="article">
+          <div class="article__tools">
+          <div class="input-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input class="search-input" type="text" placeholder="Search">
+      </div>
+      <div class="view-wrapper">
+          <i class="fa-solid fa-table-columns"></i>
+          <i class="fa-solid fa-list-ul"></i>
+      </div>
+      <form class="filters filters-laptop">
+          <div class="filters__title-wrapper">
+              <i class="fa-solid fa-sort-down"></i>
+              <p class="filters__title">Filters</p>
+          </div>
+          <button class="button clear-filters-button" type="reset">
+              <i class="fa-sharp fa-solid fa-rotate-left"></i>
+              CLEAR
+          </button>
+      </form>
+          </div>
+      </article>
+      <aside class="aside">
+                <form id="filters" class="filters">
+                    <div class="filters-closed-wrapper">
+                        <div class="filters__title-wrapper">
+                            <i class="fa-solid fa-sort-down"></i>
+                            <p class="filters__title">Filters</p>
+                        </div>
+                        <button class="button clear-filters-button" type="reset">
+                            <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                            CLEAR
+                        </button>
+                    </div>
+                    <div id="filtersWrapper"></div>
+                </form>
+                <form class="new-task-form" action="">
+                    <label for="task-name-input">Task name*
+                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text">
+                    </label>
+                    <label for="assignee-input">Assignee*
+                        <input class="assignee-input" id="assignee-input" type="text" list="assignee-list" >
+                        <datalist id="assignee-list">
+                            <option value="Aleksandr Golubovskiy">
+                            <option value="Kaiya Torff">
+                            <option value="Kierra Stanton">
+                            <option value="Charlie Rhiel Madsen">
+                        </datalist>
+                    </label>
+                    <label for="status-select">Status
+                        <select name="status" id="status-select">
+                            <option value="2">To Do</option>
+                            <option value="1">In Progress</option>
+                            <option value="0">Complete</option>
+                        </select>
+                    </label>
+                    <label for="priority-select">
+                        Priority
+                        <select name="priority" id="priority-select">
+                            <option value="2">Low</option>
+                            <option value="1">Medium</option>
+                            <option value="0">High</option>
+                        </select>
+                    </label>
+                    <label for="privacy-select">
+                        Privacy
+                        <select name="privacy" id="privacy-select">
+                            <option value="1">Public</option>
+                            <option value="0">Private</option>
+                        </select>
+                    </label>
+                    <label for="description">
+                        Description*
+                        <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
+                    </label>
+                    <button class="button create-task" type="submit">
+                        <i class="fa-solid fa-plus"></i>
+                        CREATE TASK
+                    </button>
+                    <button class="button reset-changes" type="reset">
+                        <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                        RESET CHANGES
+                    </button>
+                    <button class="button open-new-task">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </form>
+            </aside>`;
+  el.classList.remove('main-task');
+}
+
+function setEventOnTaskCard() {
+  main.addEventListener('click', (e) => {
+    if (e.target.className === 'card') {
+      currentTaskId = e.target.getAttribute('id');
+      controller.showTask(e.target.getAttribute('id'));
+      setEventsOnTaskPage();
+    }
+  });
+}
+
+function setEventsOnTaskPage() {
+  const returnToTheMainPageButton = document.getElementById(
+    'returnToTheMainPage'
+  );
+  const deleteButton = document.querySelector('.delete');
+  const editButton = document.querySelector('.edit');
+  const newCommentButton = document.querySelector('.new-task-button');
+
+  returnToTheMainPageButton.addEventListener('click', () => {
+    renderAsideSection(main);
+    setEventOnTaskCard();
+    controller.getFeed(0, 20);
+  });
+
+  deleteButton.addEventListener('click', () => {
+    const confirmDeleteModal = document.createElement('div');
+    confirmDeleteModal.className = 'task-confirm-modal';
+    confirmDeleteModal.innerHTML = `
+        <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
+        <div class="task-confirm-modal__buttons-wrapper">
+            <button id="cancelDelete" class="button cancel">CANCEL</button>
+            <button id="confirmDelete" class="button delete">DELETE</button>
+        </div>
+      `;
+    body.classList.add('confirm');
+    main.prepend(confirmDeleteModal);
+
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+
+    confirmDelete.addEventListener('click', () => {
+      body.classList.remove('confirm');
+      renderAsideSection(main);
+      controller.removeTask(currentTaskId);
+      setEventOnTaskCard();
+    });
+
+    cancelDelete.addEventListener('click', () => {
+      body.classList.remove('confirm');
+      controller.showTask(currentTaskId);
+      setEventsOnTaskPage();
+    });
+  });
+
+  editButton.addEventListener('click', () => {
+    if (main.classList.contains('edit-mode')) {
+      controller.editTask(currentTaskId, editConfig);
+      main.classList.remove('edit-mode');
+      controller.showTask(currentTaskId);
+      setEventsOnTaskPage();
+    } else {
+      main.classList.add('edit-mode');
+      controller.showTask(currentTaskId);
+      setEventsOnTaskPage();
+      const nameInput = document.querySelector('.task-name-input-edit');
+
+      nameInput.addEventListener('input', () => {
+        editConfig.name = nameInput.value;
+      });
+    }
+  });
+
+  newCommentButton.addEventListener('click', () => {
+    const commentTextArea = document.querySelector(
+      '.task-comments__new-comment'
+    );
+    controller.addComment(currentTaskId, commentTextArea.value);
+    controller.showTask(currentTaskId);
+    setEventsOnTaskPage();
+  });
+}
+
+function setEventOnFilters() {
+  const filtersHead = document.querySelector('.filters-closed-wrapper');
+  const filters = document.getElementById('filters');
+  const taskNameInput = document.querySelector('.search-input');
+
+  filtersHead.addEventListener('click', () => {
+    filters.classList.toggle('open');
+  });
+
+  taskNameInput.addEventListener('input', () => {
+    filterConfig.name = taskNameInput.value;
+    controller.getFeed(0, 20, filterConfig);
+    setEventOnTaskCard();
+  });
+}
+
+setEventOnTaskCard();
+setEventOnFilters();
