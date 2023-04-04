@@ -939,7 +939,7 @@ class UserView {
                 } 
                 <div class="user-info-form__login-wrapper">
                     <i class="fa-solid fa-user user-page"></i>
-                    <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="Mr_sagusha">
+                    <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="Mr_sagusha" disabled>
                 </div>
                 <div class="user-info-field-wrapper">
                     ${
@@ -1919,6 +1919,11 @@ function setEventOnUserPage() {
         (user) => user._id === controller.list._user._id
       )
     );
+    main.classList.remove('edit-mode');
+    setEventOnUserPage();
+  });
+
+  form.addEventListener('reset', () => {
     main.classList.remove('edit-mode');
     setEventOnUserPage();
   });
