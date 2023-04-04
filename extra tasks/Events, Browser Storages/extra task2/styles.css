@@ -1,0 +1,11 @@
+ul, li {
+    width: fit-content;
+}
+
+li {
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}

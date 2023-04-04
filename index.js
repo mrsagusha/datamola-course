@@ -1,390 +1,66 @@
-let tasks = [
-  {
-    _id: '0',
-    name: 'Lorem ipsum dolor sit amet.',
-    description: 'Fusce sed leo vehicula, facilisis.',
-    _createdAt: new Date('2023-03-09T23:00:00'),
-    assignee: 'Zehra Marta',
-    status: 'To Do',
-    priority: 'High',
-    isPrivate: true,
-    _author: 'Pentti Theodoros',
-    comments: [
-      {
-        _id: '0',
-        text: 'In non eros tortor. Maecenas et eleifend ex, porta varius libero. Nunc dictum lacus vitae.',
-        _createdAt: new Date('2023-03-09T23:12:00'),
-        _author: 'Madeleine Lakshman',
-      },
-    ],
-  },
-  {
-    _id: '1',
-    name: 'Nullam velit ligula.',
-    description: 'Aenean rhoncus, magna eget tincidunt sagittis, tellus odio.',
-    _createdAt: new Date('2023-03-10T13:02:00'),
-    assignee: 'Vasu Irati',
-    status: 'In Progress',
-    priority: 'Medium',
-    isPrivate: false,
-    _author: 'Zehra Marta',
-    comments: [
-      {
-        _id: '0',
-        text: 'Nam fringilla laoreet purus vel posuere. Suspendisse a est finibus, tincidunt lectus.',
-        _createdAt: new Date('2023-03-01T08:09:00'),
-        _author: 'Madeleine Lakshman',
-      },
-    ],
-  },
-  {
-    _id: '2',
-    name: 'Nam lobortis ante ut est.',
-    description:
-      'Quisque pellentesque, ante a egestas viverra, enim ex ultrices eros, vitae viverra risus nulla vitae.',
-    _createdAt: new Date('2023-03-08T23:00:00'),
-    assignee: 'Ludolf Colm',
-    status: 'Complete',
-    priority: 'Low',
-    isPrivate: false,
-    _author: 'Vasu Irati',
-    comments: [],
-  },
-  {
-    _id: '3',
-    name: 'Ut dictum arcu.',
-    description:
-      'Duis non ex varius leo aliquet elementum. Etiam egestas nibh tortor, vitae efficitur.',
-    _createdAt: new Date('2023-03-09T12:48:00'),
-    assignee: 'Marie-Louise Mahavir',
-    status: 'To Do',
-    priority: 'High',
-    isPrivate: false,
-    _author: 'Ludolf Colm',
-    comments: [
-      {
-        _id: '0',
-        text: 'Aliquam interdum elementum turpis ut eleifend. Donec placerat faucibus odio.',
-        _createdAt: new Date('2023-03-09T13:18:00'),
-        _author: 'Arnoud Matěj',
-      },
-      {
-        _id: '1',
-        text: 'Nulla mollis et enim sit amet blandit. Duis rhoncus, quam eu commodo vestibulum, diam nisi molestie.',
-        _createdAt: new Date('2023-03-10T11:34:00'),
-        _author: 'Liana Sherif',
-      },
-    ],
-  },
-  {
-    _id: '4',
-    name: 'Orci varius natoque penatibus et magnis dis.',
-    description:
-      'Cras in diam consequat, facilisis dolor tincidunt, scelerisque purus. Maecenas elementum lobortis sem et blandit. Suspendisse potenti.',
-    _createdAt: new Date('2023-03-12T14:53:00'),
-    assignee: 'Pentti Theodoros',
-    status: 'To Do',
-    priority: 'High',
-    isPrivate: false,
-    _author: 'Marie-Louise Mahavir',
-    comments: [
-      {
-        _id: '0',
-        text: 'Mauris vitae ornare tortor. Integer nibh est, fringilla sed molestie sed, porta sed ex. Nam convallis, erat.',
-        _createdAt: new Date('2023-03-12T15:02:00'),
-        _author: 'Rok Bartolomeo',
-      },
-      {
-        _id: '1',
-        text: 'Aliquam consequat felis in sagittis ullamcorper. Nam consequat sollicitudin felis, at.',
-        _createdAt: new Date('2023-03-12T19:30:00'),
-        _author: 'Agafon Nisus',
-      },
-    ],
-  },
-  {
-    _id: '5',
-    name: 'Nulla commodo cursus.',
-    description:
-      'Nullam varius elementum risus. Curabitur sem ex, dignissim sed enim eget, consequat aliquam sem.',
-    _createdAt: new Date('2023-03-11T12:23:00'),
-    assignee: 'Oddrun Gobannos',
-    status: 'To Do',
-    priority: 'Low',
-    isPrivate: true,
-    comments: [
-      {
-        _id: '0',
-        text: 'Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse.',
-        _createdAt: new Date('2023-03-11T13:16:00'),
-        _author: 'Melqart Orinthia',
-      },
-    ],
-  },
-  {
-    _id: '6',
-    name: 'Mauris feugiat pulvinar purus id posuere. Nunc.',
-    description:
-      'Donec eu tristique quam. In turpis velit, posuere sit amet arcu sit amet, hendrerit ultrices elit. Integer.',
-    _createdAt: new Date('2023-03-12T11:45:00'),
-    assignee: 'Keren-Happuch Bjǫrg',
-    status: 'Complete',
-    priority: 'Low',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '7',
-    name: 'Mauris magna est, rhoncus sed.',
-    description:
-      'Vestibulum consequat congue interdum. Phasellus quis dui eros. Vivamus lobortis nec augue vel vehicula. Curabitur.',
-    _createdAt: new Date('2023-03-08T15:27:00'),
-    assignee: 'Toygar Justin',
-    status: 'In Progress',
-    priority: 'Low',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '8',
-    name: 'Nullam vehicula ullamcorper lacus, in.',
-    description:
-      'Proin lacus odio, luctus ac facilisis non, pellentesque a libero. Integer eget magna ligula. Fusce.',
-    _createdAt: new Date('2023-03-08T19:56:00'),
-    assignee: 'Umukoro Faustina',
-    status: 'In Progress',
-    priority: 'High',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '9',
-    name: 'Nullam vehicula ullamcorper lacus, in.',
-    description:
-      'Sed vitae nisl a orci dignissim mollis eu at orci. Vivamus eget.',
-    _createdAt: new Date('2023-03-16T11:54:00'),
-    assignee: 'Chibuzo Hrōþigaizaz',
-    status: 'Complete',
-    priority: 'Medium',
-    isPrivate: false,
-    comments: [
-      {
-        _id: '0',
-        text: 'Pellentesque interdum placerat ex, quis congue tortor tempor vitae. Nunc interdum sodales.',
-        _createdAt: new Date('2023-03-16T15:23:00'),
-        _author: 'Salil Zosime',
-      },
-      {
-        _id: '1',
-        text: 'Vestibulum varius magna quis nisl porta, in fermentum ante hendrerit.',
-        _createdAt: new Date('2023-03-17T09:12:00'),
-        _author: 'Thekla Julius',
-      },
-      {
-        _id: '2',
-        text: 'Fusce id magna hendrerit, cursus odio id, fermentum mi. Curabitur fermentum tincidunt neque, id sagittis felis malesuada.',
-        _createdAt: new Date('2023-03-18T15:37:00'),
-        _author: 'Louisette Bakari',
-      },
-    ],
-  },
-  {
-    _id: '10',
-    name: 'Curabitur commodo suscipit tellus.',
-    description:
-      'Quisque dictum, libero vitae pretium vestibulum, odio metus eleifend massa, eget laoreet risus leo.',
-    _createdAt: new Date('2023-03-29T12:24:00'),
-    assignee: 'Tadhg Mahin',
-    status: 'In Progress',
-    priority: 'High',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '11',
-    name: 'Lorem ipsum dolor sit amet.',
-    description: 'Fusce sed leo vehicula, facilisis.',
-    _createdAt: new Date('2023-04-02T15:02:00'),
-    assignee: 'Deepika Fiacre',
-    status: 'To Do',
-    priority: 'High',
-    isPrivate: true,
-    comments: [
-      {
-        _id: '0',
-        text: 'In non eros tortor. Maecenas et eleifend ex, porta varius libero. Nunc dictum lacus vitae.',
-        _createdAt: new Date('2023-04-02T17:12:00'),
-        _author: 'Gwawl Toma',
-      },
-    ],
-  },
-  {
-    _id: '12',
-    name: 'Nullam velit ligula.',
-    description: 'Aenean rhoncus, magna eget tincidunt sagittis, tellus odio.',
-    _createdAt: new Date('2023-04-06T11:43:00'),
-    assignee: 'Barbara Ingríðr',
-    status: 'In Progress',
-    priority: 'Medium',
-    isPrivate: false,
-    comments: [
-      {
-        _id: '0',
-        text: 'Nam fringilla laoreet purus vel posuere. Suspendisse a est finibus, tincidunt lectus.',
-        _createdAt: new Date('2023-04-07T15:13:00'),
-        _author: 'Ioann Cibor',
-      },
-    ],
-  },
-  {
-    _id: '13',
-    name: 'Nam lobortis ante ut est.',
-    description:
-      'Quisque pellentesque, ante a egestas viverra, enim ex ultrices eros, vitae viverra risus nulla vitae.',
-    _createdAt: new Date('2023-03-03T21:17:00'),
-    assignee: 'Kostis Osvaldo',
-    status: 'Complete',
-    priority: 'Low',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '14',
-    name: 'Ut dictum arcu.',
-    description:
-      'Duis non ex varius leo aliquet elementum. Etiam egestas nibh tortor, vitae efficitur.',
-    _createdAt: new Date('2023-03-01T15:42:00'),
-    assignee: 'Nelda Rita',
-    status: 'To Do',
-    priority: 'High',
-    isPrivate: false,
-    comments: [
-      {
-        _id: '0',
-        text: 'Aliquam interdum elementum turpis ut eleifend. Donec placerat faucibus odio.',
-        _createdAt: new Date('2023-03-01T16:42:00'),
-        _author: 'Nirupama Ásbjörn',
-      },
-      {
-        _id: '1',
-        text: 'Nulla mollis et enim sit amet blandit. Duis rhoncus, quam eu commodo vestibulum, diam nisi molestie.',
-        _createdAt: new Date('2023-03-01T17:12:00'),
-        _author: 'Florinus Damaris',
-      },
-    ],
-  },
-  {
-    _id: '15',
-    name: 'Orci varius natoque penatibus et magnis dis.',
-    description:
-      'Cras in diam consequat, facilisis dolor tincidunt, scelerisque purus. Maecenas elementum lobortis sem et blandit. Suspendisse potenti.',
-    _createdAt: new Date('2023-04-11T15:09:00'),
-    assignee: 'Eun-Young Oreste',
-    status: 'To Do',
-    priority: 'High',
-    isPrivate: false,
-    comments: [
-      {
-        _id: '0',
-        text: 'Mauris vitae ornare tortor. Integer nibh est, fringilla sed molestie sed, porta sed ex. Nam convallis, erat.',
-        _createdAt: new Date('2023-04-12T10:59:00'),
-        _author: 'Noora Tonatiuh',
-      },
-      {
-        _id: '1',
-        text: 'Aliquam consequat felis in sagittis ullamcorper. Nam consequat sollicitudin felis, at.',
-        _createdAt: new Date('2023-04-12T12:43:00'),
-        _author: 'Ihsan Chaim',
-      },
-    ],
-  },
-  {
-    _id: '16',
-    name: 'Nulla commodo cursus.',
-    description:
-      'Nullam varius elementum risus. Curabitur sem ex, dignissim sed enim eget, consequat aliquam sem.',
-    _createdAt: new Date('2023-04-15T23:52:00'),
-    assignee: 'Devdas Demyan',
-    status: 'To Do',
-    priority: 'Low',
-    isPrivate: true,
-    comments: [
-      {
-        _id: '0',
-        text: 'Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse.',
-        _createdAt: new Date('2023-04-16T23:46:00'),
-        _author: 'Kliment Ellen',
-      },
-    ],
-  },
-  {
-    _id: '17',
-    name: 'Mauris feugiat pulvinar purus id posuere. Nunc.',
-    description:
-      'Donec eu tristique quam. In turpis velit, posuere sit amet arcu sit amet, hendrerit ultrices elit. Integer.',
-    _createdAt: new Date('2023-03-18T15:23:00'),
-    assignee: 'Marius Silvan',
-    status: 'Complete',
-    priority: 'Low',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '18',
-    name: 'Mauris magna est, rhoncus sed.',
-    description:
-      'Vestibulum consequat congue interdum. Phasellus quis dui eros. Vivamus lobortis nec augue vel vehicula. Curabitur.',
-    _createdAt: new Date('2023-04-15T13:31:00'),
-    assignee: 'Gulnora Bijay',
-    status: 'In Progress',
-    priority: 'Low',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '19',
-    name: 'Nullam vehicula ullamcorper lacus, in.',
-    description:
-      'Proin lacus odio, luctus ac facilisis non, pellentesque a libero. Integer eget magna ligula. Fusce.',
-    _createdAt: new Date('2023-03-12T20:02:00'),
-    assignee: 'Ruy Gabinus',
-    status: 'In Progress',
-    priority: 'High',
-    isPrivate: false,
-    comments: [],
-  },
-  {
-    _id: '20',
-    name: 'Nullam vehicula ullamcorper lacus, in.',
-    description:
-      'Sed vitae nisl a orci dignissim mollis eu at orci. Vivamus eget.',
-    _createdAt: new Date('2023-04-01T19:52:00'),
-    assignee: 'Diodotus Isi',
-    status: 'Complete',
-    priority: 'Medium',
-    isPrivate: false,
-    comments: [
-      {
-        _id: '0',
-        text: 'Pellentesque interdum placerat ex, quis congue tortor tempor vitae. Nunc interdum sodales.',
-        _createdAt: new Date('2023-04-01T20:12:00'),
-        _author: 'Swathi Selahattin',
-      },
-      {
-        _id: '1',
-        text: 'Vestibulum varius magna quis nisl porta, in fermentum ante hendrerit.',
-        _createdAt: new Date('2023-04-02T09:13:00'),
-        _author: 'Ethelbert Jake',
-      },
-      {
-        _id: '2',
-        text: 'Fusce id magna hendrerit, cursus odio id, fermentum mi. Curabitur fermentum tincidunt neque, id sagittis felis malesuada.',
-        _createdAt: new Date('2023-04-03T10:48:00'),
-        _author: 'Wigbert Philippa',
-      },
-    ],
-  },
-];
+import {
+  validateField,
+  toggleShowPassword,
+  setInputsValuesToEditConfig,
+  validateComment,
+  validateDescription,
+  setInputsValuesToCurrentTaskConfig,
+  setListenerOnLoadMoreBtn,
+  getLengthOfTasks,
+} from './utils.js';
+
+let itemsOnPageToRender = 10;
+
+class UserCollection {
+  constructor() {
+    this._registeredUsers = this.restore();
+  }
+
+  get users() {
+    return this._registeredUsers;
+  }
+
+  get(id) {
+    return this._registeredUsers.find((user) => user._id === String(id));
+  }
+
+  addUser(login, userName, password, photo) {
+    const user = {};
+
+    user._id = Date.now().toString();
+    user.login = login;
+    user.userName = userName;
+    user.password = password;
+    user.photo = photo;
+
+    this._registeredUsers.push(user);
+  }
+
+  edit(id, name, password, photo) {
+    if (arguments.length === 0) {
+      return false;
+    }
+
+    const editUser = JSON.parse(JSON.stringify(this.get(id)));
+
+    editUser.userName = name;
+    editUser.password = password;
+    editUser.photo = photo;
+
+    this._registeredUsers = this._registeredUsers.map((user) => {
+      return user._id === id ? (user = editUser) : user;
+    });
+  }
+
+  save() {
+    window.localStorage.setItem('users', JSON.stringify(this._registeredUsers));
+  }
+
+  restore() {
+    const users = JSON.parse(window.localStorage.getItem('users'));
+    return users ? users : [];
+  }
+}
 
 class Task {
   constructor(
@@ -394,7 +70,7 @@ class Task {
     status,
     priority,
     isPrivate,
-    author
+    creator
   ) {
     this._id = Date.now().toString();
     this.name = name;
@@ -405,7 +81,7 @@ class Task {
     this.priority = priority;
     this.isPrivate = isPrivate;
     this.comments = [];
-    this._author = author;
+    this._creator = creator;
   }
 
   get id() {
@@ -416,8 +92,8 @@ class Task {
     return this._createdAt;
   }
 
-  get author() {
-    return this._author;
+  get creator() {
+    return this.creator;
   }
 
   static validateTask(task) {
@@ -495,11 +171,11 @@ class Comment {
 }
 
 class TasksCollection {
-  constructor(tasks) {
-    this._tasks = tasks;
+  constructor() {
+    this._tasks = this.restore();
   }
 
-  _user = '';
+  _user = {};
 
   get tasks() {
     return this.tasks;
@@ -517,8 +193,18 @@ class TasksCollection {
     this._user = user;
   }
 
-  getPage(skip = 0, top = 10, filterConfig) {
+  getPage(itemsOnPageToRender, filterConfig) {
     let taskCopy = this._tasks;
+    const toDoTasks = taskCopy
+      .filter((task) => task.status === 'To Do')
+      .slice(0, itemsOnPageToRender);
+    const inProgressTasks = taskCopy
+      .filter((task) => task.status === 'In Progress')
+      .slice(0, itemsOnPageToRender);
+    const completeTasks = taskCopy
+      .filter((task) => task.status === 'Complete')
+      .slice(0, itemsOnPageToRender);
+    taskCopy = [...toDoTasks, ...inProgressTasks, ...completeTasks];
 
     if (filterConfig) {
       taskCopy = taskCopy
@@ -531,12 +217,12 @@ class TasksCollection {
         })
         .filter((task) => {
           return filterConfig.hasOwnProperty('dateFrom')
-            ? task._createdAt >= filterConfig.dateFrom
+            ? new Date(task._createdAt) >= filterConfig.dateFrom
             : task;
         })
         .filter((task) => {
           return filterConfig.hasOwnProperty('dateTo')
-            ? task._createdAt <= filterConfig.dateTo
+            ? new Date(task._createdAt) <= filterConfig.dateTo
             : task;
         })
         .filter((task) => {
@@ -562,16 +248,14 @@ class TasksCollection {
         });
     }
 
-    return taskCopy
-      .slice(skip, skip + top)
-      .sort((a, b) => b._createdAt - a._createdAt);
+    return taskCopy.sort((a, b) => b._createdAt - a._createdAt);
   }
 
   get(id) {
     return this._tasks.find((task) => task._id === String(id));
   }
 
-  add(name, description, assignee, status, priority, isPrivate, author) {
+  add(name, description, assignee, status, priority, isPrivate) {
     const newTask = new Task(
       name,
       description,
@@ -579,7 +263,7 @@ class TasksCollection {
       status,
       priority,
       isPrivate,
-      author
+      this._user
     );
 
     if (!Task.validateTask(newTask)) {
@@ -590,7 +274,10 @@ class TasksCollection {
   }
 
   edit(id, name, description, assignee, status, priority, isPrivate = false) {
-    if (arguments.length === 0 || this.get(id)._author !== this._user) {
+    if (
+      arguments.length === 0 ||
+      this.get(id)._creator._id !== this._user._id
+    ) {
       return false;
     }
 
@@ -627,7 +314,7 @@ class TasksCollection {
   }
 
   remove(id) {
-    if (!this.get(id) || !id || this.get(id)._author !== this._user) {
+    if (!this.get(id) || !id || this.get(id)._creator._id !== this._user._id) {
       return false;
     }
 
@@ -638,7 +325,7 @@ class TasksCollection {
 
   addComment(id, text) {
     const task = this.get(id);
-    const comment = new Comment(text, this._user);
+    const comment = new Comment(text, this._user.userName);
 
     if (!Comment.validateComment(comment) || !task) {
       return false;
@@ -667,6 +354,15 @@ class TasksCollection {
   clear() {
     this._tasks = [];
   }
+
+  save() {
+    window.localStorage.setItem('tasks', JSON.stringify(this._tasks));
+  }
+
+  restore() {
+    const tasks = JSON.parse(window.localStorage.getItem('tasks'));
+    return tasks ? tasks : [];
+  }
 }
 
 class HeaderView {
@@ -680,7 +376,7 @@ class HeaderView {
 
   display(user) {
     const header = document.getElementById(this._id);
-    let isUser = user === controller.list._user;
+    let isUser = user === controller.list._user.userName;
 
     if (!user) {
       isUser = false;
@@ -779,10 +475,14 @@ class TaskFeedView {
       const newTask = document.createElement('div');
       newTask.classList.add('card');
       newTask.setAttribute('id', task._id);
+      newTask.setAttribute('status', task.status);
       newTask.innerHTML = `
       <i class="fa-solid fa-ellipsis-vertical ${
-        controller.list._user === task._author ? '' : 'forbidden'
-      }"></i>
+        controller.list._user._id === task._creator._id ? '' : 'forbidden'
+      }"><div class="card-options">
+          <i class="fa-solid fa-trash"></i>
+          <i class="fa-solid fa-pen"></i>
+      </div></i>
       <div class="card__main-info">
           <div class="card__task-info">
               <div class="card__task-name-wrapper">
@@ -858,8 +558,25 @@ class TaskFeedView {
     });
 
     if (tasksFeedContainer) {
+      if (tasksFeedContainer.lastElementChild.classList.contains('load-more')) {
+        tasksFeedContainer.lastElementChild.remove();
+        tasksFeedContainer.lastElementChild.remove();
+      }
       tasksFeedContainer.append(tasksFeed);
       tasksFeedContainer.append(loadMoreButton);
+    }
+
+    if (
+      getLengthOfTasks('In Progress', controller) >
+        document.querySelectorAll('[status="To Do"]').length ||
+      getLengthOfTasks('To Do', controller) >
+        document.querySelectorAll('[status="In Progress"]').length ||
+      getLengthOfTasks('Complete', controller) >
+        document.querySelectorAll('[status="Complete"]').length
+    ) {
+      loadMoreButton.removeAttribute('disabled');
+    } else {
+      loadMoreButton.setAttribute('disabled', true);
     }
   }
 }
@@ -873,8 +590,7 @@ class FilterView {
     return this._id;
   }
 
-  display(tasks) {
-    const filters = document.getElementById('filters');
+  display() {
     const filtersWrapper = document.getElementById(this._id);
     const fragment = new DocumentFragment();
     const assigneeLabel = document.createElement('label');
@@ -883,9 +599,6 @@ class FilterView {
     const statusLabel = document.createElement('label');
     const dateFromLabel = document.createElement('label');
     const dateToLabel = document.createElement('label');
-    const filtersHead = document.querySelector('.filters-closed-wrapper');
-    const taskNameInput = document.querySelector('.search-input');
-    const filterConfig = {};
 
     assigneeLabel.setAttribute('for', 'assignee-input');
     priorityLabel.setAttribute('for', 'priority-select');
@@ -898,12 +611,12 @@ class FilterView {
 
     assigneeLabel.innerHTML = `
     Assignee
-    <input class="assignee-input" id="assignee-input" type="text" autocomplete="off" list="assignee-list" >
+    <input class="assignee-input" id="assignee-input" type="text" autocomplete="off" list="assignee-list">
         <datalist id="assignee-list">
-            ${tasks
-              .map((task) => {
+            ${controller.users._registeredUsers
+              .map((user) => {
                 return `
-                <option value='${task.assignee}'></option>
+                <option value='${user.userName}'></option>
               `;
               })
               .join('')}
@@ -940,15 +653,15 @@ class FilterView {
     Date from
     <div class="filter-date-container">
         <input class="filter-date" type="date"></input>
-        <input class="filter-time" type="time"></input>
+        <input class="filter-time" type="time" disabled></input>
     </div>
     `;
 
     dateToLabel.innerHTML = `
     Date to
     <div class="filter-date-container">
-        <input class="filter-date" type="date"></input>
-        <input class="filter-time" type="time"></input>
+        <input class="filter-date date-to" type="date"></input>
+        <input class="filter-time time-to" type="time" disabled></input>
     </div>
     `;
 
@@ -1007,20 +720,28 @@ class TaskView {
           ${
             !isEditMode
               ? `<h1 class="task-top__task-name">${task.name}</h1>`
-              : `<input class="task-name-input task-name-input-edit" placeholder='Enter task name...' autofocus/>`
+              : `<div class="form__input-error-message error-task-page"></div><input class="task-name-input task-name-input-edit" placeholder='Enter task name...' name="taskNameTaskPage" autofocus/>`
           }
           <div class="task-top__buttons-section">
-              <button class="button edit ${
-                controller.list._user === task._author ? '' : 'disabled'
+              <button class="button edit edit-task ${
+                controller.list._user._id === task._creator._id
+                  ? ''
+                  : 'disabled'
               }">${!isEditMode ? 'EDIT TASK' : 'SAVE CHANGES'}</button>
               <button class="button edit edit-mobile ${
-                controller.list._user === task._author ? '' : 'disabled'
+                controller.list._user._id === task._creator._id
+                  ? ''
+                  : 'disabled'
               }">${!isEditMode ? 'EDIT' : 'SAVE CHANGES'}</button>
               <button class="button delete ${
-                controller.list._user === task._author ? '' : 'disabled'
+                controller.list._user._id === task._creator._id
+                  ? ''
+                  : 'disabled'
               }">DELETE TASK</button>
               <button class="button delete delete-mobile ${
-                controller.list._user === task._author ? '' : 'disabled'
+                controller.list._user._id === task._creator._id
+                  ? ''
+                  : 'disabled'
               }">DELETE</button>
           </div>
       </div>
@@ -1031,15 +752,15 @@ class TaskView {
                   ${
                     !isEditMode
                       ? `<p class="task-assignee">${task.assignee}</p>`
-                      : `<input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" list="assignee-list" >
+                      : `<div class="form__input-error-message error-task-page-assignee"></div><input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" name="assignee" list="assignee-list" >
                   <datalist id="assignee-list">
-                      ${tasks
-                        .map((task) => {
-                          return `
-                          <option value='${task.assignee}'></option>
-                        `;
-                        })
-                        .join('')}
+                  ${controller.users._registeredUsers
+                    .map((user) => {
+                      return `
+                      <option value='${user.userName}'></option>
+                    `;
+                    })
+                    .join('')}
                   </datalist>`
                   }
               </div>
@@ -1052,12 +773,12 @@ class TaskView {
                   : `<p class="task-privace"><span class="privacy-span">privacy:</span>
                       <label for="privacy-select">
                           <select name="privacy" id="privacy-select">
-                            <option value='0'>${
-                              task.isPrivate ? 'Private' : 'Public'
-                            }</option>
-                            <option value='1'>${
-                              task.isPrivate ? 'Public' : 'Private'
-                            }</option>
+                            <option value='${task.isPrivate ? 1 : 0}'>${
+                      task.isPrivate ? 'Private' : 'Public'
+                    }</option>
+                            <option value='${task.isPrivate ? 0 : 1}'>${
+                      task.isPrivate ? 'Public' : 'Private'
+                    }</option>
                           </select>
                       </label>
                   </p>
@@ -1066,7 +787,7 @@ class TaskView {
               ${
                 !isEditMode
                   ? `<p class="task-description-text">${task.description}</p>`
-                  : `<textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>`
+                  : `<div class="task-description-wrapper"><div class="form__input-error-message"></div><textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea></div>`
               }
               <div class="task-status-wrapper">
                   ${
@@ -1076,9 +797,9 @@ class TaskView {
                           .split(' ')
                           .join('')}-task">${task.status}</p>`
                       : `<select name="status" id="status-select">
-                      <option value="2">To Do</option>
-                      <option value="1">In Progress</option>
-                      <option value="0">Complete</option>
+                      <option value="To Do">To Do</option>
+                      <option value="In Progress">In Progress</option>
+                      <option value="Complete">Complete</option>
                   </select>`
                   }
                   ${
@@ -1087,9 +808,9 @@ class TaskView {
                           task.priority
                         }</p>`
                       : `<select name="priority" id="priority-select">
-                      <option value="2">Low</option>
-                      <option value="1">Medium</option>
-                      <option value="0">High</option>
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
                   </select>`
                   }
               </div>
@@ -1139,8 +860,13 @@ class TaskView {
               </div>
               <p class="task-comments__title">New comment</p>
               <div class="task-comments__new-comment-wrapper">
-                  <textarea class="task-comments__new-comment" name="" id="" cols="30" rows="10"></textarea>
-                  <button class="button new-task-button">
+                  <div class="form__input-error-message"></div>
+                  <textarea class="task-comments__new-comment" name="" id="" cols="30" rows="10" ${
+                    !controller.list._user.userName || isEditMode
+                      ? 'disabled'
+                      : ''
+                  }></textarea>
+                  <button class="button new-task-button" disabled>
                       <i class="fa-solid fa-plus new-task-plus"></i>
                   </button>
               </div>
@@ -1160,22 +886,335 @@ class TaskView {
   }
 }
 
+class UserView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display() {
+    const main = document.getElementById(this._id);
+    const isEditMode = main.classList.contains('edit-mode');
+
+    main.innerHTML = `
+    <div class="user-wrapper">
+    <div class="user-top">
+        <button class="return-to-main-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Return to the main page
+        </button>
+        <div class="edit-mode-toggle-wrapper laptop">
+            <p class="edit-mode-toggle-title">Edit mode</p>
+            <label class="edit-mode-toggle">
+                <input class="toggle-edit-input-laptop" type="checkbox">
+                <span class="slider"></span>
+            </label>  
+        </div>         
+    </div>
+    <div class="user-main">
+        <div class="user-info">
+            <div class="user-images">
+                <div class="user-main-image-wrapper">
+                    <img class="user-main-image" src="./assets/user.png" alt="user">
+                    <img class="camera" src="./assets/camera.png" alt="camera">
+                </div>
+                ${
+                  isEditMode
+                    ? `<div class="user-default-images-wrapper">
+                <img class="user-default-image" src="./assets/profile-image1.png" alt="default image">
+                <img class="user-default-image" src="./assets/profile-image2.png" alt="default image">
+                <img class="user-default-image" src="./assets/profile-image3.png" alt="default image">
+            </div>`
+                    : ''
+                }
+            </div>
+            <form class="user-info-form" action="">
+                ${
+                  isEditMode
+                    ? `<div class="user-info-form__name-wrapper"><div class="form__input-error-message"></div><input id="user-name" class="user-info-form__name" type="text" name="usernameUserPage" id="" value="${controller.list._user.userName}"></div>`
+                    : `<p>${controller.list._user.userName}</p>`
+                } 
+                <div class="user-info-form__login-wrapper">
+                    <i class="fa-solid fa-user user-page"></i>
+                    <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="Mr_sagusha">
+                </div>
+                <div class="user-info-field-wrapper">
+                    ${
+                      isEditMode
+                        ? '<label for="user-current-password">Current password</label>'
+                        : ''
+                    }
+                    <div class="user-info-form__password-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <div class="form__input-error-message"></div>
+                        <input id="user-current-password" class="user-info-form__password" type="password" name="" id="" value="${
+                          controller.list._user.password
+                        }" disabled>
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                </div>
+                ${
+                  isEditMode
+                    ? `<div class="user-info-field-wrapper">
+                <label for="user-new-password">New password</label>
+                <div class="user-info-form__password-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <div class="form__input-error-message"></div>
+                    <input id="newPassword" class="user-info-form__password" type="password" name="password" id="">
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+            </div>
+            <div class="user-info-field-wrapper">
+                <label for="">Confirm password</label>
+                <div class="user-info-form__password-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <div class="form__input-error-message"></div>
+                    <input id="user-confirm-password" class="user-info-form__password" type="password" name="confirmNewPassword" id="">
+                    <i class="fa-solid fa-eye"></i>
+                </div>
+            </div>
+            <input class="button create-task" type="submit" value="SAVE CHANGES" disabled/>
+            <button class="button reset-changes" type="reset">
+                <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                RESET CHANGES
+            </button>`
+                    : ''
+                }
+            </form>
+        </div>
+        <div class="edit-mode-toggle-wrapper">
+            <p class="edit-mode-toggle-title">Edit mode</p>
+            <label class="edit-mode-toggle">
+                <input class="toggle-edit-input" type="checkbox" ${
+                  isEditMode ? 'checked' : ''
+                }
+                }>
+                <span class="slider"></span>
+            </label>  
+        </div>        
+    </div> 
+</div>           
+    `;
+  }
+}
+
+class LogInView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display() {
+    const main = document.getElementById(this._id);
+
+    main.innerHTML = `
+    <div class="signin-error"></div>
+    <form class="form form-signin" action="">
+        <p class="form__title">SIGN IN</p>
+        <div class="form__input-wrapper">
+            <i class="fa-solid fa-user user-registartion-ico"></i>
+            <div class="form__input-error-message"></div>
+            <input class="form__input" type="text" placeholder="Login" name="login">
+        </div>
+        <div class="form__input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <div class="form__input-error-message"></div>
+            <input class="form__input" type="password" placeholder="Password" name="password">
+            <i class="fa-solid fa-eye"></i>
+        </div>
+        <button class="form__signup-button">Not a member?<span>SIGN UP NOW</span></button>
+        <input class="button form__signin-button-main" type="submit" value="SIGN IN"></input>
+        <button class="return-to-main-button">
+            <i class="fa-solid fa-arrow-left"></i>
+                Return to the main page
+        </button>
+    </form>
+    `;
+  }
+}
+
+class RegistrationView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display() {
+    const main = document.getElementById(this._id);
+
+    main.innerHTML = `
+    <div class="signin-error"></div>
+    <form class="form" action="">
+    <p class="form__title">REGISTRATION</p>
+    <div class="form__input-wrapper">
+        <i class="fa-solid fa-user user-registartion-ico"></i>
+        <div class="form__input-error-message"></div>
+        <input class="form__input" type="text" placeholder="Login" name="login">
+    </div>
+    <div class="form__input-wrapper">
+        <i class="fa-solid fa-lock"></i>
+        <div class="form__input-error-message"></div>
+        <input id="password" class="form__input" type="password" placeholder="Password" name="password">
+        <i class="fa-solid fa-eye"></i>
+    </div>
+    <div class="form__input-wrapper">
+        <div class"form__authorization-error-message"></div>
+        <i class="fa-solid fa-lock"></i>
+        <div class="form__input-error-message"></div>
+        <input class="form__input" type="password" placeholder="Confirm password" name="confirmPassword">
+        <i class="fa-solid fa-eye"></i>
+    </div>
+    <div class="form__input-wrapper">
+        <i class="fa-solid fa-user user-registartion-ico"></i>
+        <div class="form__input-error-message"></div>
+        <input class="form__input" type="text" placeholder="Username" name="username">
+    </div>
+    <div class="form__file-input-wrapper">
+        <label class="form__file-input-label" for="imageInput">
+            <div class="form__file-select">
+                <i class="fa-solid fa-file-circle-plus"></i>
+                <p class="form__file-select-text">Select file</p>
+            </div>
+            <input class="form__file-input" id="imageInput" type="file">
+            <div class="form__file-name"></div>
+        </label>
+        <img class="form__registration-image" src="./assets/user.png" alt="image">
+    </div>
+    <button class="form__signin-button">Already have an account?<span>SIGN IN</span></button>
+    <input class="button form__register-button" type="submit" value="REGISTER" disabled></input>
+    <button class="return-to-main-button">
+        <i class="fa-solid fa-arrow-left"></i>
+            Return to the main page
+    </button>
+</form>
+    `;
+  }
+}
+
+class NewTaskView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display() {
+    const aside = document.getElementById(this._id);
+    const newTaskForm = document.createElement('form');
+    newTaskForm.classList.add('new-task-form');
+    newTaskForm.innerHTML = `
+    <label for="task-name-input">Task name*
+    <div class="form__input-error-message new-task-error"></div>
+    <input placeholder="" class="form__input new-task-input" id="task-name-input" type="text" name="taskName" autocomplete="off" ${
+      !controller.list._user.userName ? 'disabled' : ''
+    }>
+</label>
+<label for="assignee-input">Assignee*
+    <div class="form__input-error-message new-task-error"></div>
+    <input class="form__input new-task-input" id="assignee-input-new-task" type="text" list="assignee-list" name="assignee" autocomplete="off" ${
+      !controller.list._user.userName ? 'disabled' : ''
+    }>
+    <datalist id="assignee-list">
+    ${controller.users._registeredUsers
+      .map((user) => {
+        return `
+        <option value='${user.userName}'></option>
+      `;
+      })
+      .join('')}
+    </datalist>
+</label>
+<label for="status-select">Status
+    <select name="status" id="status-select-new-task" ${
+      !controller.list._user.userName ? 'disabled' : ''
+    }>
+        <option value="To Do">To Do</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Complete">Complete</option>
+    </select>
+</label>
+<label for="priority-select">
+    Priority
+    <select name="priority" id="priority-select-new-task" ${
+      !controller.list._user.userName ? 'disabled' : ''
+    }>
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select>
+</label>
+<label for="privacy-select">
+    Privacy
+    <select name="privacy" id="privacy-select-new-task" ${
+      !controller.list._user.userName ? 'disabled' : ''
+    }>
+        <option value="0">Public</option>
+        <option value="1">Private</option>
+    </select>
+</label>
+<label for="description">
+    Description*
+    <div class="form__input-error-message new-task-error"></div>
+    <textarea class="task-description new-task-description" name="description" id="description" cols="25" rows="10" ${
+      !controller.list._user.userName ? 'disabled' : ''
+    }></textarea>
+</label>
+<input class="button create-task" type="submit" value="CREATE TASK" disabled>
+</input>
+<input class="button reset-changes" type="reset" value="RESET CHANGES">
+</input>
+<button class="button open-new-task">
+    <i class="fa-solid fa-plus"></i>
+</button>
+    `;
+
+    aside.append(newTaskForm);
+  }
+}
+
 class TasksController {
-  constructor(list, header, taskFeed, filters, taskPage) {
+  constructor(
+    list,
+    users,
+    header,
+    taskFeed,
+    filters,
+    taskPage,
+    logIn,
+    registrationPage,
+    userPage,
+    newTask
+  ) {
     this.list = list;
+    this.users = users;
     this.header = header;
     this.taskFeed = taskFeed;
     this.filters = filters;
     this.taskPage = taskPage;
+    this.logIn = logIn;
+    this.registrationPage = registrationPage;
+    this.userPage = userPage;
+    this.newTask = newTask;
   }
 
   setCurrentUser(user) {
     this.list.changeUser(user);
-    this.header.display(user);
+    this.header.display(user.userName);
   }
 
-  getFeed(skip, top, filterConfig) {
-    const arr = this.list.getPage(skip, top, filterConfig);
+  getFeed(itemsOnPageToRender, filterConfig) {
+    const arr = this.list.getPage(itemsOnPageToRender, filterConfig);
     this.taskFeed.display(arr);
   }
 
@@ -1190,9 +1229,10 @@ class TasksController {
       task.assignee,
       task.status,
       task.priority,
-      task.isPrivate
+      task.isPrivate,
+      task.creator
     );
-    getFeed(0, this.list._tasks.length);
+    this.getFeed(itemsOnPageToRender);
   }
 
   editTask(id, task) {
@@ -1209,47 +1249,98 @@ class TasksController {
 
   removeTask(id) {
     this.list.remove(String(id));
-    this.getFeed(0, 20);
+    this.getFeed(itemsOnPageToRender);
+  }
+
+  addUser(login, userName, password, photo) {
+    this.users.addUser(login, userName, password, photo);
+  }
+
+  editUser(id, user) {
+    this.users.edit(String(id), user.userName, user.password, user.photo);
   }
 
   showTask(id) {
     this.taskPage.display(this.list._tasks, id);
   }
 
+  showLogIn(id) {
+    this.logIn.display(id);
+  }
+
+  showRegistration(id) {
+    this.registrationPage.display(id);
+  }
+
   addComment(id, text) {
     this.list.addComment(id, text);
   }
+
+  showUser(id) {
+    this.userPage.display(id);
+  }
+
+  showNewTask(id) {
+    this.newTask.display(id);
+  }
+
+  saveUsers() {
+    this.users.save();
+  }
+
+  restoreUsers() {
+    this.users.restore();
+  }
+
+  saveTasks() {
+    this.list.save();
+  }
+
+  restoreTasks() {
+    this.list.restore();
+  }
 }
 
-const list = new TasksCollection(tasks);
+const list = new TasksCollection();
+const users = new UserCollection();
 const header = new HeaderView('header');
 const taskFeed = new TaskFeedView('article');
 const filters = new FilterView('filtersWrapper');
 const taskPage = new TaskView('main');
+const logIn = new LogInView('main');
+const registrationPage = new RegistrationView('main');
+const userPage = new UserView('main');
+const newTask = new NewTaskView('aside');
 const controller = new TasksController(
   list,
+  users,
   header,
   taskFeed,
   filters,
-  taskPage
+  taskPage,
+  logIn,
+  registrationPage,
+  userPage,
+  newTask
 );
 
-controller.setCurrentUser('Pentti Theodoros');
-controller.getFeed(0, 40);
+controller.setCurrentUser({});
+controller.getFeed(itemsOnPageToRender);
 
 const main = document.getElementById('main');
 const body = document.getElementById('body');
+const container = document.querySelector('.container');
 const editConfig = {};
-const filterConfig = {};
-const cardsList = document.querySelectorAll('.card');
+const currentTaskConfig = {};
 let currentTaskId = null;
+
 function renderAsideSection(el) {
   el.innerHTML = `
       <article id="article" class="article">
           <div class="article__tools">
           <div class="input-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input class="search-input" type="text" placeholder="Search">
+          <input class="search-input" type="text" placeholder="Search" autocomplete="off">
       </div>
       <div class="view-wrapper">
           <i class="fa-solid fa-table-columns"></i>
@@ -1267,7 +1358,7 @@ function renderAsideSection(el) {
       </form>
           </div>
       </article>
-      <aside class="aside">
+      <aside id="aside" class="aside">
                 <form id="filters" class="filters">
                     <div class="filters-closed-wrapper">
                         <div class="filters__title-wrapper">
@@ -1281,69 +1372,74 @@ function renderAsideSection(el) {
                     </div>
                     <div id="filtersWrapper"></div>
                 </form>
-                <form class="new-task-form" action="">
-                    <label for="task-name-input">Task name*
-                        <input placeholder=" " class="task-name-input" id="task-name-input" type="text">
-                    </label>
-                    <label for="assignee-input">Assignee*
-                        <input class="assignee-input" id="assignee-input" type="text" list="assignee-list" >
-                        <datalist id="assignee-list">
-                            <option value="Aleksandr Golubovskiy">
-                            <option value="Kaiya Torff">
-                            <option value="Kierra Stanton">
-                            <option value="Charlie Rhiel Madsen">
-                        </datalist>
-                    </label>
-                    <label for="status-select">Status
-                        <select name="status" id="status-select">
-                            <option value="2">To Do</option>
-                            <option value="1">In Progress</option>
-                            <option value="0">Complete</option>
-                        </select>
-                    </label>
-                    <label for="priority-select">
-                        Priority
-                        <select name="priority" id="priority-select">
-                            <option value="2">Low</option>
-                            <option value="1">Medium</option>
-                            <option value="0">High</option>
-                        </select>
-                    </label>
-                    <label for="privacy-select">
-                        Privacy
-                        <select name="privacy" id="privacy-select">
-                            <option value="1">Public</option>
-                            <option value="0">Private</option>
-                        </select>
-                    </label>
-                    <label for="description">
-                        Description*
-                        <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
-                    </label>
-                    <button class="button create-task" type="submit">
-                        <i class="fa-solid fa-plus"></i>
-                        CREATE TASK
-                    </button>
-                    <button class="button reset-changes" type="reset">
-                        <i class="fa-sharp fa-solid fa-rotate-left"></i>
-                        RESET CHANGES
-                    </button>
-                    <button class="button open-new-task">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </form>
             </aside>`;
   el.classList.remove('main-task');
 }
 
 function setEventOnTaskCard() {
   main.addEventListener('click', (e) => {
-    if (e.target.className === 'card') {
+    if (e.target.className === 'card' && controller.list._user._id) {
       currentTaskId = e.target.getAttribute('id');
-      controller.showTask(e.target.getAttribute('id'));
+      controller.showTask(currentTaskId);
+      container.classList.remove('container-main');
       setEventsOnTaskPage();
     }
+
+    if (e.target.classList.contains('fa-ellipsis-vertical')) {
+      const cardOptions = e.target.querySelector('.card-options');
+      if (!cardOptions.classList.contains('card-options-open')) {
+        cardOptions.classList.add('card-options-open');
+      } else {
+        cardOptions.classList.add('card-options-close');
+        setTimeout(() => {
+          cardOptions.classList.remove('card-options-close');
+          cardOptions.classList.remove('card-options-open');
+        }, 100);
+      }
+    }
+
+    if (e.target.classList.contains('fa-trash')) {
+      const confirmDeleteModal = document.createElement('div');
+      confirmDeleteModal.className = 'task-confirm-modal';
+      confirmDeleteModal.innerHTML = `
+            <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
+            <div class="task-confirm-modal__buttons-wrapper">
+                <button id="cancelDelete" class="button cancel">CANCEL</button>
+                <button id="confirmDelete" class="button delete">DELETE</button>
+            </div>
+          `;
+      body.classList.add('confirm');
+      main.prepend(confirmDeleteModal);
+      const cancelDelete = document.getElementById('cancelDelete');
+      const confirmDelete = document.getElementById('confirmDelete');
+
+      confirmDelete.addEventListener('click', () => {
+        body.classList.remove('confirm');
+        confirmDeleteModal.remove();
+        controller.removeTask(e.target.closest('.card').getAttribute('id'));
+        controller.saveTasks();
+        setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+      });
+
+      cancelDelete.addEventListener('click', () => {
+        body.classList.remove('confirm');
+        confirmDeleteModal.remove();
+        controller.getFeed(itemsOnPageToRender);
+      });
+    }
+
+    if (e.target.classList.contains('fa-pen')) {
+      currentTaskId = e.target.closest('.card').getAttribute('id');
+      controller.showTask(currentTaskId);
+      setInputsValuesToCurrentTaskConfig(currentTaskConfig);
+      main.classList.add('edit-mode');
+      controller.showTask(currentTaskId);
+      setEventsOnTaskPage();
+      setInputsValuesToEditConfig(editConfig, currentTaskConfig);
+    }
   });
+
+  setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
 }
 
 function setEventsOnTaskPage() {
@@ -1351,13 +1447,35 @@ function setEventsOnTaskPage() {
     'returnToTheMainPage'
   );
   const deleteButton = document.querySelector('.delete');
-  const editButton = document.querySelector('.edit');
+  const editButton = document.querySelector('.edit-task');
   const newCommentButton = document.querySelector('.new-task-button');
+  const taskPageInputs = document.getElementsByTagName('input');
+  const commentTextArea = document.querySelector('.task-comments__new-comment');
+  const descriptionTextArea = document.querySelector('.task-description');
+
+  Array.from(taskPageInputs).forEach((el) => {
+    el.addEventListener('blur', () => {
+      Array.from(taskPageInputs).some(
+        (element) => !validateField(element, controller)
+      ) ||
+      !validateDescription(descriptionTextArea) ||
+      descriptionTextArea.value === ''
+        ? editButton.setAttribute('disabled', true)
+        : editButton.removeAttribute('disabled');
+      validateField(el, controller);
+    });
+  });
 
   returnToTheMainPageButton.addEventListener('click', () => {
+    if (main.classList.contains('edit-mode')) {
+      main.classList.remove('edit-mode');
+    }
+    container.classList.add('container-main');
     renderAsideSection(main);
-    setEventOnTaskCard();
-    controller.getFeed(0, 20);
+    controller.getFeed(itemsOnPageToRender);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnFilters();
+    setEventOnNewTask();
   });
 
   deleteButton.addEventListener('click', () => {
@@ -1377,10 +1495,14 @@ function setEventsOnTaskPage() {
     const confirmDelete = document.getElementById('confirmDelete');
 
     confirmDelete.addEventListener('click', () => {
+      itemsOnPageToRender = 10;
       body.classList.remove('confirm');
       renderAsideSection(main);
       controller.removeTask(currentTaskId);
-      setEventOnTaskCard();
+      controller.saveTasks();
+      setEventOnFilters();
+      setEventOnNewTask();
+      setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
     });
 
     cancelDelete.addEventListener('click', () => {
@@ -1393,35 +1515,64 @@ function setEventsOnTaskPage() {
   editButton.addEventListener('click', () => {
     if (main.classList.contains('edit-mode')) {
       controller.editTask(currentTaskId, editConfig);
+      controller.saveTasks();
       main.classList.remove('edit-mode');
       controller.showTask(currentTaskId);
       setEventsOnTaskPage();
     } else {
+      setInputsValuesToCurrentTaskConfig(currentTaskConfig);
       main.classList.add('edit-mode');
       controller.showTask(currentTaskId);
       setEventsOnTaskPage();
-      const nameInput = document.querySelector('.task-name-input-edit');
+      setInputsValuesToEditConfig(editConfig, currentTaskConfig);
+    }
+  });
 
-      nameInput.addEventListener('input', () => {
-        editConfig.name = nameInput.value;
-      });
+  if (descriptionTextArea) {
+    descriptionTextArea.addEventListener('blur', () => {
+      !validateDescription(descriptionTextArea) ||
+      Array.from(taskPageInputs).some(
+        (element) => !validateField(element, controller)
+      ) ||
+      descriptionTextArea.value === ''
+        ? editButton.setAttribute('disabled', true)
+        : editButton.removeAttribute('disabled');
+      validateDescription(descriptionTextArea);
+    });
+  }
+
+  commentTextArea.addEventListener('blur', () => {
+    validateComment(commentTextArea);
+    if (commentTextArea.value === '' || !validateComment(commentTextArea)) {
+      newCommentButton.setAttribute('disabled', true);
+    } else {
+      newCommentButton.removeAttribute('disabled');
     }
   });
 
   newCommentButton.addEventListener('click', () => {
-    const commentTextArea = document.querySelector(
-      '.task-comments__new-comment'
-    );
     controller.addComment(currentTaskId, commentTextArea.value);
+    controller.saveTasks();
     controller.showTask(currentTaskId);
     setEventsOnTaskPage();
   });
 }
 
 function setEventOnFilters() {
-  const filtersHead = document.querySelector('.filters-closed-wrapper');
+  controller.getFilters();
+  const form = document.getElementById('filters');
+  const filtersHead = form.querySelector('.filters-closed-wrapper');
   const filters = document.getElementById('filters');
   const taskNameInput = document.querySelector('.search-input');
+  const assigneeInput = document.querySelector('.assignee-input');
+  const statusSelect = document.getElementById('status-select');
+  const prioritySelect = document.getElementById('priority-select');
+  const privacySelect = document.getElementById('privacy-select');
+  const dateFromDateSelect = document.querySelector('.filter-date');
+  const dateFromTimeSelect = document.querySelector('.filter-time');
+  const dateToDateSelect = document.querySelector('.date-to');
+  const dateToTimeSelect = document.querySelector('.time-to');
+  let filterConfig = {};
 
   filtersHead.addEventListener('click', () => {
     filters.classList.toggle('open');
@@ -1429,10 +1580,424 @@ function setEventOnFilters() {
 
   taskNameInput.addEventListener('input', () => {
     filterConfig.name = taskNameInput.value;
-    controller.getFeed(0, 20, filterConfig);
-    setEventOnTaskCard();
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  assigneeInput.addEventListener('input', () => {
+    filterConfig.assignee = assigneeInput.value;
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  statusSelect.addEventListener('change', () => {
+    filterConfig.status = statusSelect.value;
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  prioritySelect.addEventListener('change', () => {
+    filterConfig.priority = prioritySelect.value;
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  privacySelect.addEventListener('change', () => {
+    filterConfig.isPrivate = Boolean(Number(privacySelect.value));
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  dateFromDateSelect.addEventListener('input', () => {
+    dateFromDateSelect.value
+      ? dateFromTimeSelect.removeAttribute('disabled')
+      : dateFromTimeSelect.setAttribute('disabled', 'true');
+    filterConfig.dateFrom = new Date(dateFromDateSelect.value);
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  dateFromTimeSelect.addEventListener('input', () => {
+    filterConfig.dateFrom = new Date(
+      `${dateFromDateSelect.value}:${dateFromTimeSelect.value}`
+    );
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  dateToDateSelect.addEventListener('input', () => {
+    dateToDateSelect.value
+      ? dateToTimeSelect.removeAttribute('disabled')
+      : dateToTimeSelect.setAttribute('disabled', 'true');
+    filterConfig.dateTo = new Date(dateToDateSelect.value);
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  dateToTimeSelect.addEventListener('input', () => {
+    filterConfig.dateTo = new Date(
+      `${dateToDateSelect.value}:${dateToTimeSelect.value}`
+    );
+    controller.getFeed(itemsOnPageToRender, filterConfig);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('clear-filters-button')) {
+      filterConfig = {};
+      controller.getFeed(itemsOnPageToRender, filterConfig);
+      setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    }
+  });
+}
+
+function setEventOnRegistration() {
+  controller.showRegistration();
+
+  const registrationForm = document.querySelector('.form');
+  const signInButton = document.querySelector('.form__signin-button');
+  const registerButton = registrationForm.querySelector(
+    '.form__register-button'
+  );
+  const returnToTheMainPageButton = document.querySelector(
+    '.return-to-main-button'
+  );
+  const { elements } = registrationForm;
+  const errorMessage = document.querySelector('.signin-error');
+
+  registrationForm.addEventListener('submit', (e) => {
+    const data = {};
+    const login = registrationForm.querySelector('[name="login"]');
+    const user = registrationForm.querySelector('[name="username"]');
+    const password = registrationForm.querySelector('[name="password"]');
+    const photo = registrationForm.querySelector('.form__registration-image');
+    const registeredUsers = controller.users._registeredUsers;
+    let isRegistered = null;
+    e.preventDefault();
+
+    data.login = login.value;
+    data.userName = user.value;
+    data.password = password.value;
+    data.photo = photo.src;
+
+    isRegistered = registeredUsers.find((user) => user.login === data.login);
+
+    if (!isRegistered) {
+      controller.addUser(data.login, data.userName, data.password);
+      controller.saveUsers();
+      controller.showLogIn();
+      setEventOnLogIn();
+    } else {
+      errorMessage.classList.add('signin-error-open');
+      errorMessage.innerText =
+        'User with this username already exists! Enter a different login.';
+    }
+
+    setTimeout(() => {
+      errorMessage.classList.add('signin-error-close');
+      errorMessage.classList.remove('signin-error-open');
+      setTimeout(() => {
+        errorMessage.classList.remove('signin-error-close');
+      }, 1000);
+    }, 2000);
+  });
+
+  registrationForm.addEventListener('click', (e) => {
+    toggleShowPassword(e);
+  });
+
+  Array.from(elements).forEach((el) => {
+    if (el.classList.contains('form__input')) {
+      el.addEventListener('blur', () => {
+        Array.from(elements).some(
+          (element) => !validateField(element, controller)
+        )
+          ? registerButton.setAttribute('disabled', true)
+          : registerButton.removeAttribute('disabled');
+        validateField(el, controller);
+      });
+    }
+  });
+
+  document.getElementById('imageInput').addEventListener('change', () => {
+    const image = document.querySelector('.form__registration-image');
+    const imageInput = document.getElementById('imageInput');
+    const srcPath = document.querySelector('.form__file-name');
+    const fileReader = new FileReader();
+
+    srcPath.innerText = imageInput.value;
+    fileReader.readAsDataURL(document.getElementById('imageInput').files[0]);
+    fileReader.onload = () => {
+      image.src = fileReader.result;
+    };
+  });
+
+  signInButton.addEventListener('click', () => {
+    setEventOnLogIn();
+  });
+
+  returnToTheMainPageButton.addEventListener('click', () => {
+    container.classList.add('container-main');
+    renderAsideSection(main);
+    controller.getFeed(itemsOnPageToRender);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnFilters();
+    setEventOnHeader();
+    setEventOnNewTask();
+  });
+}
+
+function setEventOnLogIn() {
+  controller.showLogIn();
+  container.classList.remove('container-main');
+
+  const signInForm = document.querySelector('.form');
+  const signUpButton = document.querySelector('.form__signup-button');
+  const returnToTheMainPageButton = document.querySelector(
+    '.return-to-main-button'
+  );
+  const { elements } = signInForm;
+
+  Array.from(elements).forEach((el) => {
+    if (el.classList.contains('form__input')) {
+      el.addEventListener('blur', () => {
+        validateField(el, controller);
+      });
+    }
+  });
+
+  signInForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const login = signInForm.querySelector('[name="login"]');
+    const password = signInForm.querySelector('[name="password"]');
+    const registeredUsers = controller.users._registeredUsers;
+    const userLogIn = registeredUsers.find(
+      (user) => user.login === login.value
+    );
+    const errorMessage = document.querySelector('.signin-error');
+
+    if (userLogIn) {
+      if (userLogIn.password === password.value) {
+        renderAsideSection(main);
+        controller.setCurrentUser(userLogIn);
+        controller.getFeed(itemsOnPageToRender);
+        setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+        setEventOnFilters();
+        setEventOnHeader();
+        setEventOnNewTask();
+      } else {
+        errorMessage.classList.add('signin-error-open');
+        errorMessage.innerText =
+          'The password you entered is incorrect! Plese try again.';
+      }
+    } else {
+      errorMessage.classList.add('signin-error-open');
+      errorMessage.innerText = 'User was not found!';
+    }
+
+    setTimeout(() => {
+      errorMessage.classList.add('signin-error-close');
+      errorMessage.classList.remove('signin-error-open');
+      setTimeout(() => {
+        errorMessage.classList.remove('signin-error-close');
+      }, 1000);
+    }, 2000);
+  });
+
+  signInForm.addEventListener('click', (e) => {
+    toggleShowPassword(e);
+  });
+
+  signUpButton.addEventListener('click', () => {
+    setEventOnRegistration();
+  });
+
+  returnToTheMainPageButton.addEventListener('click', () => {
+    container.classList.add('container-main');
+    renderAsideSection(main);
+    controller.getFeed(itemsOnPageToRender);
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnFilters();
+    setEventOnHeader();
+    setEventOnNewTask();
+  });
+}
+
+function setEventOnHeader() {
+  const logInButton = document.querySelector('.button__signin');
+  const logOutButton = document.querySelector('.button__logout');
+  const userProfileButton = document.querySelector('.user-profile');
+
+  if (logInButton) {
+    logInButton.addEventListener('click', () => {
+      main.classList.remove('edit-mode');
+      setEventOnLogIn();
+    });
+  }
+
+  if (logOutButton) {
+    logOutButton.addEventListener('click', () => {
+      main.classList.remove('main-task');
+      main.classList.remove('edit-mode');
+      setEventOnLogIn();
+      controller.setCurrentUser('');
+    });
+
+    if (userProfileButton) {
+      userProfileButton.addEventListener('click', () => {
+        main.classList.remove('main-task');
+        main.classList.remove('edit-mode');
+        setEventOnUserPage();
+      });
+    }
+  }
+}
+
+function setEventOnUserPage() {
+  controller.showUser();
+  container.classList.remove('container-main');
+  main.classList.remove('main-page');
+  main.classList.add('main-task');
+  setEventOnHeader();
+  const form = document.querySelector('.user-info-form');
+  const toggleEditButton = document.querySelector('.toggle-edit-input');
+  const returnToTheMainPageButton = document.querySelector(
+    '.return-to-main-button'
+  );
+  const saveChangesButton = document.querySelector('.create-task');
+  const { elements } = form;
+  Array.from(elements).forEach((el) => {
+    el.addEventListener('blur', (e) => {
+      if (
+        e.target.classList.contains('user-info-form__name') ||
+        e.target.classList.contains('user-info-form__password')
+      ) {
+        Array.from(elements).some(
+          (element) => !validateField(element, controller)
+        )
+          ? saveChangesButton.setAttribute('disabled', true)
+          : saveChangesButton.removeAttribute('disabled');
+        validateField(el, controller);
+      }
+    });
+  });
+
+  toggleEditButton.addEventListener('change', () => {
+    if (toggleEditButton.checked) {
+      main.classList.add('edit-mode');
+      setTimeout(() => {
+        setEventOnUserPage();
+      }, 20);
+    } else {
+      main.classList.remove('edit-mode');
+      setTimeout(() => {
+        setEventOnUserPage();
+      }, 20);
+    }
+  });
+
+  form.addEventListener('click', (e) => {
+    toggleShowPassword(e);
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nameInput = document.getElementById('user-name');
+    const confirmPasswordInput = document.getElementById(
+      'user-confirm-password'
+    );
+    const data = {};
+
+    data.userName = nameInput.value;
+    data.password = confirmPasswordInput.value;
+    data.photo = '';
+
+    controller.editUser(controller.list._user._id, data);
+    controller.saveUsers();
+    controller.setCurrentUser(
+      controller.users._registeredUsers.find(
+        (user) => user._id === controller.list._user._id
+      )
+    );
+    main.classList.remove('edit-mode');
+    setEventOnUserPage();
+  });
+
+  returnToTheMainPageButton.addEventListener('click', () => {
+    if (main.classList.contains('edit-mode')) {
+      main.classList.remove('edit-mode');
+    }
+    container.classList.add('container-main');
+    renderAsideSection(main);
+    controller.getFeed(itemsOnPageToRender);
+    setEventOnFilters();
+    setEventOnNewTask();
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  });
+}
+
+function setEventOnNewTask() {
+  controller.showNewTask();
+
+  const form = document.querySelector('.new-task-form');
+  const { elements } = form;
+  const createTaskButton = form.querySelector('.create-task');
+  const newTaskDescription = form.querySelector('.task-description');
+
+  Array.from(elements).forEach((el) => {
+    if (el.classList.contains('form__input')) {
+      el.addEventListener('blur', () => {
+        Array.from(elements).some(
+          (element) => !validateField(element, controller)
+        ) ||
+        !validateDescription(newTaskDescription) ||
+        newTaskDescription.value === ''
+          ? createTaskButton.setAttribute('disabled', true)
+          : createTaskButton.removeAttribute('disabled');
+        validateField(el, controller);
+      });
+    }
+  });
+
+  newTaskDescription.addEventListener('blur', () => {
+    !validateDescription(newTaskDescription) ||
+    Array.from(elements).some(
+      (element) => !validateField(element, controller)
+    ) ||
+    newTaskDescription.value === ''
+      ? createTaskButton.setAttribute('disabled', true)
+      : createTaskButton.removeAttribute('disabled');
+    validateDescription(newTaskDescription);
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const taskName = document.getElementById('task-name-input');
+    const taskAssignee = document.getElementById('assignee-input-new-task');
+    const taskStatus = document.getElementById('status-select-new-task');
+    const taskPriority = document.getElementById('priority-select-new-task');
+    const taskPrivacy = document.getElementById('privacy-select-new-task');
+    const taskDescription = form.querySelector('.task-description');
+    const task = {};
+
+    task.name = taskName.value;
+    task.description = taskDescription.value;
+    task.assignee = taskAssignee.value;
+    task.status = taskStatus.value;
+    task.priority = taskPriority.value;
+    task.isPrivate = Boolean(Number(taskPrivacy.value));
+    task.creator = controller.list._user;
+
+    controller.addTask(task);
+    controller.saveTasks();
+    controller.getFeed(itemsOnPageToRender);
+    form.reset();
+
+    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
   });
 }
 
 setEventOnTaskCard();
+setEventOnHeader();
+setEventOnNewTask();
 setEventOnFilters();
