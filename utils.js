@@ -3,6 +3,53 @@ const regExpUsername = /^(?=.{0,100}$)([а-яё\s]+|[a-z\s]+)$/iu;
 const regExPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/;
 const regExpComment = /^(?=^.{0,280}$)/;
 
+function renderAsideSection(el) {
+  el.innerHTML = `
+      <article id="article" class="article">
+          <div class="article__tools">
+              <div class="input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input class="search-input" type="text" placeholder="Search" autocomplete="off">
+          </div>
+          <div class="view-wrapper">
+              <i class="fa-solid fa-table-columns"></i>
+              <i class="fa-solid fa-list-ul"></i>
+          </div>
+      <form class="filters filters-laptop">
+          <div class="filters__title-wrapper">
+              <i class="fa-solid fa-sort-down"></i>
+              <p class="filters__title">Filters</p>
+          </div>
+          <button class="button clear-filters-button" type="reset">
+              <i class="fa-sharp fa-solid fa-rotate-left"></i>
+              CLEAR
+          </button>
+      </form>
+          </div>
+          <div class="article__cards-group-checkboxes">
+                    <p class="article__cards-group-checkboxes-title selected">To Do</p>
+                    <p class="article__cards-group-checkboxes-title">In Progress</p>
+                    <p class="article__cards-group-checkboxes-title">Complete</p>
+          </div>
+      </article>
+      <aside id="aside" class="aside">
+                <form id="filters" class="filters">
+                    <div class="filters-closed-wrapper">
+                        <div class="filters__title-wrapper">
+                            <i class="fa-solid fa-sort-down"></i>
+                            <p class="filters__title">Filters</p>
+                        </div>
+                        <button class="button clear-filters-button" type="reset">
+                            <i class="fa-sharp fa-solid fa-rotate-left"></i>
+                            CLEAR
+                        </button>
+                    </div>
+                    <div id="filtersWrapper"></div>
+                </form>
+            </aside>`;
+  el.classList.remove('main-task');
+}
+
 function validateField(el, controller) {
   const password = document.getElementById('password');
   const newPassword = document.getElementById('newPassword');
@@ -76,8 +123,8 @@ function validateField(el, controller) {
       return false;
     }
 
-    if (!regExpLogin.test(el.value)) {
-      el.previousElementSibling.innerText = 'Enter correct login.';
+    if (!regExpLogin.test(el.value) && el.value !== '') {
+      el.previousElementSibling.innerText = 'Only latin letters are allowed.';
       el.parentElement.classList.add('form__input-error');
       return false;
     }
@@ -106,7 +153,8 @@ function validateField(el, controller) {
     }
 
     if (!regExpUsername.test(el.value)) {
-      el.previousElementSibling.innerText = 'Enter correct username.';
+      el.previousElementSibling.innerText =
+        'Only latin and cyrillic letters are allowed.';
       el.parentElement.classList.add('form__input-error');
       return false;
     }
@@ -116,44 +164,30 @@ function validateField(el, controller) {
   }
 
   if (el.name === 'usernameUserPage') {
-    if (el.value === '') {
-      el.previousElementSibling.innerText = 'Please enter username.';
-      el.classList.add('form__input-error');
-      return false;
-    }
-
-    if (el.value.length < 3) {
-      el.previousElementSibling.innerText = 'Minimum 3 characters.';
-      el.classList.add('form__input-error');
-      return false;
-    }
-
-    if (el.value === controller.list._user.userName) {
+    if (el.value === controller.list.user.userName) {
       el.previousElementSibling.innerText =
         "The name can't be the same as the old one.";
-      el.classList.add('form__input-error');
+      el.parentElement.classList.add('form__input-error');
       return false;
     }
 
-    if (!regExpUsername.test(el.value)) {
+    if (!regExpUsername.test(el.value) && el.value !== '') {
       el.previousElementSibling.innerText = 'Enter correct username.';
-      el.classList.add('form__input-error');
+      el.parentElement.classList.add('form__input-error');
+      return false;
+    }
+
+    if (el.value.length >= 1 && el.value.length < 3) {
+      el.previousElementSibling.innerText = 'Minimum 3 characters.';
+      el.parentElement.classList.add('form__input-error');
       return false;
     }
 
     el.previousElementSibling.innerText = '';
-    el.classList.remove('form__input-error');
+    el.parentElement.classList.remove('form__input-error');
   }
 
   if (el.name === 'password') {
-    if (oldPassword) {
-      if (el.value === oldPassword.value) {
-        el.previousElementSibling.innerText =
-          "The new password can't be the same as the old one.";
-        el.parentElement.classList.add('form__input-error');
-        return false;
-      }
-    }
     if (el.value === '') {
       el.previousElementSibling.innerText = 'Please enter password.';
       el.parentElement.classList.add('form__input-error');
@@ -167,10 +201,36 @@ function validateField(el, controller) {
     }
 
     if (!regExPassword.test(el.value)) {
-      el.previousElementSibling.innerText = 'Enter correct password.';
+      el.previousElementSibling.innerText =
+        'At least 1 uppercase, 1 lowercase letters and numbers are required.';
       el.parentElement.classList.add('form__input-error');
       return false;
     }
+    el.previousElementSibling.innerText = '';
+    el.parentElement.classList.remove('form__input-error');
+  }
+
+  if (el.name === 'newPassword') {
+    if (el.value === oldPassword.value) {
+      el.previousElementSibling.innerText =
+        "The new password can't be the same as the old one.";
+      el.parentElement.classList.add('form__input-error');
+      return false;
+    }
+
+    if (el.value.length >= 1 && el.value.length < 8) {
+      el.previousElementSibling.innerText = 'Minimum 8 characters.';
+      el.parentElement.classList.add('form__input-error');
+      return false;
+    }
+
+    if (!regExPassword.test(el.value) && el.value !== '') {
+      el.previousElementSibling.innerText =
+        'At least 1 uppercase, 1 lowercase letters and numbers are required.';
+      el.parentElement.classList.add('form__input-error');
+      return false;
+    }
+
     el.previousElementSibling.innerText = '';
     el.parentElement.classList.remove('form__input-error');
   }
@@ -205,25 +265,19 @@ function validateField(el, controller) {
   }
 
   if (el.name === 'confirmNewPassword') {
-    if (newPassword.value === '') {
-      el.previousElementSibling.innerText = 'First enter the new password.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
     if (newPassword.value !== el.value) {
       el.previousElementSibling.innerText = "Passwords don't match.";
       el.parentElement.classList.add('form__input-error');
       return false;
     }
 
-    if (el.value === '') {
+    if (newPassword.value !== '' && el.value === '') {
       el.previousElementSibling.innerText = 'Please confirm password.';
       el.parentElement.classList.add('form__input-error');
       return false;
     }
 
-    if (!regExPassword.test(el.value)) {
+    if (!regExPassword.test(el.value) && el.value !== '') {
       el.previousElementSibling.innerText = 'Enter correct password.';
       el.parentElement.classList.add('form__input-error');
       return false;
@@ -333,6 +387,7 @@ function setInputsValuesToEditConfig(editConfig, currentTaskConfig) {
 function setInputsValuesToCurrentTaskConfig(currentTaskConfig) {
   const taskName = document.querySelector('.task-top__task-name');
   const taskAssignee = document.querySelector('.task-assignee');
+  console.log(taskAssignee);
   const taskPrivacy = document.querySelector('.task-privace');
   const taskDescription = document.querySelector('.task-description-text');
   const taskStatus = document.querySelector('.task-status');
@@ -376,4 +431,5 @@ export {
   setInputsValuesToCurrentTaskConfig,
   setListenerOnLoadMoreBtn,
   getLengthOfTasks,
+  renderAsideSection,
 };

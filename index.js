@@ -7,6 +7,7 @@ import {
   setInputsValuesToCurrentTaskConfig,
   setListenerOnLoadMoreBtn,
   getLengthOfTasks,
+  renderAsideSection,
 } from './utils.js';
 
 let itemsOnPageToRender = 10;
@@ -376,8 +377,9 @@ class HeaderView {
 
   display(user) {
     const header = document.getElementById(this._id);
-    let isUser = user === controller.list._user.userName;
-
+    let isUser = user.userName
+      ? user.userName === controller.list._user.userName
+      : false;
     if (!user) {
       isUser = false;
     }
@@ -390,10 +392,12 @@ class HeaderView {
       </div>
       <div class="user-profile-wrapper">
             <div class="user-profile">
-              <p class="user-profile__user-name">${user ? user : 'Guest'}</p>
+              <p class="user-profile__user-name">${
+                user.userName ? user.userName : 'Guest'
+              }</p>
               ${
                 isUser
-                  ? '<img class="user-image" src="./assets/User_main.png" alt="user"></img>'
+                  ? `<img class="user-image" src=${user.photo} alt="user"></img>`
                   : ''
               }
           </div>
@@ -403,7 +407,6 @@ class HeaderView {
               : `<button class="button button__signin">SIGN IN</button>`
           }
       </div>
-      <div class="burger-menu"></div>
       `;
     }
   }
@@ -480,8 +483,8 @@ class TaskFeedView {
       <i class="fa-solid fa-ellipsis-vertical ${
         controller.list._user._id === task._creator._id ? '' : 'forbidden'
       }"><div class="card-options">
-          <i class="fa-solid fa-trash"></i>
-          <i class="fa-solid fa-pen"></i>
+          <i class="fa-solid fa-trash delete-task-board"></i>
+          <i class="fa-solid fa-pen edit-task-board"></i>
       </div></i>
       <div class="card__main-info">
           <div class="card__task-info">
@@ -519,9 +522,6 @@ class TaskFeedView {
               </span>`
               : ''
           }                             
-          </i>
-          <i class="fa-solid fa-paperclip">
-              <span class="attachments-quantity">3</span>
           </i>
           <div class="task-date-wrapper">
               <time class="card__date">${
@@ -703,7 +703,7 @@ class TaskView {
               <i class="fa-solid fa-arrow-left"></i>
                   Return to the main page
           </button>
-          <div class="task-date-wrapper">
+          <div class="task-date-wrapper task-page-date">
               <time class="task-date">${
                 ('0' + new Date(task._createdAt).getDate()).slice(-2) +
                 '.' +
@@ -723,107 +723,112 @@ class TaskView {
               : `<div class="form__input-error-message error-task-page"></div><input class="task-name-input task-name-input-edit" placeholder='Enter task name...' name="taskNameTaskPage" autofocus/>`
           }
           <div class="task-top__buttons-section">
-              <button class="button edit edit-task ${
+              <button class="edit edit-task" ${
                 controller.list._user._id === task._creator._id
                   ? ''
                   : 'disabled'
-              }">${!isEditMode ? 'EDIT TASK' : 'SAVE CHANGES'}</button>
-              <button class="button edit edit-mobile ${
+              }><i class="fa-solid ${
+        !isEditMode ? 'fa-pen pen-task-page' : 'fa-floppy-disk'
+      }"></i></button>
+              <button class="delete" ${
                 controller.list._user._id === task._creator._id
                   ? ''
                   : 'disabled'
-              }">${!isEditMode ? 'EDIT' : 'SAVE CHANGES'}</button>
-              <button class="button delete ${
-                controller.list._user._id === task._creator._id
-                  ? ''
-                  : 'disabled'
-              }">DELETE TASK</button>
-              <button class="button delete delete-mobile ${
-                controller.list._user._id === task._creator._id
-                  ? ''
-                  : 'disabled'
-              }">DELETE</button>
+              }><i class="fa-solid fa-trash trash-task-page"></i></button>
           </div>
       </div>
       <div class="task-main">
           <div class="task-details">
-              <div class="task-assignee-wrapper">
-                  <i class="fa-solid fa-user user-task-page"></i>
+           
                   ${
                     !isEditMode
-                      ? `<p class="task-assignee">${task.assignee}</p>`
-                      : `<div class="form__input-error-message error-task-page-assignee"></div><input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" name="assignee" list="assignee-list" >
-                  <datalist id="assignee-list">
-                  ${controller.users._registeredUsers
-                    .map((user) => {
-                      return `
-                      <option value='${user.userName}'></option>
-                    `;
-                    })
-                    .join('')}
-                  </datalist>`
+                      ? `<div class="task-info-wrapper">
+                      <span class="task-info-span">assignee: </span><p class="task-assignee">${task.assignee}</p>
+                    </div>`
+                      : `<div class="task-info-wrapper">
+                          <span class="task-info-span">assignee: </span>
+                          <div class="form__input-error-message error-task-page-assignee"></div>
+                          <input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" name="assignee" list="assignee-list" >
+                          <datalist id="assignee-list">
+                          ${controller.users._registeredUsers
+                            .map((user) => {
+                              return `
+                          <option value='${user.userName}'></option>
+                          `;
+                            })
+                            .join('')}
+                          </datalist>
+                      </div>`
                   }
-              </div>
               ${
                 !isEditMode
-                  ? `<p class="task-privace">
-                    <span class="privacy-span">privacy:</span>
-                    ${task.isPrivate ? 'Private' : 'Public'}
-                  </p>`
-                  : `<p class="task-privace"><span class="privacy-span">privacy:</span>
-                      <label for="privacy-select">
-                          <select name="privacy" id="privacy-select">
-                            <option value='${task.isPrivate ? 1 : 0}'>${
+                  ? `<div class="task-info-wrapper">
+                    <span class="task-info-span">privacy:</span>
+                    <p class="task-privace">${
+                      task.isPrivate ? 'Private' : 'Public'
+                    }</p>
+                  </div>`
+                  : `<div class="task-info-wrapper">
+                  <span class="task-info-span">privacy:</span>
+                  <label for="privacy-select">
+                    <select name="privacy" id="privacy-select">
+                      <option value='${task.isPrivate ? 1 : 0}'>${
                       task.isPrivate ? 'Private' : 'Public'
                     }</option>
-                            <option value='${task.isPrivate ? 0 : 1}'>${
+                      <option value='${task.isPrivate ? 0 : 1}'>${
                       task.isPrivate ? 'Public' : 'Private'
                     }</option>
-                          </select>
-                      </label>
-                  </p>
-                  `
+                    </select>
+                </label>
+                  </div>`
               }
-              ${
-                !isEditMode
-                  ? `<p class="task-description-text">${task.description}</p>`
-                  : `<div class="task-description-wrapper"><div class="form__input-error-message"></div><textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea></div>`
-              }
-              <div class="task-status-wrapper">
                   ${
                     !isEditMode
-                      ? `<p class="task-status ${task.status
+                      ? `<div class="task-info-wrapper">
+                        <p><span class="task-info-span">status: </span></p>
+                        <p class="task-status ${task.status
                           .toLowerCase()
                           .split(' ')
-                          .join('')}-task">${task.status}</p>`
-                      : `<select name="status" id="status-select">
+                          .join('')}-task">${task.status}</p>
+                      </div>`
+                      : `<div class="task-info-wrapper">
+                      <span class="task-info-span">status:</span>
+                      <select name="status" id="status-select">
                       <option value="To Do">To Do</option>
                       <option value="In Progress">In Progress</option>
                       <option value="Complete">Complete</option>
-                  </select>`
+                  </select>
+                      </div>`
                   }
                   ${
                     !isEditMode
-                      ? `<p class="task-priority ${task.priority.toLowerCase()}-task">${
+                      ? `<div class="task-info-wrapper">
+                        <p><span class="task-info-span">priority: </span></p>
+                        <p class="task-priority ${task.priority.toLowerCase()}-task">${
                           task.priority
-                        }</p>`
-                      : `<select name="priority" id="priority-select">
+                        }</p>
+                      </div>`
+                      : `<div class="task-info-wrapper">
+                      <span class="task-info-span">priority:</span>
+                      <select name="priority" id="priority-select">
                       <option value="Low">Low</option>
                       <option value="Medium">Medium</option>
                       <option value="High">High</option>
-                  </select>`
+                  </select>
+                      </div>`
                   }
-              </div>
-              <div class="task-attachments-wrapper">
-                  <div class="task-attachment-title-wrapper">
-                      <i class="fa-solid fa-paperclip"></i>
-                      <p class="task-attachments-title">Attachments:</p>
-                  </div>
-                  <div class="task-attachments">
-                      <img class="task-attachment-image" src="./assets/attachment 1.png" alt="attachment">
-                  <img class="task-attachment-image" src="./assets/attachment 2.png" alt="attachment">
-                  </div>
-              </div>
+                  ${
+                    !isEditMode
+                      ? `<div class="task-description-wrapper">
+                      <p><span class="task-info-span">description: </span></p>
+                      <p class="task-description-text">${task.description}</p>
+                      </div>`
+                      : `<div class="task-description-wrapper">
+                      <span class="task-info-span">description:</span>
+                      <div class="form__input-error-message"></div>
+                      <textarea class="task-description" name="description" id="description" cols="25" rows="10"></textarea>
+                      </div>`
+                  }
           </div>
           <div class="task-comments">
               <div class="task-comments__comments-wrapper">
@@ -858,16 +863,15 @@ class TaskView {
                     })
                     .join('')}
               </div>
-              <p class="task-comments__title">New comment</p>
               <div class="task-comments__new-comment-wrapper">
                   <div class="form__input-error-message"></div>
-                  <textarea class="task-comments__new-comment" name="" id="" cols="30" rows="10" ${
+                  <textarea class="task-comments__new-comment" name="" id="" ${
                     !controller.list._user.userName || isEditMode
                       ? 'disabled'
                       : ''
-                  }></textarea>
-                  <button class="button new-task-button" disabled>
-                      <i class="fa-solid fa-plus new-task-plus"></i>
+                  } placeholder="Enter new comment..."></textarea>
+                  <button class="button new-comment-button" disabled>
+                      <i class="fa-solid fa-paper-plane"></i>
                   </button>
               </div>
           </div>
@@ -880,7 +884,7 @@ class TaskView {
       <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
       <div class="task-confirm-modal__buttons-wrapper">
           <button id="cancelDelete" class="button cancel">CANCEL</button>
-          <button id="confirmDelete" class="button delete">DELETE</button>
+          <button id="confirmDelete" class="button delete delete-confirm">DELETE</button>
       </div>
     `;
   }
@@ -900,6 +904,19 @@ class UserView {
     const isEditMode = main.classList.contains('edit-mode');
 
     main.innerHTML = `
+    <div class="signin-error"></div>
+    <div class="form__registration-default-images-wrapper">
+        <img class="default-image" src="./assets/default1.png" alt="image">
+        <img class="default-image" src="./assets/default2.png" alt="image">
+        <img class="default-image" src="./assets/default3.png" alt="image">
+        <img class="default-image" src="./assets/default4.png" alt="image">
+        <img class="default-image" src="./assets/default5.png" alt="image">
+        <img class="default-image" src="./assets/default6.png" alt="image">
+        <img class="default-image" src="./assets/default7.png" alt="image">
+        <img class="default-image" src="./assets/default8.png" alt="image">
+        <img class="default-image" src="./assets/default9.png" alt="image">
+        <img class="default-image" src="./assets/default10.png" alt="image">
+    </div>
     <div class="user-wrapper">
     <div class="user-top">
         <button class="return-to-main-button">
@@ -909,7 +926,9 @@ class UserView {
         <div class="edit-mode-toggle-wrapper laptop">
             <p class="edit-mode-toggle-title">Edit mode</p>
             <label class="edit-mode-toggle">
-                <input class="toggle-edit-input-laptop" type="checkbox">
+                <input class="toggle-edit-input-laptop" type="checkbox" ${
+                  isEditMode ? 'checked' : ''
+                }>
                 <span class="slider"></span>
             </label>  
         </div>         
@@ -917,34 +936,40 @@ class UserView {
     <div class="user-main">
         <div class="user-info">
             <div class="user-images">
-                <div class="user-main-image-wrapper">
-                    <img class="user-main-image" src="./assets/user.png" alt="user">
-                    <img class="camera" src="./assets/camera.png" alt="camera">
-                </div>
+                <label class="user-main-image-wrapper" for="userImageInput">
+                    ${
+                      isEditMode
+                        ? `<input class='user-image-input' id="userImageInput" type="file"/>`
+                        : ''
+                    }
+                    <img class="user-main-image ${
+                      isEditMode ? 'main-image-edit' : ''
+                    }" src="./assets/user.png" alt="user">
+                    ${
+                      isEditMode
+                        ? '<img class="camera" src="./assets/camera.png" alt="camera">'
+                        : ''
+                    }
+                </label>
                 ${
                   isEditMode
-                    ? `<div class="user-default-images-wrapper">
-                <img class="user-default-image" src="./assets/profile-image1.png" alt="default image">
-                <img class="user-default-image" src="./assets/profile-image2.png" alt="default image">
-                <img class="user-default-image" src="./assets/profile-image3.png" alt="default image">
-            </div>`
+                    ? `<button class="button gallery-button"><i class="fa-regular fa-image"></i>Gallery</button>`
                     : ''
                 }
             </div>
             <form class="user-info-form" action="">
-                ${
-                  isEditMode
-                    ? `<div class="user-info-form__name-wrapper"><div class="form__input-error-message"></div><input id="user-name" class="user-info-form__name" type="text" name="usernameUserPage" id="" value="${controller.list._user.userName}"></div>`
-                    : `<p>${controller.list._user.userName}</p>`
-                } 
+                <p class="user-info__user-name">${
+                  controller.list._user.userName
+                }</p>
                 <div class="user-info-form__login-wrapper">
                     <i class="fa-solid fa-user user-page"></i>
                     <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="Mr_sagusha" disabled>
                 </div>
                 <div class="user-info-field-wrapper">
+    
                     ${
                       isEditMode
-                        ? '<label for="user-current-password">Current password</label>'
+                        ? '<label for="user-current-password">Current password:</label>'
                         : ''
                     }
                     <div class="user-info-form__password-wrapper">
@@ -959,20 +984,39 @@ class UserView {
                 ${
                   isEditMode
                     ? `<div class="user-info-field-wrapper">
-                <label for="user-new-password">New password</label>
+                    <label for="user-new-password">New user name:</label>
+                    <div class="user-info-form__password-wrapper">
+                    <div class="form__input-error-message"></div>
+                    <input id="usernameUserPage" class="user-info-form__password" type="text" name="usernameUserPage" placeholder="${
+                      document.documentElement.scrollWidth <= 853
+                        ? 'New user name'
+                        : ''
+                    }">
+                    </div>
+                    </div>
+                    <div class="user-info-field-wrapper">
+                <label for="user-new-password">New password:</label>
                 <div class="user-info-form__password-wrapper">
                     <i class="fa-solid fa-lock"></i>
                     <div class="form__input-error-message"></div>
-                    <input id="newPassword" class="user-info-form__password" type="password" name="password" id="">
+                    <input id="newPassword" class="user-info-form__password" type="password" name="newPassword" placeholder="${
+                      document.documentElement.scrollWidth <= 853
+                        ? 'New password'
+                        : ''
+                    }">
                     <i class="fa-solid fa-eye"></i>
                 </div>
             </div>
             <div class="user-info-field-wrapper">
-                <label for="">Confirm password</label>
+                <label for="">Confirm password:</label>
                 <div class="user-info-form__password-wrapper">
                     <i class="fa-solid fa-lock"></i>
                     <div class="form__input-error-message"></div>
-                    <input id="user-confirm-password" class="user-info-form__password" type="password" name="confirmNewPassword" id="">
+                    <input id="user-confirm-password" class="user-info-form__password" type="password" name="confirmNewPassword" placeholder="${
+                      document.documentElement.scrollWidth <= 853
+                        ? 'Confirm password'
+                        : ''
+                    }">
                     <i class="fa-solid fa-eye"></i>
                 </div>
             </div>
@@ -1081,8 +1125,8 @@ class RegistrationView {
     <div class="form__file-input-wrapper">
         <label class="form__file-input-label" for="imageInput">
             <div class="form__file-select">
-                <i class="fa-solid fa-file-circle-plus"></i>
-                <p class="form__file-select-text">Select file</p>
+                <i class="fa-solid fa-image"></i>
+                <p class="form__file-select-text">Select image</p>
             </div>
             <input class="form__file-input" id="imageInput" type="file">
             <div class="form__file-name"></div>
@@ -1095,6 +1139,18 @@ class RegistrationView {
         <i class="fa-solid fa-arrow-left"></i>
             Return to the main page
     </button>
+    <div class="form__registration-default-images-wrapper">
+        <img class="default-image" src="./assets/default1.png" alt="image">
+        <img class="default-image" src="./assets/default2.png" alt="image">
+        <img class="default-image" src="./assets/default3.png" alt="image">
+        <img class="default-image" src="./assets/default4.png" alt="image">
+        <img class="default-image" src="./assets/default5.png" alt="image">
+        <img class="default-image" src="./assets/default6.png" alt="image">
+        <img class="default-image" src="./assets/default7.png" alt="image">
+        <img class="default-image" src="./assets/default8.png" alt="image">
+        <img class="default-image" src="./assets/default9.png" alt="image">
+        <img class="default-image" src="./assets/default10.png" alt="image">
+    </div>
 </form>
     `;
   }
@@ -1210,7 +1266,7 @@ class TasksController {
 
   setCurrentUser(user) {
     this.list.changeUser(user);
-    this.header.display(user.userName);
+    this.header.display(user);
   }
 
   getFeed(itemsOnPageToRender, filterConfig) {
@@ -1324,57 +1380,22 @@ const controller = new TasksController(
   newTask
 );
 
-controller.setCurrentUser({});
+window.localStorage.getItem('currentUser')
+  ? controller.setCurrentUser(
+      JSON.parse(window.localStorage.getItem('currentUser'))
+    )
+  : controller.setCurrentUser({});
 controller.getFeed(itemsOnPageToRender);
 
 const main = document.getElementById('main');
 const body = document.getElementById('body');
 const container = document.querySelector('.container');
+const userProfileButton = document.querySelector('.side-menu__profile-button');
+const burgerMenu = document.querySelector('.burger-menu');
+const sideMenu = document.querySelector('.side-menu');
 const editConfig = {};
 const currentTaskConfig = {};
 let currentTaskId = null;
-
-function renderAsideSection(el) {
-  el.innerHTML = `
-      <article id="article" class="article">
-          <div class="article__tools">
-          <div class="input-wrapper">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input class="search-input" type="text" placeholder="Search" autocomplete="off">
-      </div>
-      <div class="view-wrapper">
-          <i class="fa-solid fa-table-columns"></i>
-          <i class="fa-solid fa-list-ul"></i>
-      </div>
-      <form class="filters filters-laptop">
-          <div class="filters__title-wrapper">
-              <i class="fa-solid fa-sort-down"></i>
-              <p class="filters__title">Filters</p>
-          </div>
-          <button class="button clear-filters-button" type="reset">
-              <i class="fa-sharp fa-solid fa-rotate-left"></i>
-              CLEAR
-          </button>
-      </form>
-          </div>
-      </article>
-      <aside id="aside" class="aside">
-                <form id="filters" class="filters">
-                    <div class="filters-closed-wrapper">
-                        <div class="filters__title-wrapper">
-                            <i class="fa-solid fa-sort-down"></i>
-                            <p class="filters__title">Filters</p>
-                        </div>
-                        <button class="button clear-filters-button" type="reset">
-                            <i class="fa-sharp fa-solid fa-rotate-left"></i>
-                            CLEAR
-                        </button>
-                    </div>
-                    <div id="filtersWrapper"></div>
-                </form>
-            </aside>`;
-  el.classList.remove('main-task');
-}
 
 function setEventOnTaskCard() {
   main.addEventListener('click', (e) => {
@@ -1398,14 +1419,14 @@ function setEventOnTaskCard() {
       }
     }
 
-    if (e.target.classList.contains('fa-trash')) {
+    if (e.target.classList.contains('delete-task-board')) {
       const confirmDeleteModal = document.createElement('div');
       confirmDeleteModal.className = 'task-confirm-modal';
       confirmDeleteModal.innerHTML = `
             <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
             <div class="task-confirm-modal__buttons-wrapper">
                 <button id="cancelDelete" class="button cancel">CANCEL</button>
-                <button id="confirmDelete" class="button delete">DELETE</button>
+                <button id="confirmDelete" class="button delete delete-confirm">DELETE</button>
             </div>
           `;
       body.classList.add('confirm');
@@ -1428,15 +1449,51 @@ function setEventOnTaskCard() {
       });
     }
 
-    if (e.target.classList.contains('fa-pen')) {
+    if (e.target.classList.contains('edit-task-board')) {
       currentTaskId = e.target.closest('.card').getAttribute('id');
       controller.showTask(currentTaskId);
       setInputsValuesToCurrentTaskConfig(currentTaskConfig);
+      container.classList.remove('container-main');
       main.classList.add('edit-mode');
       controller.showTask(currentTaskId);
       setEventsOnTaskPage();
       setInputsValuesToEditConfig(editConfig, currentTaskConfig);
     }
+  });
+
+  if (burgerMenu) {
+    burgerMenu.addEventListener('click', () => {
+      if (!sideMenu.classList.contains('side-menu-open')) {
+        burgerMenu.classList.add('burger-menu-open');
+        sideMenu.classList.add('side-menu-open');
+        body.classList.add('confirm');
+      } else {
+        burgerMenu.classList.add('burger-menu-close');
+        sideMenu.classList.add('side-menu-close');
+        body.classList.remove('confirm');
+        setTimeout(() => {
+          burgerMenu.classList.remove('burger-menu-open');
+          sideMenu.classList.remove('side-menu-open');
+          burgerMenu.classList.remove('burger-menu-close');
+          sideMenu.classList.remove('side-menu-close');
+        }, 200);
+      }
+    });
+  }
+
+  userProfileButton.addEventListener('click', () => {
+    burgerMenu.classList.add('burger-menu-close');
+    sideMenu.classList.add('side-menu-close');
+    body.classList.remove('confirm');
+    setTimeout(() => {
+      burgerMenu.classList.remove('burger-menu-open');
+      sideMenu.classList.remove('side-menu-open');
+      burgerMenu.classList.remove('burger-menu-close');
+      sideMenu.classList.remove('side-menu-close');
+    }, 200);
+    main.classList.remove('main-task');
+    main.classList.remove('edit-mode');
+    setEventOnUserPage();
   });
 
   setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
@@ -1448,13 +1505,13 @@ function setEventsOnTaskPage() {
   );
   const deleteButton = document.querySelector('.delete');
   const editButton = document.querySelector('.edit-task');
-  const newCommentButton = document.querySelector('.new-task-button');
+  const newCommentButton = document.querySelector('.new-comment-button');
   const taskPageInputs = document.getElementsByTagName('input');
   const commentTextArea = document.querySelector('.task-comments__new-comment');
   const descriptionTextArea = document.querySelector('.task-description');
 
   Array.from(taskPageInputs).forEach((el) => {
-    el.addEventListener('blur', () => {
+    el.addEventListener('input', () => {
       Array.from(taskPageInputs).some(
         (element) => !validateField(element, controller)
       ) ||
@@ -1485,7 +1542,7 @@ function setEventsOnTaskPage() {
         <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
         <div class="task-confirm-modal__buttons-wrapper">
             <button id="cancelDelete" class="button cancel">CANCEL</button>
-            <button id="confirmDelete" class="button delete">DELETE</button>
+            <button id="confirmDelete" class="button delete delete-confirm">DELETE</button>
         </div>
       `;
     body.classList.add('confirm');
@@ -1541,13 +1598,16 @@ function setEventsOnTaskPage() {
     });
   }
 
-  commentTextArea.addEventListener('blur', () => {
+  commentTextArea.addEventListener('input', () => {
     validateComment(commentTextArea);
     if (commentTextArea.value === '' || !validateComment(commentTextArea)) {
       newCommentButton.setAttribute('disabled', true);
     } else {
       newCommentButton.removeAttribute('disabled');
     }
+
+    commentTextArea.style.height = 'auto';
+    commentTextArea.style.height = commentTextArea.scrollHeight + 'px';
   });
 
   newCommentButton.addEventListener('click', () => {
@@ -1654,6 +1714,7 @@ function setEventOnFilters() {
 function setEventOnRegistration() {
   controller.showRegistration();
 
+  const _DEFAULT_SRC = './assets/default1.png';
   const registrationForm = document.querySelector('.form');
   const signInButton = document.querySelector('.form__signin-button');
   const registerButton = registrationForm.querySelector(
@@ -1662,18 +1723,50 @@ function setEventOnRegistration() {
   const returnToTheMainPageButton = document.querySelector(
     '.return-to-main-button'
   );
+  const photo = registrationForm.querySelector('.form__registration-image');
+  const srcPath = document.querySelector('.form__file-name');
+  const defaultImagesWrapper = document.querySelector(
+    '.form__registration-default-images-wrapper'
+  );
   const { elements } = registrationForm;
   const errorMessage = document.querySelector('.signin-error');
+  const data = {};
+
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('form__registration-image')) {
+      body.classList.add('confirm');
+      defaultImagesWrapper.classList.add('default-images-wrapper-open');
+    } else {
+      if (
+        defaultImagesWrapper.classList.contains('default-images-wrapper-open')
+      ) {
+        defaultImagesWrapper.classList.add('default-images-wrapper-close');
+        body.classList.remove('confirm');
+        setTimeout(() => {
+          defaultImagesWrapper.classList.remove('default-images-wrapper-open');
+          defaultImagesWrapper.classList.remove('default-images-wrapper-close');
+        }, 400);
+      }
+    }
+
+    if (e.target.classList.contains('default-image')) {
+      srcPath.innerText = '';
+      photo.src = e.target.src;
+      data.photo = e.target.src;
+    }
+  });
+
+  registrationForm.addEventListener('click', (e) => {
+    toggleShowPassword(e);
+  });
 
   registrationForm.addEventListener('submit', (e) => {
-    const data = {};
+    e.preventDefault();
     const login = registrationForm.querySelector('[name="login"]');
     const user = registrationForm.querySelector('[name="username"]');
     const password = registrationForm.querySelector('[name="password"]');
-    const photo = registrationForm.querySelector('.form__registration-image');
     const registeredUsers = controller.users._registeredUsers;
     let isRegistered = null;
-    e.preventDefault();
 
     data.login = login.value;
     data.userName = user.value;
@@ -1683,7 +1776,7 @@ function setEventOnRegistration() {
     isRegistered = registeredUsers.find((user) => user.login === data.login);
 
     if (!isRegistered) {
-      controller.addUser(data.login, data.userName, data.password);
+      controller.addUser(data.login, data.userName, data.password, data.photo);
       controller.saveUsers();
       controller.showLogIn();
       setEventOnLogIn();
@@ -1702,13 +1795,9 @@ function setEventOnRegistration() {
     }, 2000);
   });
 
-  registrationForm.addEventListener('click', (e) => {
-    toggleShowPassword(e);
-  });
-
   Array.from(elements).forEach((el) => {
     if (el.classList.contains('form__input')) {
-      el.addEventListener('blur', () => {
+      el.addEventListener('input', () => {
         Array.from(elements).some(
           (element) => !validateField(element, controller)
         )
@@ -1720,16 +1809,56 @@ function setEventOnRegistration() {
   });
 
   document.getElementById('imageInput').addEventListener('change', () => {
-    const image = document.querySelector('.form__registration-image');
     const imageInput = document.getElementById('imageInput');
-    const srcPath = document.querySelector('.form__file-name');
     const fileReader = new FileReader();
+    const arrayFromimageInput = imageInput.value.split('.');
+    const imageFormats = [
+      'jpeg',
+      'png',
+      'ico',
+      'gif',
+      'tiff',
+      'webp',
+      'eps',
+      'svg',
+      'psd',
+      'jpg',
+    ];
+    const promise = new Promise((res, rej) => {
+      if (
+        !imageFormats.includes(
+          arrayFromimageInput[arrayFromimageInput.length - 1].toLowerCase()
+        )
+      ) {
+        rej('Invalid file format');
+        return;
+      }
 
-    srcPath.innerText = imageInput.value;
-    fileReader.readAsDataURL(document.getElementById('imageInput').files[0]);
-    fileReader.onload = () => {
-      image.src = fileReader.result;
-    };
+      fileReader.readAsDataURL(document.getElementById('imageInput').files[0]);
+      fileReader.onload = () => {
+        photo.src = fileReader.result;
+        res(photo);
+      };
+    });
+
+    promise
+      .then(() => {
+        srcPath.innerText = imageInput.value;
+        data.photo = photo.src;
+      })
+      .catch(() => {
+        srcPath.innerText = '';
+        photo.src = _DEFAULT_SRC;
+        errorMessage.classList.add('signin-error-open');
+        errorMessage.innerText = 'Invalid file format.';
+        setTimeout(() => {
+          errorMessage.classList.add('signin-error-close');
+          errorMessage.classList.remove('signin-error-open');
+          setTimeout(() => {
+            errorMessage.classList.remove('signin-error-close');
+          }, 1000);
+        }, 2000);
+      });
   });
 
   signInButton.addEventListener('click', () => {
@@ -1752,15 +1881,16 @@ function setEventOnLogIn() {
   container.classList.remove('container-main');
 
   const signInForm = document.querySelector('.form');
-  const signUpButton = document.querySelector('.form__signup-button');
-  const returnToTheMainPageButton = document.querySelector(
+  const signUpButton = signInForm.querySelector('.form__signup-button');
+  const returnToTheMainPageButton = signInForm.querySelector(
     '.return-to-main-button'
   );
   const { elements } = signInForm;
+  const elementsArray = Array.from(elements);
 
-  Array.from(elements).forEach((el) => {
+  elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
-      el.addEventListener('blur', () => {
+      el.addEventListener('input', () => {
         validateField(el, controller);
       });
     }
@@ -1780,6 +1910,7 @@ function setEventOnLogIn() {
       if (userLogIn.password === password.value) {
         renderAsideSection(main);
         controller.setCurrentUser(userLogIn);
+        window.localStorage.setItem('currentUser', JSON.stringify(userLogIn));
         controller.getFeed(itemsOnPageToRender);
         setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
         setEventOnFilters();
@@ -1788,7 +1919,7 @@ function setEventOnLogIn() {
       } else {
         errorMessage.classList.add('signin-error-open');
         errorMessage.innerText =
-          'The password you entered is incorrect! Plese try again.';
+          'The password you entered is incorrect! Please try again.';
       }
     } else {
       errorMessage.classList.add('signin-error-open');
@@ -1827,6 +1958,7 @@ function setEventOnHeader() {
   const logInButton = document.querySelector('.button__signin');
   const logOutButton = document.querySelector('.button__logout');
   const userProfileButton = document.querySelector('.user-profile');
+  const logo = document.querySelector('.logo');
 
   if (logInButton) {
     logInButton.addEventListener('click', () => {
@@ -1842,32 +1974,60 @@ function setEventOnHeader() {
       setEventOnLogIn();
       controller.setCurrentUser('');
     });
+  }
 
-    if (userProfileButton) {
-      userProfileButton.addEventListener('click', () => {
-        main.classList.remove('main-task');
+  if (userProfileButton) {
+    userProfileButton.addEventListener('click', () => {
+      main.classList.remove('main-task');
+      main.classList.remove('edit-mode');
+      setEventOnUserPage();
+    });
+  }
+
+  if (logo) {
+    logo.addEventListener('click', () => {
+      if (main.classList.contains('edit-mode')) {
         main.classList.remove('edit-mode');
-        setEventOnUserPage();
-      });
-    }
+      }
+      container.classList.add('container-main');
+      renderAsideSection(main);
+      controller.getFeed(itemsOnPageToRender);
+      setEventOnFilters();
+      setEventOnNewTask();
+      setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    });
   }
 }
 
 function setEventOnUserPage() {
+  container.classList.add('container-user');
   controller.showUser();
+  const userImage = document.querySelector('.user-main-image');
+  const userImageInput = document.getElementById('userImageInput');
+  const photo = document.querySelector('.user-main-image');
+  userImage.src = controller.list.user.photo;
   container.classList.remove('container-main');
   main.classList.remove('main-page');
   main.classList.add('main-task');
   setEventOnHeader();
   const form = document.querySelector('.user-info-form');
   const toggleEditButton = document.querySelector('.toggle-edit-input');
+  const toggleEditButtonMobile = document.querySelector(
+    '.toggle-edit-input-laptop'
+  );
   const returnToTheMainPageButton = document.querySelector(
     '.return-to-main-button'
   );
   const saveChangesButton = document.querySelector('.create-task');
+  const defaultImagesWrapper = document.querySelector(
+    '.form__registration-default-images-wrapper'
+  );
+  const errorMessage = document.querySelector('.signin-error');
+  const data = {};
   const { elements } = form;
+
   Array.from(elements).forEach((el) => {
-    el.addEventListener('blur', (e) => {
+    el.addEventListener('input', (e) => {
       if (
         e.target.classList.contains('user-info-form__name') ||
         e.target.classList.contains('user-info-form__password')
@@ -1882,19 +2042,112 @@ function setEventOnUserPage() {
     });
   });
 
-  toggleEditButton.addEventListener('change', () => {
-    if (toggleEditButton.checked) {
-      main.classList.add('edit-mode');
-      setTimeout(() => {
-        setEventOnUserPage();
-      }, 20);
+  document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('gallery-button')) {
+      body.classList.add('confirm');
+      defaultImagesWrapper.classList.add('default-images-wrapper-open');
     } else {
-      main.classList.remove('edit-mode');
-      setTimeout(() => {
-        setEventOnUserPage();
-      }, 20);
+      if (
+        defaultImagesWrapper.classList.contains('default-images-wrapper-open')
+      ) {
+        defaultImagesWrapper.classList.add('default-images-wrapper-close');
+        body.classList.remove('confirm');
+        setTimeout(() => {
+          defaultImagesWrapper.classList.remove('default-images-wrapper-open');
+          defaultImagesWrapper.classList.remove('default-images-wrapper-close');
+        }, 400);
+      }
+    }
+
+    if (e.target.classList.contains('default-image')) {
+      photo.src = e.target.src;
+      data.photo = e.target.src;
     }
   });
+
+  if (userImageInput) {
+    userImageInput.addEventListener('change', () => {
+      const fileReader = new FileReader();
+      const arrayFromimageInput = userImageInput.value.split('.');
+      const imageFormats = [
+        'jpeg',
+        'png',
+        'ico',
+        'gif',
+        'tiff',
+        'webp',
+        'eps',
+        'svg',
+        'psd',
+        'jpg',
+      ];
+      const promise = new Promise((res, rej) => {
+        if (
+          !imageFormats.includes(
+            arrayFromimageInput[arrayFromimageInput.length - 1].toLowerCase()
+          )
+        ) {
+          rej('Invalid file format');
+          return;
+        }
+
+        fileReader.readAsDataURL(userImageInput.files[0]);
+        fileReader.onload = () => {
+          photo.src = fileReader.result;
+          res(photo);
+        };
+      });
+
+      promise
+        .then(() => {
+          data.photo = photo.src;
+        })
+        .catch(() => {
+          photo.src = controller.list.user.photo;
+          errorMessage.classList.add('signin-error-open');
+          errorMessage.innerText = 'Invalid file format.';
+          setTimeout(() => {
+            errorMessage.classList.add('signin-error-close');
+            errorMessage.classList.remove('signin-error-open');
+            setTimeout(() => {
+              errorMessage.classList.remove('signin-error-close');
+            }, 1000);
+          }, 2000);
+        });
+    });
+  }
+
+  if (toggleEditButton) {
+    toggleEditButton.addEventListener('change', () => {
+      if (toggleEditButton.checked) {
+        main.classList.add('edit-mode');
+        setTimeout(() => {
+          setEventOnUserPage();
+        }, 20);
+      } else {
+        main.classList.remove('edit-mode');
+        setTimeout(() => {
+          setEventOnUserPage();
+        }, 20);
+      }
+    });
+  }
+
+  if (toggleEditButtonMobile) {
+    toggleEditButtonMobile.addEventListener('change', () => {
+      if (toggleEditButtonMobile.checked) {
+        main.classList.add('edit-mode');
+        setTimeout(() => {
+          setEventOnUserPage();
+        }, 20);
+      } else {
+        main.classList.remove('edit-mode');
+        setTimeout(() => {
+          setEventOnUserPage();
+        }, 20);
+      }
+    });
+  }
 
   form.addEventListener('click', (e) => {
     toggleShowPassword(e);
@@ -1902,15 +2155,18 @@ function setEventOnUserPage() {
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const nameInput = document.getElementById('user-name');
+    const nameInput = document.getElementById('usernameUserPage');
     const confirmPasswordInput = document.getElementById(
       'user-confirm-password'
     );
-    const data = {};
 
-    data.userName = nameInput.value;
-    data.password = confirmPasswordInput.value;
-    data.photo = '';
+    data.userName = nameInput.value
+      ? nameInput.value
+      : controller.list.user.userName;
+    data.password = confirmPasswordInput.value
+      ? confirmPasswordInput.value
+      : controller.list.user.password;
+    data.photo = userImage.src;
 
     controller.editUser(controller.list._user._id, data);
     controller.saveUsers();
@@ -1918,6 +2174,10 @@ function setEventOnUserPage() {
       controller.users._registeredUsers.find(
         (user) => user._id === controller.list._user._id
       )
+    );
+    window.localStorage.setItem(
+      'currentUser',
+      JSON.stringify(controller.list.user)
     );
     main.classList.remove('edit-mode');
     setEventOnUserPage();
@@ -1929,6 +2189,7 @@ function setEventOnUserPage() {
   });
 
   returnToTheMainPageButton.addEventListener('click', () => {
+    container.classList.remove('container-user');
     if (main.classList.contains('edit-mode')) {
       main.classList.remove('edit-mode');
     }
@@ -1946,15 +2207,14 @@ function setEventOnNewTask() {
 
   const form = document.querySelector('.new-task-form');
   const { elements } = form;
+  const elementsArray = Array.from(elements);
   const createTaskButton = form.querySelector('.create-task');
   const newTaskDescription = form.querySelector('.task-description');
 
-  Array.from(elements).forEach((el) => {
+  elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
       el.addEventListener('blur', () => {
-        Array.from(elements).some(
-          (element) => !validateField(element, controller)
-        ) ||
+        elementsArray.some((element) => !validateField(element, controller)) ||
         !validateDescription(newTaskDescription) ||
         newTaskDescription.value === ''
           ? createTaskButton.setAttribute('disabled', true)
@@ -1966,9 +2226,7 @@ function setEventOnNewTask() {
 
   newTaskDescription.addEventListener('blur', () => {
     !validateDescription(newTaskDescription) ||
-    Array.from(elements).some(
-      (element) => !validateField(element, controller)
-    ) ||
+    elementsArray.some((element) => !validateField(element, controller)) ||
     newTaskDescription.value === ''
       ? createTaskButton.setAttribute('disabled', true)
       : createTaskButton.removeAttribute('disabled');
@@ -1997,7 +2255,6 @@ function setEventOnNewTask() {
     controller.saveTasks();
     controller.getFeed(itemsOnPageToRender);
     form.reset();
-
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
   });
 }
