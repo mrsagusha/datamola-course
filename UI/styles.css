@@ -57,7 +57,7 @@ input:disabled {
 }
 
 .container-user {
-    height: 100vh !important;
+    height: 100vh;
 }
 
 .confirm {
@@ -519,6 +519,28 @@ input:disabled {
     color: var(--main-gray);
 }
 
+.list-view-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.status-group-section {
+    width: 100%;
+    border: 1px var(--light-gray) solid;
+    border-radius: 16px;
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0px 4px 4px 0px rgba(87, 131, 241, 0.25);
+    transition: .2s;
+}
+
+.status-group-section:hover {
+    cursor: pointer;
+    box-shadow: 0 0 rgba(87, 131, 241, 0.25);
+    border: 1px solid var(--main-gray);
+}
+
 .fa-message {
     position: relative;
     font-size: 1.2rem;
@@ -885,6 +907,11 @@ textarea {
     border-radius: 6px;
     cursor: pointer;
 }
+
+.new-task-description {
+    padding: 10px;
+    width: 65%;
+} 
 
 .fa-plus,
 .fa-rotate-left {
@@ -1842,6 +1869,10 @@ input:checked + .slider:before {
     text-align: center;
 }
 
+.new-task-form input {
+    padding: 0 10px;
+}
+
 .task-details input,
 .task-details select {
     border: 1px var(--main-gray) solid;
@@ -2111,6 +2142,10 @@ input:checked + .slider:before {
         padding: 0;
     }
 
+    .container-user {
+        height: auto;
+    }
+
     .header,
     .footer {
         border-radius: 0;
@@ -2122,6 +2157,8 @@ input:checked + .slider:before {
         z-index: 5;
         top: 24px;
         right: 15px;
+        width: 30px;
+        height: 30px;
     }
     
     .burger-menu:before {
@@ -2156,13 +2193,11 @@ input:checked + .slider:before {
     .burger-menu-open:after {
         transform: rotate(45deg);
         top: 5px;
-        right: 20px;
         animation: burger-menu-open-after .2s;
     }
 
     .burger-menu-open:before {
         transform: rotate(-45deg);
-        right: 20px;
         animation: burger-menu-open-before .2s;
     }
 
@@ -2177,6 +2212,10 @@ input:checked + .slider:before {
         transform: rotate(0);
         right: 0px;
         animation: burger-menu-close-before .2s;
+    }
+
+    .main-task {
+        min-height: 77vh;
     }
 
     .side-menu {
@@ -2243,6 +2282,7 @@ input:checked + .slider:before {
 
     .article {
         width: 100%;
+        height: auto;
     }
 
     .article__tools {
@@ -2254,6 +2294,18 @@ input:checked + .slider:before {
     .filters-laptop {
         height: 40px;
         padding: 0px;
+    }
+
+    .filters__title-wrapper {
+        align-items: center;
+    }
+
+    .filters__title {
+        height: fit-content;
+    }
+
+    .fa-sort-down {
+        display: none !important;
     }
 
     .user-profile-wrapper {
@@ -2289,10 +2341,6 @@ input:checked + .slider:before {
         color: white;
     }
 
-    .to-do-group {
-        padding-left: 10px;
-    }
-
     .in-progress-group,
     .complete-group {
         display: none;
@@ -2303,15 +2351,17 @@ input:checked + .slider:before {
     }
 
     .article__cards-wrapper {
+        align-items: center;
         width: 100%;
     }
-    
+   
     .article__cards-wrapper::-webkit-scrollbar {
         width: 0px;
+        height: 0px;
     }
 
     .card {
-        width: 95%;
+        width: 85%;
         gap: 30px;
     }
 
@@ -2339,6 +2389,16 @@ input:checked + .slider:before {
     .card__status,
     .card__priority {
         padding: 8px 10px;
+    }
+
+    .card-options-open {
+        top: 40px;
+        gap: 20px;
+    }
+
+    .delete-task-board,
+    .edit-task-board {
+        font-size: 1.5rem;
     }
 
     .fa-message,
@@ -2445,13 +2505,13 @@ input:checked + .slider:before {
     }
 
     @keyframes burger-menu-open-after {
-        0% {transform: rotate(0); right: 0px;}
-        100% {transform: rotate(45deg); right: 20px;}
+        0% {transform: rotate(0);}
+        100% {transform: rotate(45deg);}
     }
 
     @keyframes burger-menu-open-before {
-        0% {transform: rotate(0); top: 0px; right: 0px;}
-        100% {transform: rotate(-45deg); top: 5px; right: 20px;}
+        0% {transform: rotate(0); top: 0px;}
+        100% {transform: rotate(-45deg); top: 5px;}
     }
 
     @keyframes burger-menu-open {
@@ -2465,13 +2525,13 @@ input:checked + .slider:before {
     }
 
     @keyframes burger-menu-close-after {
-        0% {transform: rotate(45deg); top: 5px; right: 20px;}
-        100% {transform: rotate(0); top: -5px; right: 0px;}
+        0% {transform: rotate(45deg); top: 5px;}
+        100% {transform: rotate(0); top: -5px;}
     }
 
     @keyframes burger-menu-close-before {
-        0% {transform: rotate(-45deg); right: 20px;}
-        100% {transform: rotate(0); right: 0px;}
+        0% {transform: rotate(-45deg);}
+        100% {transform: rotate(0); }
     }
 
     @keyframes burger-menu-close {
