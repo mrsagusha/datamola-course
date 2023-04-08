@@ -344,7 +344,11 @@ function toggleShowPassword(e) {
   }
 }
 
-function setInputsValuesToEditConfig(editConfig, currentTaskConfig) {
+function setInputsValuesToEditConfig(
+  editConfig,
+  currentTaskConfig,
+  registeredUsers
+) {
   const nameInput = document.querySelector('.task-name-input-edit');
   const assigneeInput = document.getElementById('assignee-input');
   const privacySelect = document.getElementById('privacy-select');
@@ -353,7 +357,7 @@ function setInputsValuesToEditConfig(editConfig, currentTaskConfig) {
   const prioritySelect = document.getElementById('priority-select');
 
   nameInput.value = currentTaskConfig.name;
-  assigneeInput.value = currentTaskConfig.assignee;
+  assigneeInput.value = currentTaskConfig.assignee.userName;
   privacySelect.value = currentTaskConfig.isPrivate ? 'Private' : 'Public';
   description.value = currentTaskConfig.description;
   statusSelect.value = currentTaskConfig.status;
@@ -364,7 +368,21 @@ function setInputsValuesToEditConfig(editConfig, currentTaskConfig) {
   });
 
   assigneeInput.addEventListener('input', () => {
-    editConfig.assignee = assigneeInput.value;
+    const list = document.getElementById('assignee-list');
+    console.log(list);
+
+    for (let i = 0; i < list.options.length; i++) {
+      if (list.options[i].value === assigneeInput.value) {
+        assigneeInput.setAttribute(
+          'userId',
+          list.options[i].getAttribute('id')
+        );
+      }
+    }
+
+    editConfig.assignee = registeredUsers.find(
+      (user) => user._id === assigneeInput.getAttribute('userId')
+    );
   });
 
   privacySelect.addEventListener('change', () => {
@@ -384,17 +402,21 @@ function setInputsValuesToEditConfig(editConfig, currentTaskConfig) {
   });
 }
 
-function setInputsValuesToCurrentTaskConfig(currentTaskConfig) {
+function setInputsValuesToCurrentTaskConfig(
+  currentTaskConfig,
+  registeredUsers
+) {
   const taskName = document.querySelector('.task-top__task-name');
   const taskAssignee = document.querySelector('.task-assignee');
-  console.log(taskAssignee);
   const taskPrivacy = document.querySelector('.task-privace');
   const taskDescription = document.querySelector('.task-description-text');
   const taskStatus = document.querySelector('.task-status');
   const taskPriority = document.querySelector('.task-priority');
 
   currentTaskConfig.name = taskName.textContent;
-  currentTaskConfig.assignee = taskAssignee.textContent;
+  currentTaskConfig.assignee = registeredUsers.find(
+    (user) => user._id === taskAssignee.getAttribute('id')
+  );
   currentTaskConfig.isPrivate =
     taskPrivacy.textContent === 'Public' ? false : true;
   currentTaskConfig.description = taskDescription.textContent;
@@ -422,6 +444,64 @@ function setListenerOnLoadMoreBtn(controller, itemsOnPageToRender) {
   }
 }
 
+function setListenerOnStatusGroupButtons() {
+  const tasksGroupsButtonsWrapper = document.querySelector(
+    '.article__cards-group-checkboxes'
+  );
+  const toDoGroup = document.querySelector('.to-do-group');
+  const inProgressGroup = document.querySelector('.in-progress-group');
+  const completeGroup = document.querySelector('.complete-group');
+  const tasksGropButtons = document.querySelectorAll(
+    '.article__cards-group-checkboxes-title'
+  );
+
+  if (tasksGroupsButtonsWrapper) {
+    tasksGroupsButtonsWrapper.addEventListener('click', (e) => {
+      if (e.target.textContent === 'To Do') {
+        tasksGropButtons.forEach((el) => el.classList.remove('selected'));
+        e.target.classList.add('selected');
+        if (toDoGroup) {
+          toDoGroup.style.display = 'block';
+        }
+        if (inProgressGroup) {
+          inProgressGroup.style.display = 'none';
+        }
+        if (completeGroup) {
+          completeGroup.style.display = 'none';
+        }
+      }
+
+      if (e.target.textContent === 'In Progress') {
+        tasksGropButtons.forEach((el) => el.classList.remove('selected'));
+        e.target.classList.add('selected');
+        if (toDoGroup) {
+          toDoGroup.style.display = 'none';
+        }
+        if (inProgressGroup) {
+          inProgressGroup.style.display = 'block';
+        }
+        if (completeGroup) {
+          completeGroup.style.display = 'none';
+        }
+      }
+
+      if (e.target.textContent === 'Complete') {
+        tasksGropButtons.forEach((el) => el.classList.remove('selected'));
+        e.target.classList.add('selected');
+        if (toDoGroup) {
+          toDoGroup.style.display = 'none';
+        }
+        if (inProgressGroup) {
+          inProgressGroup.style.display = 'none';
+        }
+        if (completeGroup) {
+          completeGroup.style.display = 'block';
+        }
+      }
+    });
+  }
+}
+
 export {
   validateField,
   toggleShowPassword,
@@ -432,4 +512,5 @@ export {
   setListenerOnLoadMoreBtn,
   getLengthOfTasks,
   renderAsideSection,
+  setListenerOnStatusGroupButtons,
 };

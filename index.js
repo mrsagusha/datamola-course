@@ -8,6 +8,7 @@ import {
   setListenerOnLoadMoreBtn,
   getLengthOfTasks,
   renderAsideSection,
+  setListenerOnStatusGroupButtons,
 } from './utils.js';
 
 let itemsOnPageToRender = 10;
@@ -94,7 +95,7 @@ class Task {
   }
 
   get creator() {
-    return this.creator;
+    return this._creator;
   }
 
   static validateTask(task) {
@@ -112,8 +113,8 @@ class Task {
         !task.description ||
         typeof task.description !== 'string' ||
         task.description.length > _DESCRIPTION_MAX_LENGTH ||
-        !task.assignee ||
-        typeof task.assignee !== 'string' ||
+        // !task.assignee ||
+        // typeof task.assignee !== 'string' ||
         !task.status ||
         typeof task.status !== 'string' ||
         !statusList.includes(task.status) ||
@@ -160,9 +161,9 @@ class Comment {
       typeof comment._id !== 'string' ||
       !comment.text ||
       typeof comment.text !== 'string' ||
-      comment.text.length > 280 ||
-      !comment.author ||
-      typeof comment.author !== 'string'
+      comment.text.length > 280
+      // !comment.author ||
+      // typeof comment.author !== 'string'
     ) {
       return false;
     }
@@ -211,9 +212,13 @@ class TasksCollection {
       taskCopy = taskCopy
         .filter((task) => {
           return filterConfig.hasOwnProperty('assignee')
-            ? task.assignee
-                .toLowerCase()
-                .includes(filterConfig.assignee.toLowerCase())
+            ? filterConfig.assignee.userName
+              ? task.assignee.userName
+                  .toLowerCase()
+                  .includes(filterConfig.assignee.userName.toLowerCase())
+              : task.assignee.userName
+                  .toLowerCase()
+                  .includes(filterConfig.assignee.toLowerCase())
             : task;
         })
         .filter((task) => {
@@ -423,11 +428,13 @@ class TaskFeedView {
 
   display(tasks) {
     const tasksFeedContainer = document.getElementById(this._id);
+    const viewToggleSection = document.querySelector('.view-wrapper');
     const tasksFeed = document.createElement('div');
     const toDoGroup = createSection('to-do-group');
     const inProgressGroup = createSection('in-progress-group');
     const completeGroup = createSection('complete-group');
     const loadMoreButton = document.createElement('button');
+    // viewToggleSection.classList.add('list-view');
     loadMoreButton.className = 'button load-more';
     loadMoreButton.innerText = 'Load more';
     tasksFeed.classList.add('article__tasks-wrapper');
@@ -460,9 +467,172 @@ class TaskFeedView {
       return tasksFeedGroupWraperr;
     }
 
-    tasksFeed.append(toDoGroup);
-    tasksFeed.append(inProgressGroup);
-    tasksFeed.append(completeGroup);
+    if (!viewToggleSection.classList.contains('list-view')) {
+      tasksFeed.append(toDoGroup);
+      tasksFeed.append(inProgressGroup);
+      tasksFeed.append(completeGroup);
+
+      for (let i = 0; i < tasks.length; i++) {
+        if (
+          tasks[i].isPrivate &&
+          tasks[i].assignee._id !== controller.list.user._id &&
+          tasks[i]._creator._id !== controller.list.user._id
+        ) {
+          continue;
+        }
+        const newTask = document.createElement('div');
+        newTask.classList.add('card');
+        newTask.setAttribute('id', tasks[i]._id);
+        newTask.setAttribute('status', tasks[i].status);
+        newTask.innerHTML = `
+        <i class="fa-solid fa-ellipsis-vertical ${
+          controller.list._user._id === tasks[i]._creator._id ? '' : 'forbidden'
+        }"><div class="card-options">
+            <i class="fa-solid fa-trash delete-task-board"></i>
+            <i class="fa-solid fa-pen edit-task-board"></i>
+        </div></i>
+        <div class="card__main-info">
+            <div class="card__task-info">
+                <div class="card__task-name-wrapper">
+                  <p class="card__task-name">${tasks[i].name}</p>
+                  <p class="card__privacy card__privacy-laptop">${
+                    tasks[i].isPrivate ? 'Private' : 'Public'
+                  }</p>
+                </div>
+                <div class="card__task-assignee-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <p  class="card__task-assignee">${
+                      tasks[i].assignee.userName
+                    }</p>
+                </div>
+                <p class="card__task-description">${tasks[i].description} </p>
+            </div>
+            <div class="card__status-info">
+                <p class="card__privacy">${
+                  tasks[i].isPrivate ? 'Private' : 'Public'
+                }</p>
+                <p class="card__status ${tasks[i].status
+                  .split(' ')
+                  .join('-')
+                  .toLowerCase()}">${tasks[i].status}</p>
+                <p class="card__priority ${tasks[i].priority.toLowerCase()}">${
+          tasks[i].priority
+        }</p>
+            </div>
+        </div>
+        <div class="card__footer">
+            <i class="fa-regular fa-message">
+            ${
+              tasks[i].comments.length > 0
+                ? `<span class="message-quantity">
+                  ${tasks[i].comments.length}
+                </span>`
+                : ''
+            }                             
+            </i>
+            <div class="task-date-wrapper">
+                <time class="card__date">${
+                  ('0' + new Date(tasks[i]._createdAt).getDate()).slice(-2) +
+                  '.' +
+                  ('0' + (new Date(tasks[i]._createdAt).getMonth() + 1)).slice(
+                    -2
+                  ) +
+                  '.' +
+                  new Date(tasks[i]._createdAt).getFullYear()
+                }</time>
+                <time class="card__date">
+                  ${
+                    new Date(tasks[i]._createdAt).getHours() +
+                    ':' +
+                    (String(new Date(tasks[i]._createdAt).getMinutes())
+                      .length === 1
+                      ? '0' + new Date(tasks[i]._createdAt).getMinutes()
+                      : new Date(tasks[i]._createdAt).getMinutes())
+                  }
+                </time>
+            </div>
+        </div>
+        `;
+
+        if (tasks[i].status === 'To Do') {
+          toDoGroup.lastElementChild.append(newTask);
+        }
+
+        if (tasks[i].status === 'In Progress') {
+          inProgressGroup.lastElementChild.append(newTask);
+        }
+
+        if (tasks[i].status === 'Complete') {
+          completeGroup.lastElementChild.append(newTask);
+        }
+      }
+    } else {
+      tasksFeed.classList.add('list-view-wrapper');
+      tasksFeed.innerHTML = `
+        <div class="status-group-section">
+            <p class="status-group-section__title">To Do</p>
+            <div class="status-group-section__wrapper">
+                <div class="status-group-section__info-sections">
+                    <p class="status-group-section__name">Task name</p>
+                    <p class="status-group-section__assignee">Assignee</p>
+                    <p class="status-group-section__date">Date</p>
+                    <p class="status-group-section__description">Description</p>
+                    <p class="class="status-group-section__status">Status</p>
+                    <p class="status-group-section__priority">Priority</p>
+                    <p class="status-group-section__privacy">Privacy</p>
+                </div>
+                ${tasks
+                  .map((task) => {
+                    return `
+                        <div class='status-group-section__task'>
+                            <p class="task-name-list-view">${task.name}</p>
+                            <p class="task-assignee-list-view">${
+                              task.assignee.userName
+                            }</p>
+                            <div class="task-date-wrapper-list-view">
+                            <time class="task-date-list-view">${
+                              ('0' + new Date(task._createdAt).getDate()).slice(
+                                -2
+                              ) +
+                              '.' +
+                              (
+                                '0' +
+                                (new Date(task._createdAt).getMonth() + 1)
+                              ).slice(-2) +
+                              '.' +
+                              new Date(task._createdAt).getFullYear()
+                            }</time>
+                            <time class="task-date-list-view">${new Date(
+                              task._createdAt
+                            ).toLocaleTimeString()}</time>
+                            </div>
+                            <p class="task-description-list-view">${
+                              task.description
+                            }</p>
+                            <p class='task-status-list-view ${task.status
+                              .toLowerCase()
+                              .split(' ')
+                              .join('-')}'>${task.status}</p>
+                            <p class='task-priority-list-view ${task.priority.toLowerCase()}'>${
+                      task.priority
+                    }</p>
+                            <p class="task-privacy-list-view">${
+                              task.isPrivite ? 'Private' : 'Public'
+                            }</p>
+                        </div>
+                    `;
+                  })
+                  .join('')}
+            </div>
+        </div>
+        <div class="status-group-section">
+            <p class="status-group-section__title">In Progress</p>
+        </div>
+        <div class="status-group-section">
+            <p class="status-group-section__title">Complete</p>
+        </div>
+      `;
+    }
 
     if (tasks.length === 0) {
       tasksFeed.innerHTML = `
@@ -473,89 +643,6 @@ class TaskFeedView {
       </div>
       `;
     }
-
-    tasks.forEach((task) => {
-      const newTask = document.createElement('div');
-      newTask.classList.add('card');
-      newTask.setAttribute('id', task._id);
-      newTask.setAttribute('status', task.status);
-      newTask.innerHTML = `
-      <i class="fa-solid fa-ellipsis-vertical ${
-        controller.list._user._id === task._creator._id ? '' : 'forbidden'
-      }"><div class="card-options">
-          <i class="fa-solid fa-trash delete-task-board"></i>
-          <i class="fa-solid fa-pen edit-task-board"></i>
-      </div></i>
-      <div class="card__main-info">
-          <div class="card__task-info">
-              <div class="card__task-name-wrapper">
-                <p class="card__task-name">${task.name}</p>
-                <p class="card__privacy card__privacy-laptop">${
-                  task.isPrivate ? 'Private' : 'Public'
-                }</p>
-              </div>
-              <div class="card__task-assignee-wrapper">
-                  <i class="fa-solid fa-user"></i>
-                  <p  class="card__task-assignee">${task.assignee}</p>
-              </div>
-              <p class="card__task-description">${task.description} </p>
-          </div>
-          <div class="card__status-info">
-              <p class="card__privacy">${
-                task.isPrivate ? 'Private' : 'Public'
-              }</p>
-              <p class="card__status ${task.status
-                .split(' ')
-                .join('-')
-                .toLowerCase()}">${task.status}</p>
-              <p class="card__priority ${task.priority.toLowerCase()}">${
-        task.priority
-      }</p>
-          </div>
-      </div>
-      <div class="card__footer">
-          <i class="fa-regular fa-message">
-          ${
-            task.comments.length > 0
-              ? `<span class="message-quantity">
-                ${task.comments.length}
-              </span>`
-              : ''
-          }                             
-          </i>
-          <div class="task-date-wrapper">
-              <time class="card__date">${
-                ('0' + new Date(task._createdAt).getDate()).slice(-2) +
-                '.' +
-                ('0' + (new Date(task._createdAt).getMonth() + 1)).slice(-2) +
-                '.' +
-                new Date(task._createdAt).getFullYear()
-              }</time>
-              <time class="card__date">
-                ${
-                  new Date(task._createdAt).getHours() +
-                  ':' +
-                  (String(new Date(task._createdAt).getMinutes()).length === 1
-                    ? '0' + new Date(task._createdAt).getMinutes()
-                    : new Date(task._createdAt).getMinutes())
-                }
-              </time>
-          </div>
-      </div>
-      `;
-
-      if (task.status === 'To Do') {
-        toDoGroup.lastElementChild.append(newTask);
-      }
-
-      if (task.status === 'In Progress') {
-        inProgressGroup.lastElementChild.append(newTask);
-      }
-
-      if (task.status === 'Complete') {
-        completeGroup.lastElementChild.append(newTask);
-      }
-    });
 
     if (tasksFeedContainer) {
       if (tasksFeedContainer.lastElementChild.classList.contains('load-more')) {
@@ -616,7 +703,7 @@ class FilterView {
             ${controller.users._registeredUsers
               .map((user) => {
                 return `
-                <option value='${user.userName}'></option>
+                <option id='${user._id}' value='${user.userName}'></option>
               `;
               })
               .join('')}
@@ -743,17 +830,19 @@ class TaskView {
                   ${
                     !isEditMode
                       ? `<div class="task-info-wrapper">
-                      <span class="task-info-span">assignee: </span><p class="task-assignee">${task.assignee}</p>
+                      <span class="task-info-span">assignee: </span><p class="task-assignee" id="${task.assignee._id}">${task.assignee.userName}</p>
                     </div>`
                       : `<div class="task-info-wrapper">
                           <span class="task-info-span">assignee: </span>
                           <div class="form__input-error-message error-task-page-assignee"></div>
-                          <input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" name="assignee" list="assignee-list" >
+                          <input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" name="assignee" list="assignee-list" userId="${
+                            task.assignee._id
+                          }">
                           <datalist id="assignee-list">
                           ${controller.users._registeredUsers
                             .map((user) => {
                               return `
-                          <option value='${user.userName}'></option>
+                          <option id='${user._id}' value='${user.userName}'></option>
                           `;
                             })
                             .join('')}
@@ -1170,13 +1259,13 @@ class NewTaskView {
     const newTaskForm = document.createElement('form');
     newTaskForm.classList.add('new-task-form');
     newTaskForm.innerHTML = `
-    <label for="task-name-input">Task name*
+    <label for="task-name-input">Task name
     <div class="form__input-error-message new-task-error"></div>
     <input placeholder="" class="form__input new-task-input" id="task-name-input" type="text" name="taskName" autocomplete="off" ${
       !controller.list._user.userName ? 'disabled' : ''
     }>
 </label>
-<label for="assignee-input">Assignee*
+<label for="assignee-input">Assignee
     <div class="form__input-error-message new-task-error"></div>
     <input class="form__input new-task-input" id="assignee-input-new-task" type="text" list="assignee-list" name="assignee" autocomplete="off" ${
       !controller.list._user.userName ? 'disabled' : ''
@@ -1185,7 +1274,7 @@ class NewTaskView {
     ${controller.users._registeredUsers
       .map((user) => {
         return `
-        <option value='${user.userName}'></option>
+        <option id='${user._id}' value='${user.userName}'></option>
       `;
       })
       .join('')}
@@ -1220,7 +1309,7 @@ class NewTaskView {
     </select>
 </label>
 <label for="description">
-    Description*
+    Description
     <div class="form__input-error-message new-task-error"></div>
     <textarea class="task-description new-task-description" name="description" id="description" cols="25" rows="10" ${
       !controller.list._user.userName ? 'disabled' : ''
@@ -1393,11 +1482,14 @@ const container = document.querySelector('.container');
 const userProfileButton = document.querySelector('.side-menu__profile-button');
 const burgerMenu = document.querySelector('.burger-menu');
 const sideMenu = document.querySelector('.side-menu');
+const registeredUsers = controller.users._registeredUsers;
 const editConfig = {};
 const currentTaskConfig = {};
 let currentTaskId = null;
 
 function setEventOnTaskCard() {
+  setListenerOnStatusGroupButtons();
+
   main.addEventListener('click', (e) => {
     if (e.target.className === 'card' && controller.list._user._id) {
       currentTaskId = e.target.getAttribute('id');
@@ -1440,6 +1532,7 @@ function setEventOnTaskCard() {
         controller.removeTask(e.target.closest('.card').getAttribute('id'));
         controller.saveTasks();
         setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+        setListenerOnStatusGroupButtons();
       });
 
       cancelDelete.addEventListener('click', () => {
@@ -1452,7 +1545,7 @@ function setEventOnTaskCard() {
     if (e.target.classList.contains('edit-task-board')) {
       currentTaskId = e.target.closest('.card').getAttribute('id');
       controller.showTask(currentTaskId);
-      setInputsValuesToCurrentTaskConfig(currentTaskConfig);
+      setInputsValuesToCurrentTaskConfig(currentTaskConfig, registeredUsers);
       container.classList.remove('container-main');
       main.classList.add('edit-mode');
       controller.showTask(currentTaskId);
@@ -1497,6 +1590,7 @@ function setEventOnTaskCard() {
   });
 
   setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+  setListenerOnStatusGroupButtons();
 }
 
 function setEventsOnTaskPage() {
@@ -1531,6 +1625,7 @@ function setEventsOnTaskPage() {
     renderAsideSection(main);
     controller.getFeed(itemsOnPageToRender);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
     setEventOnFilters();
     setEventOnNewTask();
   });
@@ -1560,6 +1655,7 @@ function setEventsOnTaskPage() {
       setEventOnFilters();
       setEventOnNewTask();
       setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+      setListenerOnStatusGroupButtons();
     });
 
     cancelDelete.addEventListener('click', () => {
@@ -1577,16 +1673,20 @@ function setEventsOnTaskPage() {
       controller.showTask(currentTaskId);
       setEventsOnTaskPage();
     } else {
-      setInputsValuesToCurrentTaskConfig(currentTaskConfig);
+      setInputsValuesToCurrentTaskConfig(currentTaskConfig, registeredUsers);
       main.classList.add('edit-mode');
       controller.showTask(currentTaskId);
       setEventsOnTaskPage();
-      setInputsValuesToEditConfig(editConfig, currentTaskConfig);
+      setInputsValuesToEditConfig(
+        editConfig,
+        currentTaskConfig,
+        registeredUsers
+      );
     }
   });
 
   if (descriptionTextArea) {
-    descriptionTextArea.addEventListener('blur', () => {
+    descriptionTextArea.addEventListener('input', () => {
       !validateDescription(descriptionTextArea) ||
       Array.from(taskPageInputs).some(
         (element) => !validateField(element, controller)
@@ -1642,30 +1742,52 @@ function setEventOnFilters() {
     filterConfig.name = taskNameInput.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   assigneeInput.addEventListener('input', () => {
-    filterConfig.assignee = assigneeInput.value;
+    const list = form.querySelector('[id="assignee-list"]');
+
+    assigneeInput.removeAttribute('userId');
+
+    for (let i = 0; i < list.options.length; i++) {
+      if (list.options[i].value === assigneeInput.value) {
+        assigneeInput.setAttribute(
+          'userId',
+          list.options[i].getAttribute('id')
+        );
+      }
+    }
+
+    filterConfig.assignee = assigneeInput.getAttribute('userID')
+      ? registeredUsers.find(
+          (user) => user._id === assigneeInput.getAttribute('userID')
+        )
+      : assigneeInput.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   statusSelect.addEventListener('change', () => {
     filterConfig.status = statusSelect.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   prioritySelect.addEventListener('change', () => {
     filterConfig.priority = prioritySelect.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   privacySelect.addEventListener('change', () => {
     filterConfig.isPrivate = Boolean(Number(privacySelect.value));
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   dateFromDateSelect.addEventListener('input', () => {
@@ -1675,6 +1797,7 @@ function setEventOnFilters() {
     filterConfig.dateFrom = new Date(dateFromDateSelect.value);
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   dateFromTimeSelect.addEventListener('input', () => {
@@ -1683,6 +1806,7 @@ function setEventOnFilters() {
     );
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   dateToDateSelect.addEventListener('input', () => {
@@ -1692,6 +1816,7 @@ function setEventOnFilters() {
     filterConfig.dateTo = new Date(dateToDateSelect.value);
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   dateToTimeSelect.addEventListener('input', () => {
@@ -1700,6 +1825,7 @@ function setEventOnFilters() {
     );
     controller.getFeed(itemsOnPageToRender, filterConfig);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 
   document.addEventListener('click', (e) => {
@@ -1707,6 +1833,7 @@ function setEventOnFilters() {
       filterConfig = {};
       controller.getFeed(itemsOnPageToRender, filterConfig);
       setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+      setListenerOnStatusGroupButtons();
     }
   });
 }
@@ -1765,7 +1892,6 @@ function setEventOnRegistration() {
     const login = registrationForm.querySelector('[name="login"]');
     const user = registrationForm.querySelector('[name="username"]');
     const password = registrationForm.querySelector('[name="password"]');
-    const registeredUsers = controller.users._registeredUsers;
     let isRegistered = null;
 
     data.login = login.value;
@@ -1870,6 +1996,7 @@ function setEventOnRegistration() {
     renderAsideSection(main);
     controller.getFeed(itemsOnPageToRender);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
     setEventOnFilters();
     setEventOnHeader();
     setEventOnNewTask();
@@ -1913,6 +2040,7 @@ function setEventOnLogIn() {
         window.localStorage.setItem('currentUser', JSON.stringify(userLogIn));
         controller.getFeed(itemsOnPageToRender);
         setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+        setListenerOnStatusGroupButtons();
         setEventOnFilters();
         setEventOnHeader();
         setEventOnNewTask();
@@ -1948,6 +2076,7 @@ function setEventOnLogIn() {
     renderAsideSection(main);
     controller.getFeed(itemsOnPageToRender);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
     setEventOnFilters();
     setEventOnHeader();
     setEventOnNewTask();
@@ -1995,6 +2124,7 @@ function setEventOnHeader() {
       setEventOnFilters();
       setEventOnNewTask();
       setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+      setListenerOnStatusGroupButtons();
     });
   }
 }
@@ -2199,6 +2329,7 @@ function setEventOnUserPage() {
     setEventOnFilters();
     setEventOnNewTask();
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 }
 
@@ -2210,10 +2341,11 @@ function setEventOnNewTask() {
   const elementsArray = Array.from(elements);
   const createTaskButton = form.querySelector('.create-task');
   const newTaskDescription = form.querySelector('.task-description');
+  const taskAssignee = document.getElementById('assignee-input-new-task');
 
   elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
-      el.addEventListener('blur', () => {
+      el.addEventListener('input', () => {
         elementsArray.some((element) => !validateField(element, controller)) ||
         !validateDescription(newTaskDescription) ||
         newTaskDescription.value === ''
@@ -2224,7 +2356,7 @@ function setEventOnNewTask() {
     }
   });
 
-  newTaskDescription.addEventListener('blur', () => {
+  newTaskDescription.addEventListener('input', () => {
     !validateDescription(newTaskDescription) ||
     elementsArray.some((element) => !validateField(element, controller)) ||
     newTaskDescription.value === ''
@@ -2233,10 +2365,19 @@ function setEventOnNewTask() {
     validateDescription(newTaskDescription);
   });
 
+  taskAssignee.addEventListener('change', () => {
+    const list = form.querySelector('[id="assignee-list"]');
+
+    for (let i = 0; i < list.options.length; i++) {
+      if (list.options[i].value === taskAssignee.value) {
+        taskAssignee.setAttribute('userId', list.options[i].getAttribute('id'));
+      }
+    }
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const taskName = document.getElementById('task-name-input');
-    const taskAssignee = document.getElementById('assignee-input-new-task');
     const taskStatus = document.getElementById('status-select-new-task');
     const taskPriority = document.getElementById('priority-select-new-task');
     const taskPrivacy = document.getElementById('privacy-select-new-task');
@@ -2245,7 +2386,9 @@ function setEventOnNewTask() {
 
     task.name = taskName.value;
     task.description = taskDescription.value;
-    task.assignee = taskAssignee.value;
+    task.assignee = registeredUsers.find(
+      (user) => user._id === taskAssignee.getAttribute('userId')
+    );
     task.status = taskStatus.value;
     task.priority = taskPriority.value;
     task.isPrivate = Boolean(Number(taskPrivacy.value));
@@ -2255,7 +2398,9 @@ function setEventOnNewTask() {
     controller.saveTasks();
     controller.getFeed(itemsOnPageToRender);
     form.reset();
+    createTaskButton.setAttribute('disabled', true);
     setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setListenerOnStatusGroupButtons();
   });
 }
 
