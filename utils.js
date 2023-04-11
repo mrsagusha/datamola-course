@@ -12,7 +12,7 @@ function renderAsideSection(el) {
               <input class="search-input" type="text" placeholder="Search" autocomplete="off">
           </div>
           <div class="view-wrapper">
-              <i class="fa-solid fa-table-columns"></i>
+              <i class="fa-solid fa-table-columns view-selected"></i>
               <i class="fa-solid fa-list-ul"></i>
           </div>
       <form class="filters filters-laptop">
@@ -26,6 +26,9 @@ function renderAsideSection(el) {
           </button>
       </form>
           </div>
+          <button class="new-task-button-mobile">Add new task
+                    <i class="fa-solid fa-plus"></i>
+                </button>
           <div class="article__cards-group-checkboxes">
                     <p class="article__cards-group-checkboxes-title selected">To Do</p>
                     <p class="article__cards-group-checkboxes-title">In Progress</p>
@@ -432,18 +435,6 @@ function getLengthOfTasks(status, controller) {
   return tasksWithStatus.length;
 }
 
-function setListenerOnLoadMoreBtn(controller, itemsOnPageToRender) {
-  const loadMoreButton = document.querySelector('.load-more');
-
-  if (loadMoreButton) {
-    loadMoreButton.addEventListener('click', () => {
-      itemsOnPageToRender += 2;
-
-      controller.getFeed(itemsOnPageToRender);
-    });
-  }
-}
-
 function setListenerOnStatusGroupButtons() {
   const tasksGroupsButtonsWrapper = document.querySelector(
     '.article__cards-group-checkboxes'
@@ -502,6 +493,43 @@ function setListenerOnStatusGroupButtons() {
   }
 }
 
+function setEventOnNewTaskMobile(body) {
+  const aside = document.getElementById('aside');
+  const newTaskMobileButton = document.querySelector('.new-task-button-mobile');
+  if (newTaskMobileButton) {
+    newTaskMobileButton.addEventListener('click', () => {
+      body.classList.add('confirm');
+      if (aside) {
+        aside.classList.add('new-task-form-open');
+      }
+    });
+  }
+
+  window.addEventListener('click', (e) => {
+    if (aside.classList.contains('new-task-form-open')) {
+      if (
+        !e.target.closest('.aside') &&
+        !e.target.classList.contains('new-task-button-mobile')
+      ) {
+        body.classList.remove('confirm');
+        aside.classList.remove('new-task-form-open');
+      }
+    }
+  });
+}
+
+function closeSideMenu(burgerMenu, sideMenu, body) {
+  burgerMenu.classList.add('burger-menu-close');
+  sideMenu.classList.add('side-menu-close');
+  body.classList.remove('confirm');
+  setTimeout(() => {
+    burgerMenu.classList.remove('burger-menu-open');
+    sideMenu.classList.remove('side-menu-open');
+    burgerMenu.classList.remove('burger-menu-close');
+    sideMenu.classList.remove('side-menu-close');
+  }, 200);
+}
+
 export {
   validateField,
   toggleShowPassword,
@@ -509,8 +537,9 @@ export {
   validateComment,
   validateDescription,
   setInputsValuesToCurrentTaskConfig,
-  setListenerOnLoadMoreBtn,
   getLengthOfTasks,
   renderAsideSection,
   setListenerOnStatusGroupButtons,
+  closeSideMenu,
+  setEventOnNewTaskMobile,
 };

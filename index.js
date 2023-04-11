@@ -5,13 +5,20 @@ import {
   validateComment,
   validateDescription,
   setInputsValuesToCurrentTaskConfig,
-  setListenerOnLoadMoreBtn,
   getLengthOfTasks,
   renderAsideSection,
   setListenerOnStatusGroupButtons,
+  closeSideMenu,
+  setEventOnNewTaskMobile,
 } from './utils.js';
 
 let itemsOnPageToRender = 10;
+
+class TaskFeedApiService {
+  constructor(server) {
+    this.server = server;
+  }
+}
 
 class UserCollection {
   constructor() {
@@ -254,7 +261,9 @@ class TasksCollection {
         });
     }
 
-    return taskCopy.sort((a, b) => b._createdAt - a._createdAt);
+    return taskCopy.sort(
+      (a, b) => new Date(b._createdAt) - new Date(a._createdAt)
+    );
   }
 
   get(id) {
@@ -434,7 +443,6 @@ class TaskFeedView {
     const inProgressGroup = createSection('in-progress-group');
     const completeGroup = createSection('complete-group');
     const loadMoreButton = document.createElement('button');
-    // viewToggleSection.classList.add('list-view');
     loadMoreButton.className = 'button load-more';
     loadMoreButton.innerText = 'Load more';
     tasksFeed.classList.add('article__tasks-wrapper');
@@ -568,70 +576,101 @@ class TaskFeedView {
       }
     } else {
       tasksFeed.classList.add('list-view-wrapper');
-      tasksFeed.innerHTML = `
-        <div class="status-group-section">
-            <p class="status-group-section__title">To Do</p>
-            <div class="status-group-section__wrapper">
-                <div class="status-group-section__info-sections">
-                    <p class="status-group-section__name">Task name</p>
-                    <p class="status-group-section__assignee">Assignee</p>
-                    <p class="status-group-section__date">Date</p>
-                    <p class="status-group-section__description">Description</p>
-                    <p class="class="status-group-section__status">Status</p>
-                    <p class="status-group-section__priority">Priority</p>
-                    <p class="status-group-section__privacy">Privacy</p>
-                </div>
-                ${tasks
-                  .map((task) => {
-                    return `
-                        <div class='status-group-section__task'>
-                            <p class="task-name-list-view">${task.name}</p>
-                            <p class="task-assignee-list-view">${
-                              task.assignee.userName
-                            }</p>
-                            <div class="task-date-wrapper-list-view">
-                            <time class="task-date-list-view">${
-                              ('0' + new Date(task._createdAt).getDate()).slice(
-                                -2
-                              ) +
-                              '.' +
-                              (
-                                '0' +
-                                (new Date(task._createdAt).getMonth() + 1)
-                              ).slice(-2) +
-                              '.' +
-                              new Date(task._createdAt).getFullYear()
-                            }</time>
-                            <time class="task-date-list-view">${new Date(
-                              task._createdAt
-                            ).toLocaleTimeString()}</time>
-                            </div>
-                            <p class="task-description-list-view">${
-                              task.description
-                            }</p>
-                            <p class='task-status-list-view ${task.status
-                              .toLowerCase()
-                              .split(' ')
-                              .join('-')}'>${task.status}</p>
-                            <p class='task-priority-list-view ${task.priority.toLowerCase()}'>${
-                      task.priority
-                    }</p>
-                            <p class="task-privacy-list-view">${
-                              task.isPrivite ? 'Private' : 'Public'
-                            }</p>
-                        </div>
-                    `;
-                  })
-                  .join('')}
-            </div>
-        </div>
-        <div class="status-group-section">
-            <p class="status-group-section__title">In Progress</p>
-        </div>
-        <div class="status-group-section">
-            <p class="status-group-section__title">Complete</p>
-        </div>
+      const toDoGroup = createTasksGroupSections('to-do-group');
+      const inProgressGroup = createTasksGroupSections('in-progress-group');
+      const completeGroup = createTasksGroupSections('complete-group');
+
+      function createTasksGroupSections(groupName) {
+        const section = document.createElement('section');
+        const tasksWrapper = document.createElement('div');
+        tasksWrapper.classList.add('tasks-wrapper-list-view');
+        const tasksWrapperInformation = document.createElement('div');
+        tasksWrapperInformation.classList.add('article__cards-group-info');
+        const sectionName = document.createElement('h3');
+        sectionName.classList.add('article__cards-group__group-name');
+        section.classList.add('article__cards-group-list-view');
+        section.classList.add(`${groupName}`);
+        sectionName.textContent = formatGroupName(groupName);
+        tasksWrapper.append(tasksWrapperInformation);
+        section.append(sectionName);
+        section.append(tasksWrapper);
+
+        tasksWrapperInformation.innerHTML = `
+          <span>Task name</span>
+          <span>Assignee</span>
+          <span>Date</span>
+          <span>Description</span>
+          <span>Comments</span>
+          <span>Status</span>
+          <span>Priority</span>
+          <span>Privacy</span>
       `;
+
+        return section;
+      }
+
+      for (let i = 0; i < tasks.length; i++) {
+        if (
+          tasks[i].isPrivate &&
+          tasks[i].assignee._id !== controller.list.user._id &&
+          tasks[i]._creator._id !== controller.list.user._id
+        ) {
+          continue;
+        }
+        const newTask = document.createElement('div');
+        newTask.classList.add('card-list-view');
+        newTask.setAttribute('id', tasks[i]._id);
+        newTask.setAttribute('status', tasks[i].status);
+        newTask.innerHTML = `
+              <span class="card-name-list-view">${tasks[i].name}</span>
+              <span>${tasks[i].assignee.userName}</span>
+              <div class="task-date-list-view-wrapper">
+                <time>${
+                  ('0' + new Date(tasks[i]._createdAt).getDate()).slice(-2) +
+                  '.' +
+                  ('0' + (new Date(tasks[i]._createdAt).getMonth() + 1)).slice(
+                    -2
+                  ) +
+                  '.' +
+                  new Date(tasks[i]._createdAt).getFullYear()
+                }</time>
+                <time>${
+                  new Date(tasks[i]._createdAt).getHours() +
+                  ':' +
+                  (String(new Date(tasks[i]._createdAt).getMinutes()).length ===
+                  1
+                    ? '0' + new Date(tasks[i]._createdAt).getMinutes()
+                    : new Date(tasks[i]._createdAt).getMinutes())
+                }</time>
+              </div>
+              <span>${tasks[i].description}</span>
+              <span>${tasks[i].comments.length}</span>
+              <span class="card-status-list-view ${tasks[i].status
+                .toLowerCase()
+                .split(' ')
+                .join('-')}">${tasks[i].status}</span>
+              <span class="card-priority-list-view ${tasks[
+                i
+              ].priority.toLowerCase()}">${tasks[i].priority}</span>
+              <span>${tasks[i].isPrivate ? 'Private' : 'Public'}</span>
+        `;
+
+        if (tasks[i].status === 'To Do') {
+          toDoGroup.lastElementChild.append(newTask);
+        }
+
+        if (tasks[i].status === 'In Progress') {
+          inProgressGroup.lastElementChild.append(newTask);
+        }
+
+        if (tasks[i].status === 'Complete') {
+          completeGroup.lastElementChild.append(newTask);
+        }
+      }
+
+      tasksFeed.append(toDoGroup);
+      tasksFeed.append(inProgressGroup);
+      tasksFeed.append(completeGroup);
     }
 
     if (tasks.length === 0) {
@@ -1052,7 +1091,9 @@ class UserView {
                 }</p>
                 <div class="user-info-form__login-wrapper">
                     <i class="fa-solid fa-user user-page"></i>
-                    <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="Mr_sagusha" disabled>
+                    <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="${
+                      controller.list._user.login
+                    }" disabled>
                 </div>
                 <div class="user-info-field-wrapper">
     
@@ -1317,11 +1358,8 @@ class NewTaskView {
 </label>
 <input class="button create-task" type="submit" value="CREATE TASK" disabled>
 </input>
-<input class="button reset-changes" type="reset" value="RESET CHANGES">
+<input class="button reset-changes" type="reset" value="RESET CHANGES" disabled>
 </input>
-<button class="button open-new-task">
-    <i class="fa-solid fa-plus"></i>
-</button>
     `;
 
     aside.append(newTaskForm);
@@ -1479,9 +1517,15 @@ controller.getFeed(itemsOnPageToRender);
 const main = document.getElementById('main');
 const body = document.getElementById('body');
 const container = document.querySelector('.container');
+const aside = document.getElementById('aside');
 const userProfileButton = document.querySelector('.side-menu__profile-button');
 const burgerMenu = document.querySelector('.burger-menu');
 const sideMenu = document.querySelector('.side-menu');
+const sideMenuProfileImage = document.querySelector(
+  '.side-menu__profile-image'
+);
+const sideMenuUser = document.querySelector('.side-menu__user-name');
+const sideMenuProfileButton = document.querySelector('.side-menu__button');
 const registeredUsers = controller.users._registeredUsers;
 const editConfig = {};
 const currentTaskConfig = {};
@@ -1491,11 +1535,27 @@ function setEventOnTaskCard() {
   setListenerOnStatusGroupButtons();
 
   main.addEventListener('click', (e) => {
-    if (e.target.className === 'card' && controller.list._user._id) {
+    if (
+      (e.target.className === 'card' ||
+        e.target.className === 'card-list-view') &&
+      controller.list.user._id
+    ) {
       currentTaskId = e.target.getAttribute('id');
       controller.showTask(currentTaskId);
       container.classList.remove('container-main');
       setEventsOnTaskPage();
+    }
+
+    if (e.target.classList.contains('article__cards-group-list-view')) {
+      if (!e.target.classList.contains('group-open')) {
+        e.target.classList.add('group-open');
+      } else {
+        e.target.classList.add('group-close');
+        setTimeout(() => {
+          e.target.classList.remove('group-open');
+          e.target.classList.remove('group-close');
+        }, 200);
+      }
     }
 
     if (e.target.classList.contains('fa-ellipsis-vertical')) {
@@ -1531,7 +1591,7 @@ function setEventOnTaskCard() {
         confirmDeleteModal.remove();
         controller.removeTask(e.target.closest('.card').getAttribute('id'));
         controller.saveTasks();
-        setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+
         setListenerOnStatusGroupButtons();
       });
 
@@ -1552,6 +1612,26 @@ function setEventOnTaskCard() {
       setEventsOnTaskPage();
       setInputsValuesToEditConfig(editConfig, currentTaskConfig);
     }
+
+    if (e.target.classList.contains('fa-list-ul')) {
+      const viewTiggle = document.querySelector('.view-wrapper');
+      const defautlViewButton = document.querySelector('.fa-table-columns');
+      viewTiggle.classList.add('list-view');
+      defautlViewButton.classList.remove('view-selected');
+      e.target.classList.add('view-selected');
+      controller.getFeed(itemsOnPageToRender);
+    }
+
+    if (e.target.classList.contains('fa-table-columns')) {
+      const viewTiggle = document.querySelector('.view-wrapper');
+      const listViewButton = document.querySelector('.fa-list-ul');
+      if (viewTiggle.classList.contains('list-view')) {
+        viewTiggle.classList.remove('list-view');
+        listViewButton.classList.remove('view-selected');
+        e.target.classList.add('view-selected');
+        controller.getFeed(itemsOnPageToRender);
+      }
+    }
   });
 
   if (burgerMenu) {
@@ -1560,36 +1640,60 @@ function setEventOnTaskCard() {
         burgerMenu.classList.add('burger-menu-open');
         sideMenu.classList.add('side-menu-open');
         body.classList.add('confirm');
+        if (!controller.list.user._id) {
+          userProfileButton.style.display = 'none';
+          sideMenuProfileImage.style.display = 'none';
+          sideMenuUser.textContent = 'Guest';
+          sideMenuProfileButton.textContent = 'Sign in';
+          sideMenuProfileButton.classList.add('sign-in');
+          sideMenuProfileButton.addEventListener('click', () => {
+            closeSideMenu(burgerMenu, sideMenu, body);
+            main.classList.remove('main-task');
+            main.classList.remove('edit-mode');
+            setEventOnLogIn();
+            controller.setCurrentUser('');
+          });
+        } else {
+          sideMenuProfileImage.src = controller.list.user.photo;
+          sideMenuUser.textContent = controller.list.user.userName;
+          userProfileButton.style.display = 'flex';
+          sideMenuProfileImage.style.display = 'block';
+          sideMenuUser.textContent = `${controller.list.user.userName}`;
+          sideMenuProfileButton.textContent = 'Logout';
+          sideMenuProfileButton.classList.remove('sign-in');
+          sideMenuProfileButton.addEventListener('click', () => {
+            closeSideMenu(burgerMenu, sideMenu, body);
+            main.classList.remove('main-task');
+            main.classList.remove('edit-mode');
+            setEventOnLogIn();
+            controller.setCurrentUser('');
+          });
+        }
       } else {
-        burgerMenu.classList.add('burger-menu-close');
-        sideMenu.classList.add('side-menu-close');
-        body.classList.remove('confirm');
-        setTimeout(() => {
-          burgerMenu.classList.remove('burger-menu-open');
-          sideMenu.classList.remove('side-menu-open');
-          burgerMenu.classList.remove('burger-menu-close');
-          sideMenu.classList.remove('side-menu-close');
-        }, 200);
+        closeSideMenu(burgerMenu, sideMenu, body);
       }
     });
   }
 
+  setEventOnNewTaskMobile(body);
+
+  window.addEventListener('click', (e) => {
+    if (sideMenu.classList.contains('side-menu-open')) {
+      if (
+        !e.target.closest('.side-menu') &&
+        !e.target.classList.contains('burger-menu')
+      ) {
+        closeSideMenu(burgerMenu, sideMenu, body);
+      }
+    }
+  });
+
   userProfileButton.addEventListener('click', () => {
-    burgerMenu.classList.add('burger-menu-close');
-    sideMenu.classList.add('side-menu-close');
-    body.classList.remove('confirm');
-    setTimeout(() => {
-      burgerMenu.classList.remove('burger-menu-open');
-      sideMenu.classList.remove('side-menu-open');
-      burgerMenu.classList.remove('burger-menu-close');
-      sideMenu.classList.remove('side-menu-close');
-    }, 200);
+    closeSideMenu(burgerMenu, sideMenu, body);
     main.classList.remove('main-task');
     main.classList.remove('edit-mode');
     setEventOnUserPage();
   });
-
-  setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
   setListenerOnStatusGroupButtons();
 }
 
@@ -1624,7 +1728,7 @@ function setEventsOnTaskPage() {
     container.classList.add('container-main');
     renderAsideSection(main);
     controller.getFeed(itemsOnPageToRender);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
     setEventOnFilters();
     setEventOnNewTask();
@@ -1654,7 +1758,7 @@ function setEventsOnTaskPage() {
       controller.saveTasks();
       setEventOnFilters();
       setEventOnNewTask();
-      setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+      setEventOnNewTaskMobile(body);
       setListenerOnStatusGroupButtons();
     });
 
@@ -1721,6 +1825,7 @@ function setEventsOnTaskPage() {
 function setEventOnFilters() {
   controller.getFilters();
   const form = document.getElementById('filters');
+  const { elements } = form;
   const filtersHead = form.querySelector('.filters-closed-wrapper');
   const filters = document.getElementById('filters');
   const taskNameInput = document.querySelector('.search-input');
@@ -1741,7 +1846,7 @@ function setEventOnFilters() {
   taskNameInput.addEventListener('input', () => {
     filterConfig.name = taskNameInput.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
@@ -1765,28 +1870,28 @@ function setEventOnFilters() {
         )
       : assigneeInput.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   statusSelect.addEventListener('change', () => {
     filterConfig.status = statusSelect.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   prioritySelect.addEventListener('change', () => {
     filterConfig.priority = prioritySelect.value;
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   privacySelect.addEventListener('change', () => {
     filterConfig.isPrivate = Boolean(Number(privacySelect.value));
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
@@ -1796,7 +1901,7 @@ function setEventOnFilters() {
       : dateFromTimeSelect.setAttribute('disabled', 'true');
     filterConfig.dateFrom = new Date(dateFromDateSelect.value);
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
@@ -1805,7 +1910,7 @@ function setEventOnFilters() {
       `${dateFromDateSelect.value}:${dateFromTimeSelect.value}`
     );
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
@@ -1815,7 +1920,7 @@ function setEventOnFilters() {
       : dateToTimeSelect.setAttribute('disabled', 'true');
     filterConfig.dateTo = new Date(dateToDateSelect.value);
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
@@ -1824,7 +1929,7 @@ function setEventOnFilters() {
       `${dateToDateSelect.value}:${dateToTimeSelect.value}`
     );
     controller.getFeed(itemsOnPageToRender, filterConfig);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
@@ -1832,7 +1937,8 @@ function setEventOnFilters() {
     if (e.target.classList.contains('clear-filters-button')) {
       filterConfig = {};
       controller.getFeed(itemsOnPageToRender, filterConfig);
-      setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+
+      setEventOnNewTaskMobile(body);
       setListenerOnStatusGroupButtons();
     }
   });
@@ -1995,7 +2101,7 @@ function setEventOnRegistration() {
     container.classList.add('container-main');
     renderAsideSection(main);
     controller.getFeed(itemsOnPageToRender);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
     setEventOnFilters();
     setEventOnHeader();
@@ -2039,7 +2145,8 @@ function setEventOnLogIn() {
         controller.setCurrentUser(userLogIn);
         window.localStorage.setItem('currentUser', JSON.stringify(userLogIn));
         controller.getFeed(itemsOnPageToRender);
-        setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+
+        setEventOnNewTaskMobile(body);
         setListenerOnStatusGroupButtons();
         setEventOnFilters();
         setEventOnHeader();
@@ -2075,7 +2182,7 @@ function setEventOnLogIn() {
     container.classList.add('container-main');
     renderAsideSection(main);
     controller.getFeed(itemsOnPageToRender);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
     setEventOnFilters();
     setEventOnHeader();
@@ -2123,7 +2230,8 @@ function setEventOnHeader() {
       controller.getFeed(itemsOnPageToRender);
       setEventOnFilters();
       setEventOnNewTask();
-      setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+
+      setEventOnNewTaskMobile(body);
       setListenerOnStatusGroupButtons();
     });
   }
@@ -2328,7 +2436,7 @@ function setEventOnUserPage() {
     controller.getFeed(itemsOnPageToRender);
     setEventOnFilters();
     setEventOnNewTask();
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 }
@@ -2342,6 +2450,15 @@ function setEventOnNewTask() {
   const createTaskButton = form.querySelector('.create-task');
   const newTaskDescription = form.querySelector('.task-description');
   const taskAssignee = document.getElementById('assignee-input-new-task');
+  const resetChangesButton = document.querySelector('.reset-changes');
+
+  elementsArray.forEach((el) => {
+    if (!el.classList.contains('button')) {
+      el.addEventListener('input', () => {
+        resetChangesButton.removeAttribute('disabled');
+      });
+    }
+  });
 
   elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
@@ -2375,6 +2492,37 @@ function setEventOnNewTask() {
     }
   });
 
+  resetChangesButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    const confirmResetModal = document.createElement('div');
+    confirmResetModal.className = 'task-confirm-modal';
+    confirmResetModal.innerHTML = `
+        <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO RESET ALL CHANGES?</p>
+        <div class="task-confirm-modal__buttons-wrapper">
+            <button id="cancelReset" class="button cancel">CANCEL</button>
+            <button id="confirmReset" class="button delete delete-confirm">RESET</button>
+        </div>
+      `;
+    body.classList.add('confirm');
+    main.prepend(confirmResetModal);
+
+    const cancelReset = document.getElementById('cancelReset');
+    const confirmReset = document.getElementById('confirmReset');
+
+    confirmReset.addEventListener('click', () => {
+      body.classList.remove('confirm');
+      confirmResetModal.remove();
+      resetChangesButton.setAttribute('disabled', true);
+      createTaskButton.setAttribute('disabled', true);
+      form.reset();
+    });
+
+    cancelReset.addEventListener('click', () => {
+      body.classList.remove('confirm');
+      confirmResetModal.remove();
+    });
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const taskName = document.getElementById('task-name-input');
@@ -2399,7 +2547,7 @@ function setEventOnNewTask() {
     controller.getFeed(itemsOnPageToRender);
     form.reset();
     createTaskButton.setAttribute('disabled', true);
-    setListenerOnLoadMoreBtn(controller, itemsOnPageToRender);
+    setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 }
