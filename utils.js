@@ -56,7 +56,6 @@ function renderAsideSection(el) {
 function validateField(el, controller) {
   const password = document.getElementById('password');
   const newPassword = document.getElementById('newPassword');
-  const oldPassword = document.getElementById('user-current-password');
 
   if (el.name === 'taskNameTaskPage') {
     if (el.value === '') {
@@ -104,15 +103,15 @@ function validateField(el, controller) {
       return false;
     }
 
-    if (
-      !controller.users._registeredUsers.find(
-        (elem) => elem.userName === el.value
-      )
-    ) {
-      el.previousElementSibling.innerText = 'User not found.';
-      el.classList.add('form__input-error');
-      return false;
-    }
+    // if (
+    //   !controller.users._registeredUsers.find(
+    //     (elem) => elem.userName === el.value
+    //   )
+    // ) {
+    //   el.previousElementSibling.innerText = 'User not found.';
+    //   el.classList.add('form__input-error');
+    //   return false;
+    // }
 
     el.previousElementSibling.innerText = '';
     el.classList.remove('form__input-error');
@@ -214,13 +213,6 @@ function validateField(el, controller) {
   }
 
   if (el.name === 'newPassword') {
-    if (el.value === oldPassword.value) {
-      el.previousElementSibling.innerText =
-        "The new password can't be the same as the old one.";
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
     if (el.value.length >= 1 && el.value.length < 8) {
       el.previousElementSibling.innerText = 'Minimum 8 characters.';
       el.parentElement.classList.add('form__input-error');
@@ -372,7 +364,6 @@ function setInputsValuesToEditConfig(
 
   assigneeInput.addEventListener('input', () => {
     const list = document.getElementById('assignee-list');
-    console.log(list);
 
     for (let i = 0; i < list.options.length; i++) {
       if (list.options[i].value === assigneeInput.value) {
@@ -383,9 +374,9 @@ function setInputsValuesToEditConfig(
       }
     }
 
-    editConfig.assignee = registeredUsers.find(
-      (user) => user._id === assigneeInput.getAttribute('userId')
-    );
+    editConfig.assignee = registeredUsers.find((user) => {
+      return user.id === assigneeInput.getAttribute('userId');
+    }).id;
   });
 
   privacySelect.addEventListener('change', () => {
@@ -417,22 +408,14 @@ function setInputsValuesToCurrentTaskConfig(
   const taskPriority = document.querySelector('.task-priority');
 
   currentTaskConfig.name = taskName.textContent;
-  currentTaskConfig.assignee = registeredUsers.find(
-    (user) => user._id === taskAssignee.getAttribute('id')
-  );
+  currentTaskConfig.assignee = registeredUsers.find((user) => {
+    return user.id === taskAssignee.getAttribute('id');
+  });
   currentTaskConfig.isPrivate =
     taskPrivacy.textContent === 'Public' ? false : true;
   currentTaskConfig.description = taskDescription.textContent;
   currentTaskConfig.status = taskStatus.textContent;
   currentTaskConfig.priority = taskPriority.textContent;
-}
-
-function getLengthOfTasks(status, controller) {
-  const tasksWithStatus = Array.from(controller.list._tasks).filter(
-    (task) => task.status === status
-  );
-
-  return tasksWithStatus.length;
 }
 
 function setListenerOnStatusGroupButtons() {
@@ -530,6 +513,66 @@ function closeSideMenu(burgerMenu, sideMenu, body) {
   }, 200);
 }
 
+function convertImageToBase64(url) {
+  return fetch(url)
+    .then((response) => response.blob())
+    .then(
+      (blob) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+    );
+}
+
+function setLoader(elToAppend, loader, body, parametr) {
+  const loaderWrapper = document.getElementById(elToAppend);
+  const loaderEl = document.createElement('div');
+  loaderEl.className = 'lds-dual-ring';
+
+  if (parametr) {
+    if (parametr === 'modal') {
+      loaderEl.classList.add('modal-loader');
+    }
+
+    if (parametr === 'button') {
+      loaderEl.classList.add('button-loader');
+    }
+
+    if (parametr === 'load-more') {
+      loaderEl.classList.add('load-more-loader');
+    }
+  }
+
+  if (!loader) {
+    if (loaderWrapper.querySelector('.lds-dual-ring')) {
+      loaderWrapper.querySelector('.lds-dual-ring').remove();
+    }
+
+    loaderEl.remove();
+    body.classList.remove('confirm');
+  } else {
+    if (elToAppend === 'confirmDelete') {
+      loaderWrapper.prepend(loaderEl);
+      return;
+    }
+    if (elToAppend === 'newCommentButton') {
+      loaderWrapper.prepend(loaderEl);
+      return;
+    }
+
+    if (elToAppend === 'loadMoreButton') {
+      loaderWrapper.prepend(loaderEl);
+      return;
+    }
+
+    loaderWrapper.prepend(loaderEl);
+    body.classList.add('confirm');
+  }
+}
+
 export {
   validateField,
   toggleShowPassword,
@@ -537,9 +580,10 @@ export {
   validateComment,
   validateDescription,
   setInputsValuesToCurrentTaskConfig,
-  getLengthOfTasks,
   renderAsideSection,
   setListenerOnStatusGroupButtons,
   closeSideMenu,
   setEventOnNewTaskMobile,
+  convertImageToBase64,
+  setLoader,
 };

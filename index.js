@@ -5,18 +5,228 @@ import {
   validateComment,
   validateDescription,
   setInputsValuesToCurrentTaskConfig,
-  getLengthOfTasks,
   renderAsideSection,
   setListenerOnStatusGroupButtons,
   closeSideMenu,
   setEventOnNewTaskMobile,
+  convertImageToBase64,
+  setLoader,
 } from './utils.js';
-
-let itemsOnPageToRender = 10;
 
 class TaskFeedApiService {
   constructor(server) {
     this.server = server;
+  }
+
+  _tasks = [];
+
+  _user = window.localStorage.getItem('currentUser')
+    ? window.localStorage.getItem('currentUser')
+    : {};
+
+  get tasks() {
+    return this._tasks;
+  }
+
+  set tasks(tasks) {
+    this._tasks = tasks;
+  }
+
+  get user() {
+    return this._user;
+  }
+
+  set user(user) {
+    this._user = user;
+  }
+
+  changeUser(user) {
+    this._user = user;
+  }
+
+  async getTasks(skip, top, status) {
+    try {
+      const res = await fetch(
+        `${this.server}/tasks?${new URLSearchParams({
+          skip: skip,
+          top: top,
+          status: status,
+        })}`
+      );
+      const json = await res.json();
+      return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getTask(id) {
+    try {
+      const res = await fetch(`${this.server}/tasks/${id}`);
+      const json = await res.json();
+      return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getComments(id) {
+    try {
+      const res = await fetch(`${this.server}/tasks/${id}/comments`);
+      const json = await res.json();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getAllUsers() {
+    try {
+      const res = await fetch(`${this.server}/user/allUsers`);
+      const json = await res.json();
+
+      return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async registerUser(data) {
+    try {
+      const res = await fetch(`${this.server}/user/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        return json.message;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async loginUser(data) {
+    try {
+      const res = await fetch(`${this.server}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      window.localStorage.setItem('token', json.token);
+      if (!res.ok) {
+        return json.message;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  getToken() {
+    return window.localStorage.getItem('token');
+  }
+
+  async getMyProfile() {
+    try {
+      const res = await fetch(`${this.server}/user/myProfile`, {
+        headers: {
+          accept: '*/*',
+          authorization: `Bearer ${this.getToken()}`,
+        },
+      });
+      const json = await res.json();
+      return json;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async postComment(id, data) {
+    try {
+      const res = await fetch(`${this.server}/tasks/${id}/comments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+          authorization: `Bearer ${this.getToken()}`,
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async postTask(data) {
+    try {
+      const res = await fetch(`${this.server}/tasks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+          authorization: `Bearer ${this.getToken()}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async deleteTask(id) {
+    try {
+      const res = await fetch(`${this.server}/tasks/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+          authorization: `Bearer ${this.getToken()}`,
+        },
+      });
+      const json = await res.json();
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async editTask(id, data) {
+    try {
+      const res = await fetch(`${this.server}/tasks/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+          authorization: `Bearer ${this.getToken()}`,
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  async editUser(id, data) {
+    try {
+      const res = await fetch(`${this.server}/user/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          accept: '*/*',
+          authorization: `Bearer ${this.getToken()}`,
+        },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      console.log(json);
+    } catch (error) {
+      console.log(error.message);
+    }
   }
 }
 
@@ -71,315 +281,6 @@ class UserCollection {
   }
 }
 
-class Task {
-  constructor(
-    name,
-    description,
-    assignee,
-    status,
-    priority,
-    isPrivate,
-    creator
-  ) {
-    this._id = Date.now().toString();
-    this.name = name;
-    this.description = description;
-    this._createdAt = new Date();
-    this.assignee = assignee;
-    this.status = status;
-    this.priority = priority;
-    this.isPrivate = isPrivate;
-    this.comments = [];
-    this._creator = creator;
-  }
-
-  get id() {
-    return this._id;
-  }
-
-  get createdAt() {
-    return this._createdAt;
-  }
-
-  get creator() {
-    return this._creator;
-  }
-
-  static validateTask(task) {
-    const _NAME_MAX_LENGTH = 100;
-    const _DESCRIPTION_MAX_LENGTH = 280;
-
-    const statusList = ['To Do', 'In Progress', 'Complete'];
-    if (task) {
-      if (
-        !task._id ||
-        typeof task._id !== 'string' ||
-        !task.name ||
-        typeof task.name !== 'string' ||
-        task.name.length > _NAME_MAX_LENGTH ||
-        !task.description ||
-        typeof task.description !== 'string' ||
-        task.description.length > _DESCRIPTION_MAX_LENGTH ||
-        // !task.assignee ||
-        // typeof task.assignee !== 'string' ||
-        !task.status ||
-        typeof task.status !== 'string' ||
-        !statusList.includes(task.status) ||
-        !task.priority ||
-        typeof task.priority !== 'string' ||
-        (task.priority !== 'Low' &&
-          task.priority !== 'Medium' &&
-          task.priority !== 'High') ||
-        typeof task.isPrivate !== 'boolean' ||
-        !task.comments ||
-        !Array.isArray(task.comments)
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-}
-
-class Comment {
-  constructor(text, user) {
-    this._id = Date.now().toString();
-    this.text = text;
-    this._createdAt = new Date();
-    this._author = user;
-  }
-
-  get id() {
-    return this._id;
-  }
-
-  get createdAt() {
-    return this._createdAt;
-  }
-
-  get author() {
-    return this._author;
-  }
-
-  static validateComment(comment) {
-    if (
-      !comment._id ||
-      typeof comment._id !== 'string' ||
-      !comment.text ||
-      typeof comment.text !== 'string' ||
-      comment.text.length > 280
-      // !comment.author ||
-      // typeof comment.author !== 'string'
-    ) {
-      return false;
-    }
-
-    return true;
-  }
-}
-
-class TasksCollection {
-  constructor() {
-    this._tasks = this.restore();
-  }
-
-  _user = {};
-
-  get tasks() {
-    return this.tasks;
-  }
-
-  set tasks(tasks) {
-    this._tasks = tasks;
-  }
-
-  get user() {
-    return this._user;
-  }
-
-  set user(user) {
-    this._user = user;
-  }
-
-  getPage(itemsOnPageToRender, filterConfig) {
-    let taskCopy = this._tasks;
-    const toDoTasks = taskCopy
-      .filter((task) => task.status === 'To Do')
-      .slice(0, itemsOnPageToRender);
-    const inProgressTasks = taskCopy
-      .filter((task) => task.status === 'In Progress')
-      .slice(0, itemsOnPageToRender);
-    const completeTasks = taskCopy
-      .filter((task) => task.status === 'Complete')
-      .slice(0, itemsOnPageToRender);
-    taskCopy = [...toDoTasks, ...inProgressTasks, ...completeTasks];
-
-    if (filterConfig) {
-      taskCopy = taskCopy
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('assignee')
-            ? filterConfig.assignee.userName
-              ? task.assignee.userName
-                  .toLowerCase()
-                  .includes(filterConfig.assignee.userName.toLowerCase())
-              : task.assignee.userName
-                  .toLowerCase()
-                  .includes(filterConfig.assignee.toLowerCase())
-            : task;
-        })
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('dateFrom')
-            ? new Date(task._createdAt) >= filterConfig.dateFrom
-            : task;
-        })
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('dateTo')
-            ? new Date(task._createdAt) <= filterConfig.dateTo
-            : task;
-        })
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('status')
-            ? task.status.toLowerCase() === filterConfig.status.toLowerCase()
-            : task;
-        })
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('priority')
-            ? task.priority.toLowerCase() ===
-                filterConfig.priority.toLowerCase()
-            : task;
-        })
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('isPrivate')
-            ? task.isPrivate === filterConfig.isPrivate
-            : task;
-        })
-        .filter((task) => {
-          return filterConfig.hasOwnProperty('name')
-            ? task.name.toLowerCase().includes(filterConfig.name.toLowerCase())
-            : task;
-        });
-    }
-
-    return taskCopy.sort(
-      (a, b) => new Date(b._createdAt) - new Date(a._createdAt)
-    );
-  }
-
-  get(id) {
-    return this._tasks.find((task) => task._id === String(id));
-  }
-
-  add(name, description, assignee, status, priority, isPrivate) {
-    const newTask = new Task(
-      name,
-      description,
-      assignee,
-      status,
-      priority,
-      isPrivate,
-      this._user
-    );
-
-    if (!Task.validateTask(newTask)) {
-      return false;
-    }
-    this._tasks.push(newTask);
-    return true;
-  }
-
-  edit(id, name, description, assignee, status, priority, isPrivate = false) {
-    if (
-      arguments.length === 0 ||
-      this.get(id)._creator._id !== this._user._id
-    ) {
-      return false;
-    }
-
-    const editTask = JSON.parse(JSON.stringify(this.get(id)));
-
-    editTask._createdAt = new Date(editTask._createdAt);
-
-    name === undefined ? (name = editTask.name) : (editTask.name = name);
-    description === undefined
-      ? (description = editTask.description)
-      : (editTask.description = description);
-    assignee === undefined
-      ? (assignee = editTask.assignee)
-      : (editTask.assignee = assignee);
-    status === undefined
-      ? (status = editTask.status)
-      : (editTask.status = status);
-    priority === undefined
-      ? (priority = editTask.priority)
-      : (editTask.priority = priority);
-    isPrivate === undefined
-      ? (isPrivate = editTask.isPrivate)
-      : (editTask.isPrivate = isPrivate);
-
-    if (!Task.validateTask(editTask)) {
-      return false;
-    }
-
-    this._tasks = this._tasks.map((task) => {
-      return task._id === id ? (task = editTask) : task;
-    });
-
-    return true;
-  }
-
-  remove(id) {
-    if (!this.get(id) || !id || this.get(id)._creator._id !== this._user._id) {
-      return false;
-    }
-
-    this._tasks = this._tasks.filter((task) => task._id !== id);
-
-    return true;
-  }
-
-  addComment(id, text) {
-    const task = this.get(id);
-    const comment = new Comment(text, this._user.userName);
-
-    if (!Comment.validateComment(comment) || !task) {
-      return false;
-    }
-
-    task.comments.push(comment);
-    return true;
-  }
-
-  changeUser(newUser) {
-    this._user = newUser;
-  }
-
-  addAll(tasks) {
-    const notValideTasksList = [];
-
-    tasks.forEach((task) => {
-      Task.validateTask(task)
-        ? this._tasks.push(task)
-        : notValideTasksList.push(task);
-    });
-
-    return notValideTasksList;
-  }
-
-  clear() {
-    this._tasks = [];
-  }
-
-  save() {
-    window.localStorage.setItem('tasks', JSON.stringify(this._tasks));
-  }
-
-  restore() {
-    const tasks = JSON.parse(window.localStorage.getItem('tasks'));
-    return tasks ? tasks : [];
-  }
-}
-
 class HeaderView {
   constructor(id) {
     this._id = id;
@@ -392,7 +293,7 @@ class HeaderView {
   display(user) {
     const header = document.getElementById(this._id);
     let isUser = user.userName
-      ? user.userName === controller.list._user.userName
+      ? user.userName === controller.api._user.userName
       : false;
     if (!user) {
       isUser = false;
@@ -411,7 +312,7 @@ class HeaderView {
               }</p>
               ${
                 isUser
-                  ? `<img class="user-image" src=${user.photo} alt="user"></img>`
+                  ? `<img class="user-image" src='data:image/png;base64,${user.photo}' alt="user"></img>`
                   : ''
               }
           </div>
@@ -444,6 +345,7 @@ class TaskFeedView {
     const completeGroup = createSection('complete-group');
     const loadMoreButton = document.createElement('button');
     loadMoreButton.className = 'button load-more';
+    loadMoreButton.setAttribute('id', 'loadMoreButton');
     loadMoreButton.innerText = 'Load more';
     tasksFeed.classList.add('article__tasks-wrapper');
 
@@ -483,18 +385,18 @@ class TaskFeedView {
       for (let i = 0; i < tasks.length; i++) {
         if (
           tasks[i].isPrivate &&
-          tasks[i].assignee._id !== controller.list.user._id &&
-          tasks[i]._creator._id !== controller.list.user._id
+          tasks[i].assignee.id !== controller.api.user.id &&
+          tasks[i].creator.id !== controller.api.user.id
         ) {
           continue;
         }
         const newTask = document.createElement('div');
         newTask.classList.add('card');
-        newTask.setAttribute('id', tasks[i]._id);
+        newTask.setAttribute('id', tasks[i].id);
         newTask.setAttribute('status', tasks[i].status);
         newTask.innerHTML = `
         <i class="fa-solid fa-ellipsis-vertical ${
-          controller.list._user._id === tasks[i]._creator._id ? '' : 'forbidden'
+          controller.api.user.id === tasks[i].creator.id ? '' : 'forbidden'
         }"><div class="card-options">
             <i class="fa-solid fa-trash delete-task-board"></i>
             <i class="fa-solid fa-pen edit-task-board"></i>
@@ -540,22 +442,22 @@ class TaskFeedView {
             </i>
             <div class="task-date-wrapper">
                 <time class="card__date">${
-                  ('0' + new Date(tasks[i]._createdAt).getDate()).slice(-2) +
+                  ('0' + new Date(tasks[i].createdAt).getDate()).slice(-2) +
                   '.' +
-                  ('0' + (new Date(tasks[i]._createdAt).getMonth() + 1)).slice(
+                  ('0' + (new Date(tasks[i].createdAt).getMonth() + 1)).slice(
                     -2
                   ) +
                   '.' +
-                  new Date(tasks[i]._createdAt).getFullYear()
+                  new Date(tasks[i].createdAt).getFullYear()
                 }</time>
                 <time class="card__date">
                   ${
-                    new Date(tasks[i]._createdAt).getHours() +
+                    new Date(tasks[i].createdAt).getHours() +
                     ':' +
-                    (String(new Date(tasks[i]._createdAt).getMinutes())
+                    (String(new Date(tasks[i].createdAt).getMinutes())
                       .length === 1
-                      ? '0' + new Date(tasks[i]._createdAt).getMinutes()
-                      : new Date(tasks[i]._createdAt).getMinutes())
+                      ? '0' + new Date(tasks[i].createdAt).getMinutes()
+                      : new Date(tasks[i].createdAt).getMinutes())
                   }
                 </time>
             </div>
@@ -566,7 +468,7 @@ class TaskFeedView {
           toDoGroup.lastElementChild.append(newTask);
         }
 
-        if (tasks[i].status === 'In Progress') {
+        if (tasks[i].status === 'In progress') {
           inProgressGroup.lastElementChild.append(newTask);
         }
 
@@ -590,6 +492,9 @@ class TaskFeedView {
         sectionName.classList.add('article__cards-group__group-name');
         section.classList.add('article__cards-group-list-view');
         section.classList.add(`${groupName}`);
+        if (groupName === 'to-do-group') {
+          section.classList.add('group-open');
+        }
         sectionName.textContent = formatGroupName(groupName);
         tasksWrapper.append(tasksWrapperInformation);
         section.append(sectionName);
@@ -612,38 +517,40 @@ class TaskFeedView {
       for (let i = 0; i < tasks.length; i++) {
         if (
           tasks[i].isPrivate &&
-          tasks[i].assignee._id !== controller.list.user._id &&
-          tasks[i]._creator._id !== controller.list.user._id
+          tasks[i].assignee.id !== controller.api.user.id &&
+          tasks[i].creator.id !== controller.api.user.id
         ) {
           continue;
         }
         const newTask = document.createElement('div');
         newTask.classList.add('card-list-view');
-        newTask.setAttribute('id', tasks[i]._id);
+        newTask.setAttribute('id', tasks[i].id);
         newTask.setAttribute('status', tasks[i].status);
         newTask.innerHTML = `
               <span class="card-name-list-view">${tasks[i].name}</span>
               <span>${tasks[i].assignee.userName}</span>
               <div class="task-date-list-view-wrapper">
                 <time>${
-                  ('0' + new Date(tasks[i]._createdAt).getDate()).slice(-2) +
+                  ('0' + new Date(tasks[i].createdAt).getDate()).slice(-2) +
                   '.' +
-                  ('0' + (new Date(tasks[i]._createdAt).getMonth() + 1)).slice(
+                  ('0' + (new Date(tasks[i].createdAt).getMonth() + 1)).slice(
                     -2
                   ) +
                   '.' +
-                  new Date(tasks[i]._createdAt).getFullYear()
+                  new Date(tasks[i].createdAt).getFullYear()
                 }</time>
                 <time>${
-                  new Date(tasks[i]._createdAt).getHours() +
+                  new Date(tasks[i].createdAt).getHours() +
                   ':' +
-                  (String(new Date(tasks[i]._createdAt).getMinutes()).length ===
+                  (String(new Date(tasks[i].createdAt).getMinutes()).length ===
                   1
-                    ? '0' + new Date(tasks[i]._createdAt).getMinutes()
-                    : new Date(tasks[i]._createdAt).getMinutes())
+                    ? '0' + new Date(tasks[i].createdAt).getMinutes()
+                    : new Date(tasks[i].createdAt).getMinutes())
                 }</time>
               </div>
-              <span>${tasks[i].description}</span>
+              <span class="card-description-list-view">${
+                tasks[i].description
+              }</span>
               <span>${tasks[i].comments.length}</span>
               <span class="card-status-list-view ${tasks[i].status
                 .toLowerCase()
@@ -659,7 +566,7 @@ class TaskFeedView {
           toDoGroup.lastElementChild.append(newTask);
         }
 
-        if (tasks[i].status === 'In Progress') {
+        if (tasks[i].status === 'In progress') {
           inProgressGroup.lastElementChild.append(newTask);
         }
 
@@ -673,7 +580,12 @@ class TaskFeedView {
       tasksFeed.append(completeGroup);
     }
 
-    if (tasks.length === 0) {
+    if (
+      tasks.length === 0 ||
+      (tasks.every((task) => task.assignee.id !== controller.api.user.id) &&
+        tasks.every((task) => task.isPrivate === true))
+    ) {
+      loadMoreButton.setAttribute('disabled', true);
       tasksFeed.innerHTML = `
       <div class="article__tasks-not-found-wrapper">
           <img class="robot-image" class src="./assets/robot.png" alt="robot">
@@ -691,19 +603,6 @@ class TaskFeedView {
       tasksFeedContainer.append(tasksFeed);
       tasksFeedContainer.append(loadMoreButton);
     }
-
-    if (
-      getLengthOfTasks('In Progress', controller) >
-        document.querySelectorAll('[status="To Do"]').length ||
-      getLengthOfTasks('To Do', controller) >
-        document.querySelectorAll('[status="In Progress"]').length ||
-      getLengthOfTasks('Complete', controller) >
-        document.querySelectorAll('[status="Complete"]').length
-    ) {
-      loadMoreButton.removeAttribute('disabled');
-    } else {
-      loadMoreButton.setAttribute('disabled', true);
-    }
   }
 }
 
@@ -716,7 +615,7 @@ class FilterView {
     return this._id;
   }
 
-  display() {
+  display(registeredUsers) {
     const filtersWrapper = document.getElementById(this._id);
     const fragment = new DocumentFragment();
     const assigneeLabel = document.createElement('label');
@@ -739,10 +638,10 @@ class FilterView {
     Assignee
     <input class="assignee-input" id="assignee-input" type="text" autocomplete="off" list="assignee-list">
         <datalist id="assignee-list">
-            ${controller.users._registeredUsers
+            ${registeredUsers
               .map((user) => {
                 return `
-                <option id='${user._id}' value='${user.userName}'></option>
+                <option id='${user.id}' value='${user.userName}'></option>
               `;
               })
               .join('')}
@@ -770,7 +669,7 @@ class FilterView {
     Status
     <select name="status" id="status-select">
         <option value="To Do">To Do</option>
-        <option value="In Progress">In Progress</option>
+        <option value="In progress">In Progress</option>
         <option value="Complete">Complete</option>
     </select>
     `;
@@ -815,10 +714,9 @@ class TaskView {
     return this._id;
   }
 
-  display(tasks, id) {
+  display(task, registeredUsers) {
     const mainTaskWrapper = document.getElementById(this._id);
     const isEditMode = mainTaskWrapper.classList.contains('edit-mode');
-    const task = tasks.find((task) => task._id === String(id));
 
     mainTaskWrapper.classList.add('main-task');
 
@@ -831,14 +729,14 @@ class TaskView {
           </button>
           <div class="task-date-wrapper task-page-date">
               <time class="task-date">${
-                ('0' + new Date(task._createdAt).getDate()).slice(-2) +
+                ('0' + new Date(task.createdAt).getDate()).slice(-2) +
                 '.' +
-                ('0' + (new Date(task._createdAt).getMonth() + 1)).slice(-2) +
+                ('0' + (new Date(task.createdAt).getMonth() + 1)).slice(-2) +
                 '.' +
-                new Date(task._createdAt).getFullYear()
+                new Date(task.createdAt).getFullYear()
               }</time>
               <time class="task-date">${new Date(
-                task._createdAt
+                task.createdAt
               ).toLocaleTimeString()}</time>
           </div>
       </div>
@@ -850,16 +748,12 @@ class TaskView {
           }
           <div class="task-top__buttons-section">
               <button class="edit edit-task" ${
-                controller.list._user._id === task._creator._id
-                  ? ''
-                  : 'disabled'
+                controller.api.user.id === task.creator.id ? '' : 'disabled'
               }><i class="fa-solid ${
         !isEditMode ? 'fa-pen pen-task-page' : 'fa-floppy-disk'
       }"></i></button>
               <button class="delete" ${
-                controller.list._user._id === task._creator._id
-                  ? ''
-                  : 'disabled'
+                controller.api.user.id === task.creator.id ? '' : 'disabled'
               }><i class="fa-solid fa-trash trash-task-page"></i></button>
           </div>
       </div>
@@ -869,19 +763,19 @@ class TaskView {
                   ${
                     !isEditMode
                       ? `<div class="task-info-wrapper">
-                      <span class="task-info-span">assignee: </span><p class="task-assignee" id="${task.assignee._id}">${task.assignee.userName}</p>
+                      <span class="task-info-span">assignee: </span><p class="task-assignee" id="${task.assignee.id}">${task.assignee.userName}</p>
                     </div>`
                       : `<div class="task-info-wrapper">
                           <span class="task-info-span">assignee: </span>
                           <div class="form__input-error-message error-task-page-assignee"></div>
                           <input class="assignee-input assignee-input-edit" id="assignee-input" type="text" autocomplete="off" name="assignee" list="assignee-list" userId="${
-                            task.assignee._id
+                            task.assignee.id
                           }">
                           <datalist id="assignee-list">
-                          ${controller.users._registeredUsers
+                          ${registeredUsers
                             .map((user) => {
                               return `
-                          <option id='${user._id}' value='${user.userName}'></option>
+                          <option id='${user.id}' value='${user.userName}'></option>
                           `;
                             })
                             .join('')}
@@ -923,7 +817,7 @@ class TaskView {
                       <span class="task-info-span">status:</span>
                       <select name="status" id="status-select">
                       <option value="To Do">To Do</option>
-                      <option value="In Progress">In Progress</option>
+                      <option value="In progress">In Progress</option>
                       <option value="Complete">Complete</option>
                   </select>
                       </div>`
@@ -961,27 +855,29 @@ class TaskView {
           <div class="task-comments">
               <div class="task-comments__comments-wrapper">
                   ${task.comments
-                    .sort((a, b) => a._createdAt - b._createdAt)
+                    .sort((a, b) => a.createdAt - b.createdAt)
                     .map((comment) => {
                       return `
                     <div class="comment">
                       <div class="comment__info">
-                          <p class="comment__author">${comment._author}</p>
+                          <p class="comment__author">${
+                            comment.creator.userName
+                          }</p>
                           <div>
                           <time class="comment__date">${
-                            (
-                              '0' + new Date(comment._createdAt).getDate()
-                            ).slice(-2) +
+                            ('0' + new Date(comment.createdAt).getDate()).slice(
+                              -2
+                            ) +
                             '.' +
                             (
                               '0' +
-                              (new Date(comment._createdAt).getMonth() + 1)
+                              (new Date(comment.createdAt).getMonth() + 1)
                             ).slice(-2) +
                             '.' +
-                            new Date(comment._createdAt).getFullYear()
+                            new Date(comment.createdAt).getFullYear()
                           }</time>
                           <time class="comment__date">${new Date(
-                            comment._createdAt
+                            comment.createdAt
                           ).toLocaleTimeString()}</time>
                           </div>
                       </div>
@@ -994,11 +890,11 @@ class TaskView {
               <div class="task-comments__new-comment-wrapper">
                   <div class="form__input-error-message"></div>
                   <textarea class="task-comments__new-comment" name="" id="" ${
-                    !controller.list._user.userName || isEditMode
+                    !controller.api.user.userName || isEditMode
                       ? 'disabled'
                       : ''
                   } placeholder="Enter new comment..."></textarea>
-                  <button class="button new-comment-button" disabled>
+                  <button id="newCommentButton" class="button new-comment-button" disabled>
                       <i class="fa-solid fa-paper-plane"></i>
                   </button>
               </div>
@@ -1072,7 +968,9 @@ class UserView {
                     }
                     <img class="user-main-image ${
                       isEditMode ? 'main-image-edit' : ''
-                    }" src="./assets/user.png" alt="user">
+                    }" src="data:image/png;base64,${
+      controller.api.user.photo
+    }" alt="user">
                     ${
                       isEditMode
                         ? '<img class="camera" src="./assets/camera.png" alt="camera">'
@@ -1087,29 +985,13 @@ class UserView {
             </div>
             <form class="user-info-form" action="">
                 <p class="user-info__user-name">${
-                  controller.list._user.userName
+                  controller.api.user.userName
                 }</p>
                 <div class="user-info-form__login-wrapper">
                     <i class="fa-solid fa-user user-page"></i>
                     <input id="user-login" class="user-info-form__login" type="text" name="" id="" value="${
-                      controller.list._user.login
+                      controller.api.user.login
                     }" disabled>
-                </div>
-                <div class="user-info-field-wrapper">
-    
-                    ${
-                      isEditMode
-                        ? '<label for="user-current-password">Current password:</label>'
-                        : ''
-                    }
-                    <div class="user-info-form__password-wrapper">
-                        <i class="fa-solid fa-lock"></i>
-                        <div class="form__input-error-message"></div>
-                        <input id="user-current-password" class="user-info-form__password" type="password" name="" id="" value="${
-                          controller.list._user.password
-                        }" disabled>
-                        <i class="fa-solid fa-eye"></i>
-                    </div>
                 </div>
                 ${
                   isEditMode
@@ -1244,7 +1126,7 @@ class RegistrationView {
         <div class"form__authorization-error-message"></div>
         <i class="fa-solid fa-lock"></i>
         <div class="form__input-error-message"></div>
-        <input class="form__input" type="password" placeholder="Confirm password" name="confirmPassword">
+        <input class="form__input" id="confirmPassword" type="password" placeholder="Confirm password" name="confirmPassword">
         <i class="fa-solid fa-eye"></i>
     </div>
     <div class="form__input-wrapper">
@@ -1295,7 +1177,7 @@ class NewTaskView {
     return this._id;
   }
 
-  display() {
+  display(registeredUsers) {
     const aside = document.getElementById(this._id);
     const newTaskForm = document.createElement('form');
     newTaskForm.classList.add('new-task-form');
@@ -1303,19 +1185,19 @@ class NewTaskView {
     <label for="task-name-input">Task name
     <div class="form__input-error-message new-task-error"></div>
     <input placeholder="" class="form__input new-task-input" id="task-name-input" type="text" name="taskName" autocomplete="off" ${
-      !controller.list._user.userName ? 'disabled' : ''
+      !controller.api.user.userName ? 'disabled' : ''
     }>
 </label>
 <label for="assignee-input">Assignee
     <div class="form__input-error-message new-task-error"></div>
-    <input class="form__input new-task-input" id="assignee-input-new-task" type="text" list="assignee-list" name="assignee" autocomplete="off" ${
-      !controller.list._user.userName ? 'disabled' : ''
+    <input class="form__input new-task-input" id="assignee-input-new-task" type="text" list="list" name="assignee" autocomplete="off" ${
+      !controller.api.user.userName ? 'disabled' : ''
     }>
-    <datalist id="assignee-list">
-    ${controller.users._registeredUsers
+    <datalist id="list">
+    ${registeredUsers
       .map((user) => {
         return `
-        <option id='${user._id}' value='${user.userName}'></option>
+        <option id='${user.id}' value='${user.userName}'></option>
       `;
       })
       .join('')}
@@ -1323,17 +1205,17 @@ class NewTaskView {
 </label>
 <label for="status-select">Status
     <select name="status" id="status-select-new-task" ${
-      !controller.list._user.userName ? 'disabled' : ''
+      !controller.api.user.userName ? 'disabled' : ''
     }>
         <option value="To Do">To Do</option>
-        <option value="In Progress">In Progress</option>
+        <option value="In progress">In Progress</option>
         <option value="Complete">Complete</option>
     </select>
 </label>
 <label for="priority-select">
     Priority
     <select name="priority" id="priority-select-new-task" ${
-      !controller.list._user.userName ? 'disabled' : ''
+      !controller.api.user.userName ? 'disabled' : ''
     }>
         <option value="Low">Low</option>
         <option value="Medium">Medium</option>
@@ -1343,7 +1225,7 @@ class NewTaskView {
 <label for="privacy-select">
     Privacy
     <select name="privacy" id="privacy-select-new-task" ${
-      !controller.list._user.userName ? 'disabled' : ''
+      !controller.api.user.userName ? 'disabled' : ''
     }>
         <option value="0">Public</option>
         <option value="1">Private</option>
@@ -1353,7 +1235,7 @@ class NewTaskView {
     Description
     <div class="form__input-error-message new-task-error"></div>
     <textarea class="task-description new-task-description" name="description" id="description" cols="25" rows="10" ${
-      !controller.list._user.userName ? 'disabled' : ''
+      !controller.api.user.userName ? 'disabled' : ''
     }></textarea>
 </label>
 <input class="button create-task" type="submit" value="CREATE TASK" disabled>
@@ -1368,7 +1250,6 @@ class NewTaskView {
 
 class TasksController {
   constructor(
-    list,
     users,
     header,
     taskFeed,
@@ -1379,7 +1260,7 @@ class TasksController {
     userPage,
     newTask
   ) {
-    this.list = list;
+    this.api = new TaskFeedApiService('http://169.60.206.50:7777/api');
     this.users = users;
     this.header = header;
     this.taskFeed = taskFeed;
@@ -1392,59 +1273,146 @@ class TasksController {
   }
 
   setCurrentUser(user) {
-    this.list.changeUser(user);
+    this.api.changeUser(user);
     this.header.display(user);
   }
 
-  getFeed(itemsOnPageToRender, filterConfig) {
-    const arr = this.list.getPage(itemsOnPageToRender, filterConfig);
-    this.taskFeed.display(arr);
+  async getTasks(skip = 0, top = 10, status = 0) {
+    let arrayToPush = [];
+
+    if (status === 0) {
+      this.api.tasks = await this.api.getTasks(skip, top, status);
+    } else {
+      arrayToPush = await this.api.getTasks(skip, top, status);
+      this.api.tasks = [...this.api.tasks, ...arrayToPush];
+    }
+
+    return this.api.tasks;
   }
 
-  getFilters() {
-    this.filters.display(this.list._tasks);
+  getFeed(filterConfig) {
+    filterConfig
+      ? this.taskFeed.display(getPage(filterConfig))
+      : this.taskFeed.display(this.api.tasks);
+
+    function getPage(filterConfig) {
+      console.log(filterConfig);
+      let tasksCopy = controller.api.tasks;
+      console.log(tasksCopy);
+      if (filterConfig) {
+        tasksCopy = tasksCopy
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('assignee')
+              ? filterConfig.assignee.id
+                ? task.assignee.id === filterConfig.assignee.id
+                : task.assignee.userName
+                    .toLowerCase()
+                    .includes(filterConfig.assignee.toLowerCase())
+              : task;
+          })
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('dateFrom')
+              ? new Date(task.createdAt) >= filterConfig.dateFrom
+              : task;
+          })
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('dateTo')
+              ? new Date(task.createdAt) <= filterConfig.dateTo
+              : task;
+          })
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('status')
+              ? task.status.toLowerCase() === filterConfig.status.toLowerCase()
+              : task;
+          })
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('priority')
+              ? task.priority.toLowerCase() ===
+                  filterConfig.priority.toLowerCase()
+              : task;
+          })
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('isPrivate')
+              ? task.isPrivate === filterConfig.isPrivate
+              : task;
+          })
+          .filter((task) => {
+            return filterConfig.hasOwnProperty('name')
+              ? task.name
+                  .toLowerCase()
+                  .includes(filterConfig.name.toLowerCase())
+              : task;
+          });
+      }
+
+      console.log(tasksCopy);
+      return tasksCopy.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+    }
   }
 
-  addTask(task) {
-    this.list.add(
-      task.name,
-      task.description,
-      task.assignee,
-      task.status,
-      task.priority,
-      task.isPrivate,
-      task.creator
-    );
-    this.getFeed(itemsOnPageToRender);
+  getFilters(registeredUsers) {
+    this.filters.display(registeredUsers);
   }
 
-  editTask(id, task) {
-    this.list.edit(
-      String(id),
-      task.name,
-      task.description,
-      task.assignee,
-      task.status,
-      task.priority,
-      task.isPrivate
-    );
+  async showTask(id, registeredUsers) {
+    const task = await this.api.getTask(id);
+    this.taskPage.display(task, registeredUsers);
   }
 
-  removeTask(id) {
-    this.list.remove(String(id));
-    this.getFeed(itemsOnPageToRender);
+  async registerUser(data) {
+    const response = await this.api.registerUser(data);
+
+    return response;
   }
 
-  addUser(login, userName, password, photo) {
-    this.users.addUser(login, userName, password, photo);
+  async loginUser(data) {
+    const response = await this.api.loginUser(data);
+
+    return response;
   }
 
-  editUser(id, user) {
-    this.users.edit(String(id), user.userName, user.password, user.photo);
+  async getMyProfile() {
+    const response = await this.api.getMyProfile();
+
+    return response;
   }
 
-  showTask(id) {
-    this.taskPage.display(this.list._tasks, id);
+  async postComment(id, text) {
+    const res = await this.api.postComment(id, text);
+
+    return res;
+  }
+
+  async postTask(data) {
+    const res = await this.api.postTask(data);
+
+    return res;
+  }
+
+  async deleteTask(id) {
+    const res = await this.api.deleteTask(id);
+
+    return res;
+  }
+
+  async editTask(id, data) {
+    const res = this.api.editTask(Number(id), data);
+
+    return res;
+  }
+
+  async getAllUsers() {
+    const response = await this.api.getAllUsers();
+
+    return response;
+  }
+
+  async editUser(id, data) {
+    const response = await this.api.editUser(id, data);
+
+    return response;
   }
 
   showLogIn(id) {
@@ -1455,36 +1423,15 @@ class TasksController {
     this.registrationPage.display(id);
   }
 
-  addComment(id, text) {
-    this.list.addComment(id, text);
+  showUser() {
+    this.userPage.display();
   }
 
-  showUser(id) {
-    this.userPage.display(id);
-  }
-
-  showNewTask(id) {
-    this.newTask.display(id);
-  }
-
-  saveUsers() {
-    this.users.save();
-  }
-
-  restoreUsers() {
-    this.users.restore();
-  }
-
-  saveTasks() {
-    this.list.save();
-  }
-
-  restoreTasks() {
-    this.list.restore();
+  showNewTask(registeredUsers) {
+    this.newTask.display(registeredUsers);
   }
 }
 
-const list = new TasksCollection();
 const users = new UserCollection();
 const header = new HeaderView('header');
 const taskFeed = new TaskFeedView('article');
@@ -1495,7 +1442,6 @@ const registrationPage = new RegistrationView('main');
 const userPage = new UserView('main');
 const newTask = new NewTaskView('aside');
 const controller = new TasksController(
-  list,
   users,
   header,
   taskFeed,
@@ -1507,17 +1453,33 @@ const controller = new TasksController(
   newTask
 );
 
+const main = document.getElementById('main');
+const body = document.getElementById('body');
+let loader = false;
+const allTasks = await controller.getTasks();
+controller.api.tasks = [];
+let tasksToSkip = 0;
+
 window.localStorage.getItem('currentUser')
   ? controller.setCurrentUser(
       JSON.parse(window.localStorage.getItem('currentUser'))
     )
   : controller.setCurrentUser({});
-controller.getFeed(itemsOnPageToRender);
 
-const main = document.getElementById('main');
-const body = document.getElementById('body');
+controller
+  .getTasks(tasksToSkip, 10, 1)
+  .then(() => {
+    return controller.getTasks(tasksToSkip, 10, 2);
+  })
+  .then(() => {
+    return controller.getTasks(tasksToSkip, 10, 3);
+  })
+  .finally(() => {
+    controller.getFeed();
+    tasksToSkip += 10;
+  });
+
 const container = document.querySelector('.container');
-const aside = document.getElementById('aside');
 const userProfileButton = document.querySelector('.side-menu__profile-button');
 const burgerMenu = document.querySelector('.burger-menu');
 const sideMenu = document.querySelector('.side-menu');
@@ -1526,24 +1488,65 @@ const sideMenuProfileImage = document.querySelector(
 );
 const sideMenuUser = document.querySelector('.side-menu__user-name');
 const sideMenuProfileButton = document.querySelector('.side-menu__button');
-const registeredUsers = controller.users._registeredUsers;
+const imageFormats = [
+  'jpeg',
+  'png',
+  'ico',
+  'gif',
+  'tiff',
+  'webp',
+  'eps',
+  'svg',
+  'psd',
+  'jpg',
+];
 const editConfig = {};
 const currentTaskConfig = {};
+let filterConfig = {};
 let currentTaskId = null;
 
-function setEventOnTaskCard() {
+async function setEventOnTaskCard() {
+  const registeredUsers = await controller.getAllUsers();
   setListenerOnStatusGroupButtons();
 
   main.addEventListener('click', (e) => {
     if (
       (e.target.className === 'card' ||
         e.target.className === 'card-list-view') &&
-      controller.list.user._id
+      controller.api.user.id
     ) {
       currentTaskId = e.target.getAttribute('id');
-      controller.showTask(currentTaskId);
+      loader = true;
+      setLoader('article', loader, body);
+      controller.showTask(currentTaskId, registeredUsers, loader).then(() => {
+        setEventsOnTaskPage();
+        loader = false;
+        setLoader('main', loader, body);
+      });
       container.classList.remove('container-main');
-      setEventsOnTaskPage();
+    }
+
+    if (e.target.classList.contains('load-more')) {
+      e.target.classList.add('loading');
+      loader = true;
+      e.target.innerHTML = '';
+      setLoader('loadMoreButton', loader, body, 'load-more');
+      controller
+        .getTasks(tasksToSkip, 10, 1)
+        .then(() => {
+          return controller.getTasks(tasksToSkip, 10, 2);
+        })
+        .then(() => {
+          return controller.getTasks(tasksToSkip, 10, 3);
+        })
+        .finally(() => {
+          loader = false;
+          controller.getFeed();
+          tasksToSkip += 10;
+          if (!(allTasks.length > controller.api.tasks.length)) {
+            document.querySelector('.load-more').setAttribute('disabled', true);
+          }
+        });
     }
 
     if (e.target.classList.contains('article__cards-group-list-view')) {
@@ -1574,6 +1577,7 @@ function setEventOnTaskCard() {
     if (e.target.classList.contains('delete-task-board')) {
       const confirmDeleteModal = document.createElement('div');
       confirmDeleteModal.className = 'task-confirm-modal';
+      confirmDeleteModal.setAttribute('id', 'confirmDeleteModal');
       confirmDeleteModal.innerHTML = `
             <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
             <div class="task-confirm-modal__buttons-wrapper">
@@ -1587,30 +1591,54 @@ function setEventOnTaskCard() {
       const confirmDelete = document.getElementById('confirmDelete');
 
       confirmDelete.addEventListener('click', () => {
-        body.classList.remove('confirm');
-        confirmDeleteModal.remove();
-        controller.removeTask(e.target.closest('.card').getAttribute('id'));
-        controller.saveTasks();
-
-        setListenerOnStatusGroupButtons();
+        loader = true;
+        confirmDeleteModal.innerHTML = '';
+        setLoader('confirmDeleteModal', loader, body, 'modal');
+        controller
+          .deleteTask(e.target.closest('.card').getAttribute('id'))
+          .then(() => {
+            controller.getTasks().then(() => {
+              body.classList.remove('confirm');
+              confirmDeleteModal.remove();
+              controller.getFeed();
+              setListenerOnStatusGroupButtons();
+              loader = false;
+            });
+          });
       });
 
       cancelDelete.addEventListener('click', () => {
         body.classList.remove('confirm');
         confirmDeleteModal.remove();
-        controller.getFeed(itemsOnPageToRender);
       });
     }
 
     if (e.target.classList.contains('edit-task-board')) {
       currentTaskId = e.target.closest('.card').getAttribute('id');
-      controller.showTask(currentTaskId);
-      setInputsValuesToCurrentTaskConfig(currentTaskConfig, registeredUsers);
-      container.classList.remove('container-main');
-      main.classList.add('edit-mode');
-      controller.showTask(currentTaskId);
-      setEventsOnTaskPage();
-      setInputsValuesToEditConfig(editConfig, currentTaskConfig);
+      loader = true;
+      setLoader('article', loader, body);
+      controller
+        .showTask(currentTaskId, registeredUsers)
+        .then(() => {
+          setInputsValuesToCurrentTaskConfig(
+            currentTaskConfig,
+            registeredUsers
+          );
+          container.classList.remove('container-main');
+          main.classList.add('edit-mode');
+        })
+        .then(() => {
+          controller.showTask(currentTaskId, registeredUsers).then(() => {
+            setEventsOnTaskPage();
+            setInputsValuesToEditConfig(
+              editConfig,
+              currentTaskConfig,
+              registeredUsers
+            );
+            loader = false;
+            setLoader('main', loader, body);
+          });
+        });
     }
 
     if (e.target.classList.contains('fa-list-ul')) {
@@ -1619,7 +1647,7 @@ function setEventOnTaskCard() {
       viewTiggle.classList.add('list-view');
       defautlViewButton.classList.remove('view-selected');
       e.target.classList.add('view-selected');
-      controller.getFeed(itemsOnPageToRender);
+      controller.getFeed(filterConfig);
     }
 
     if (e.target.classList.contains('fa-table-columns')) {
@@ -1629,7 +1657,7 @@ function setEventOnTaskCard() {
         viewTiggle.classList.remove('list-view');
         listViewButton.classList.remove('view-selected');
         e.target.classList.add('view-selected');
-        controller.getFeed(itemsOnPageToRender);
+        controller.getFeed(filterConfig);
       }
     }
   });
@@ -1640,7 +1668,7 @@ function setEventOnTaskCard() {
         burgerMenu.classList.add('burger-menu-open');
         sideMenu.classList.add('side-menu-open');
         body.classList.add('confirm');
-        if (!controller.list.user._id) {
+        if (!controller.api.user.id) {
           userProfileButton.style.display = 'none';
           sideMenuProfileImage.style.display = 'none';
           sideMenuUser.textContent = 'Guest';
@@ -1651,14 +1679,15 @@ function setEventOnTaskCard() {
             main.classList.remove('main-task');
             main.classList.remove('edit-mode');
             setEventOnLogIn();
-            controller.setCurrentUser('');
+            controller.setCurrentUser({});
           });
         } else {
-          sideMenuProfileImage.src = controller.list.user.photo;
-          sideMenuUser.textContent = controller.list.user.userName;
+          console.log(controller.api.user.photo);
+          sideMenuProfileImage.src = `data:image/png;base64,${controller.api.user.photo}`;
+          sideMenuUser.textContent = controller.api.user.userName;
           userProfileButton.style.display = 'flex';
           sideMenuProfileImage.style.display = 'block';
-          sideMenuUser.textContent = `${controller.list.user.userName}`;
+          sideMenuUser.textContent = `${controller.api.user.userName}`;
           sideMenuProfileButton.textContent = 'Logout';
           sideMenuProfileButton.classList.remove('sign-in');
           sideMenuProfileButton.addEventListener('click', () => {
@@ -1697,7 +1726,8 @@ function setEventOnTaskCard() {
   setListenerOnStatusGroupButtons();
 }
 
-function setEventsOnTaskPage() {
+async function setEventsOnTaskPage() {
+  const registeredUsers = await controller.getAllUsers();
   const returnToTheMainPageButton = document.getElementById(
     'returnToTheMainPage'
   );
@@ -1722,21 +1752,38 @@ function setEventsOnTaskPage() {
   });
 
   returnToTheMainPageButton.addEventListener('click', () => {
-    if (main.classList.contains('edit-mode')) {
-      main.classList.remove('edit-mode');
-    }
-    container.classList.add('container-main');
-    renderAsideSection(main);
-    controller.getFeed(itemsOnPageToRender);
-    setEventOnNewTaskMobile(body);
-    setListenerOnStatusGroupButtons();
-    setEventOnFilters();
-    setEventOnNewTask();
+    tasksToSkip = 0;
+    loader = true;
+    setLoader('main', loader, body);
+    controller.api.tasks = [];
+    controller
+      .getTasks(0, 10, 1)
+      .then(() => {
+        return controller.getTasks(0, 10, 2);
+      })
+      .then(() => {
+        return controller.getTasks(0, 10, 3);
+      })
+      .then(() => {
+        if (main.classList.contains('edit-mode')) {
+          main.classList.remove('edit-mode');
+        }
+        container.classList.add('container-main');
+        renderAsideSection(main);
+        controller.getFeed();
+        setEventOnNewTaskMobile(body);
+        setListenerOnStatusGroupButtons();
+        setEventOnFilters();
+        setEventOnNewTask();
+        loader = false;
+        setLoader('article', loader, body);
+      });
   });
 
   deleteButton.addEventListener('click', () => {
     const confirmDeleteModal = document.createElement('div');
     confirmDeleteModal.className = 'task-confirm-modal';
+    confirmDeleteModal.setAttribute('id', 'confirmDeleteModal');
     confirmDeleteModal.innerHTML = `
         <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
         <div class="task-confirm-modal__buttons-wrapper">
@@ -1751,41 +1798,52 @@ function setEventsOnTaskPage() {
     const confirmDelete = document.getElementById('confirmDelete');
 
     confirmDelete.addEventListener('click', () => {
-      itemsOnPageToRender = 10;
-      body.classList.remove('confirm');
-      renderAsideSection(main);
-      controller.removeTask(currentTaskId);
-      controller.saveTasks();
-      setEventOnFilters();
-      setEventOnNewTask();
-      setEventOnNewTaskMobile(body);
-      setListenerOnStatusGroupButtons();
+      loader = true;
+      confirmDeleteModal.innerHTML = '';
+      setLoader('confirmDeleteModal', loader, body, 'modal');
+      controller.deleteTask(currentTaskId).then(() => {
+        controller.getTasks().then(() => {
+          body.classList.remove('confirm');
+          renderAsideSection(main);
+          controller.getFeed();
+          setEventOnFilters();
+          setEventOnNewTask();
+          setEventOnNewTaskMobile(body);
+          setListenerOnStatusGroupButtons();
+          loader = false;
+        });
+      });
     });
 
     cancelDelete.addEventListener('click', () => {
+      confirmDeleteModal.remove();
       body.classList.remove('confirm');
-      controller.showTask(currentTaskId);
-      setEventsOnTaskPage();
     });
   });
 
   editButton.addEventListener('click', () => {
     if (main.classList.contains('edit-mode')) {
-      controller.editTask(currentTaskId, editConfig);
-      controller.saveTasks();
-      main.classList.remove('edit-mode');
-      controller.showTask(currentTaskId);
-      setEventsOnTaskPage();
+      loader = true;
+      setLoader('main', loader, body);
+      controller.editTask(currentTaskId, editConfig).then(() => {
+        main.classList.remove('edit-mode');
+        controller.showTask(currentTaskId, registeredUsers).then(() => {
+          setEventsOnTaskPage();
+          loader = false;
+          setLoader('main', loader, body);
+        });
+      });
     } else {
       setInputsValuesToCurrentTaskConfig(currentTaskConfig, registeredUsers);
       main.classList.add('edit-mode');
-      controller.showTask(currentTaskId);
-      setEventsOnTaskPage();
-      setInputsValuesToEditConfig(
-        editConfig,
-        currentTaskConfig,
-        registeredUsers
-      );
+      controller.showTask(currentTaskId, registeredUsers).then(() => {
+        setEventsOnTaskPage();
+        setInputsValuesToEditConfig(
+          editConfig,
+          currentTaskConfig,
+          registeredUsers
+        );
+      });
     }
   });
 
@@ -1815,17 +1873,26 @@ function setEventsOnTaskPage() {
   });
 
   newCommentButton.addEventListener('click', () => {
-    controller.addComment(currentTaskId, commentTextArea.value);
-    controller.saveTasks();
-    controller.showTask(currentTaskId);
-    setEventsOnTaskPage();
+    loader = true;
+    newCommentButton.innerHTML = '';
+    setLoader('newCommentButton', loader, body, 'button');
+    controller
+      .postComment(Number(currentTaskId), {
+        text: commentTextArea.value,
+      })
+      .then(() => {
+        controller.showTask(currentTaskId).then(() => {
+          loader = false;
+          setEventsOnTaskPage();
+        });
+      });
   });
 }
 
-function setEventOnFilters() {
-  controller.getFilters();
+async function setEventOnFilters() {
+  const registeredUsers = await controller.getAllUsers();
+  controller.getFilters(registeredUsers);
   const form = document.getElementById('filters');
-  const { elements } = form;
   const filtersHead = form.querySelector('.filters-closed-wrapper');
   const filters = document.getElementById('filters');
   const taskNameInput = document.querySelector('.search-input');
@@ -1837,7 +1904,6 @@ function setEventOnFilters() {
   const dateFromTimeSelect = document.querySelector('.filter-time');
   const dateToDateSelect = document.querySelector('.date-to');
   const dateToTimeSelect = document.querySelector('.time-to');
-  let filterConfig = {};
 
   filtersHead.addEventListener('click', () => {
     filters.classList.toggle('open');
@@ -1845,13 +1911,15 @@ function setEventOnFilters() {
 
   taskNameInput.addEventListener('input', () => {
     filterConfig.name = taskNameInput.value;
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   assigneeInput.addEventListener('input', () => {
     const list = form.querySelector('[id="assignee-list"]');
+
+    console.log(filterConfig);
 
     assigneeInput.removeAttribute('userId');
 
@@ -1866,31 +1934,31 @@ function setEventOnFilters() {
 
     filterConfig.assignee = assigneeInput.getAttribute('userID')
       ? registeredUsers.find(
-          (user) => user._id === assigneeInput.getAttribute('userID')
+          (user) => user.id === assigneeInput.getAttribute('userID')
         )
       : assigneeInput.value;
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   statusSelect.addEventListener('change', () => {
     filterConfig.status = statusSelect.value;
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   prioritySelect.addEventListener('change', () => {
     filterConfig.priority = prioritySelect.value;
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
 
   privacySelect.addEventListener('change', () => {
     filterConfig.isPrivate = Boolean(Number(privacySelect.value));
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
@@ -1900,7 +1968,7 @@ function setEventOnFilters() {
       ? dateFromTimeSelect.removeAttribute('disabled')
       : dateFromTimeSelect.setAttribute('disabled', 'true');
     filterConfig.dateFrom = new Date(dateFromDateSelect.value);
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
@@ -1909,7 +1977,7 @@ function setEventOnFilters() {
     filterConfig.dateFrom = new Date(
       `${dateFromDateSelect.value}:${dateFromTimeSelect.value}`
     );
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
@@ -1919,7 +1987,7 @@ function setEventOnFilters() {
       ? dateToTimeSelect.removeAttribute('disabled')
       : dateToTimeSelect.setAttribute('disabled', 'true');
     filterConfig.dateTo = new Date(dateToDateSelect.value);
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
@@ -1928,7 +1996,7 @@ function setEventOnFilters() {
     filterConfig.dateTo = new Date(
       `${dateToDateSelect.value}:${dateToTimeSelect.value}`
     );
-    controller.getFeed(itemsOnPageToRender, filterConfig);
+    controller.getFeed(filterConfig);
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
   });
@@ -1936,7 +2004,7 @@ function setEventOnFilters() {
   document.addEventListener('click', (e) => {
     if (e.target.classList.contains('clear-filters-button')) {
       filterConfig = {};
-      controller.getFeed(itemsOnPageToRender, filterConfig);
+      controller.getFeed(filterConfig);
 
       setEventOnNewTaskMobile(body);
       setListenerOnStatusGroupButtons();
@@ -1985,7 +2053,9 @@ function setEventOnRegistration() {
     if (e.target.classList.contains('default-image')) {
       srcPath.innerText = '';
       photo.src = e.target.src;
-      data.photo = e.target.src;
+      convertImageToBase64(e.target.src).then(
+        (url) => (data.photo = url.split(',')[1])
+      );
     }
   });
 
@@ -1998,33 +2068,31 @@ function setEventOnRegistration() {
     const login = registrationForm.querySelector('[name="login"]');
     const user = registrationForm.querySelector('[name="username"]');
     const password = registrationForm.querySelector('[name="password"]');
-    let isRegistered = null;
+    const confirmPassword = document.getElementById('confirmPassword');
 
     data.login = login.value;
     data.userName = user.value;
     data.password = password.value;
-    data.photo = photo.src;
+    data.retypedPassword = confirmPassword.value;
+    data.photo = data.photo ? data.photo : photo.src.split(',')[1];
 
-    isRegistered = registeredUsers.find((user) => user.login === data.login);
+    controller.registerUser(data).then((message) => {
+      if (message) {
+        errorMessage.classList.add('signin-error-open');
+        errorMessage.innerText = `${message[0]}`;
 
-    if (!isRegistered) {
-      controller.addUser(data.login, data.userName, data.password, data.photo);
-      controller.saveUsers();
-      controller.showLogIn();
-      setEventOnLogIn();
-    } else {
-      errorMessage.classList.add('signin-error-open');
-      errorMessage.innerText =
-        'User with this username already exists! Enter a different login.';
-    }
-
-    setTimeout(() => {
-      errorMessage.classList.add('signin-error-close');
-      errorMessage.classList.remove('signin-error-open');
-      setTimeout(() => {
-        errorMessage.classList.remove('signin-error-close');
-      }, 1000);
-    }, 2000);
+        setTimeout(() => {
+          errorMessage.classList.add('signin-error-close');
+          errorMessage.classList.remove('signin-error-open');
+          setTimeout(() => {
+            errorMessage.classList.remove('signin-error-close');
+          }, 1000);
+        }, 2000);
+      } else {
+        controller.showLogIn();
+        setEventOnLogIn();
+      }
+    });
   });
 
   Array.from(elements).forEach((el) => {
@@ -2044,18 +2112,6 @@ function setEventOnRegistration() {
     const imageInput = document.getElementById('imageInput');
     const fileReader = new FileReader();
     const arrayFromimageInput = imageInput.value.split('.');
-    const imageFormats = [
-      'jpeg',
-      'png',
-      'ico',
-      'gif',
-      'tiff',
-      'webp',
-      'eps',
-      'svg',
-      'psd',
-      'jpg',
-    ];
     const promise = new Promise((res, rej) => {
       if (
         !imageFormats.includes(
@@ -2076,7 +2132,7 @@ function setEventOnRegistration() {
     promise
       .then(() => {
         srcPath.innerText = imageInput.value;
-        data.photo = photo.src;
+        data.photo = photo.src.split(',')[1];
       })
       .catch(() => {
         srcPath.innerText = '';
@@ -2100,7 +2156,7 @@ function setEventOnRegistration() {
   returnToTheMainPageButton.addEventListener('click', () => {
     container.classList.add('container-main');
     renderAsideSection(main);
-    controller.getFeed(itemsOnPageToRender);
+    controller.getFeed();
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
     setEventOnFilters();
@@ -2120,6 +2176,7 @@ function setEventOnLogIn() {
   );
   const { elements } = signInForm;
   const elementsArray = Array.from(elements);
+  const data = {};
 
   elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
@@ -2133,41 +2190,40 @@ function setEventOnLogIn() {
     e.preventDefault();
     const login = signInForm.querySelector('[name="login"]');
     const password = signInForm.querySelector('[name="password"]');
-    const registeredUsers = controller.users._registeredUsers;
-    const userLogIn = registeredUsers.find(
-      (user) => user.login === login.value
-    );
     const errorMessage = document.querySelector('.signin-error');
 
-    if (userLogIn) {
-      if (userLogIn.password === password.value) {
-        renderAsideSection(main);
-        controller.setCurrentUser(userLogIn);
-        window.localStorage.setItem('currentUser', JSON.stringify(userLogIn));
-        controller.getFeed(itemsOnPageToRender);
+    controller
+      .loginUser({
+        login: login.value,
+        password: password.value,
+      })
+      .then((message) => {
+        if (!message) {
+          renderAsideSection(main);
+          controller.getMyProfile().then((user) => {
+            controller.setCurrentUser(user);
+            window.localStorage.setItem('currentUser', JSON.stringify(user));
+            controller.getFeed();
 
-        setEventOnNewTaskMobile(body);
-        setListenerOnStatusGroupButtons();
-        setEventOnFilters();
-        setEventOnHeader();
-        setEventOnNewTask();
-      } else {
-        errorMessage.classList.add('signin-error-open');
-        errorMessage.innerText =
-          'The password you entered is incorrect! Please try again.';
-      }
-    } else {
-      errorMessage.classList.add('signin-error-open');
-      errorMessage.innerText = 'User was not found!';
-    }
+            setEventOnNewTaskMobile(body);
+            setListenerOnStatusGroupButtons();
+            setEventOnFilters();
+            setEventOnHeader();
+            setEventOnNewTask();
+          });
+        } else {
+          errorMessage.classList.add('signin-error-open');
+          errorMessage.innerText = `${message}`;
 
-    setTimeout(() => {
-      errorMessage.classList.add('signin-error-close');
-      errorMessage.classList.remove('signin-error-open');
-      setTimeout(() => {
-        errorMessage.classList.remove('signin-error-close');
-      }, 1000);
-    }, 2000);
+          setTimeout(() => {
+            errorMessage.classList.add('signin-error-close');
+            errorMessage.classList.remove('signin-error-open');
+            setTimeout(() => {
+              errorMessage.classList.remove('signin-error-close');
+            }, 1000);
+          }, 2000);
+        }
+      });
   });
 
   signInForm.addEventListener('click', (e) => {
@@ -2181,7 +2237,7 @@ function setEventOnLogIn() {
   returnToTheMainPageButton.addEventListener('click', () => {
     container.classList.add('container-main');
     renderAsideSection(main);
-    controller.getFeed(itemsOnPageToRender);
+    controller.getFeed();
     setEventOnNewTaskMobile(body);
     setListenerOnStatusGroupButtons();
     setEventOnFilters();
@@ -2227,7 +2283,7 @@ function setEventOnHeader() {
       }
       container.classList.add('container-main');
       renderAsideSection(main);
-      controller.getFeed(itemsOnPageToRender);
+      controller.getFeed();
       setEventOnFilters();
       setEventOnNewTask();
 
@@ -2240,15 +2296,12 @@ function setEventOnHeader() {
 function setEventOnUserPage() {
   container.classList.add('container-user');
   controller.showUser();
-  const userImage = document.querySelector('.user-main-image');
+
   const userImageInput = document.getElementById('userImageInput');
   const photo = document.querySelector('.user-main-image');
-  userImage.src = controller.list.user.photo;
-  container.classList.remove('container-main');
-  main.classList.remove('main-page');
-  main.classList.add('main-task');
-  setEventOnHeader();
   const form = document.querySelector('.user-info-form');
+  const { elements } = form;
+  const elementsArray = Array.from(elements);
   const toggleEditButton = document.querySelector('.toggle-edit-input');
   const toggleEditButtonMobile = document.querySelector(
     '.toggle-edit-input-laptop'
@@ -2262,17 +2315,19 @@ function setEventOnUserPage() {
   );
   const errorMessage = document.querySelector('.signin-error');
   const data = {};
-  const { elements } = form;
 
-  Array.from(elements).forEach((el) => {
+  container.classList.remove('container-main');
+  main.classList.remove('main-page');
+  main.classList.add('main-task');
+  setEventOnHeader();
+
+  elementsArray.forEach((el) => {
     el.addEventListener('input', (e) => {
       if (
         e.target.classList.contains('user-info-form__name') ||
         e.target.classList.contains('user-info-form__password')
       ) {
-        Array.from(elements).some(
-          (element) => !validateField(element, controller)
-        )
+        elementsArray.some((element) => !validateField(element, controller))
           ? saveChangesButton.setAttribute('disabled', true)
           : saveChangesButton.removeAttribute('disabled');
         validateField(el, controller);
@@ -2299,30 +2354,20 @@ function setEventOnUserPage() {
 
     if (e.target.classList.contains('default-image')) {
       photo.src = e.target.src;
-      data.photo = e.target.src;
+      convertImageToBase64(e.target.src).then(
+        (url) => (data.photo = url.split(',')[1])
+      );
     }
   });
 
   if (userImageInput) {
     userImageInput.addEventListener('change', () => {
       const fileReader = new FileReader();
-      const arrayFromimageInput = userImageInput.value.split('.');
-      const imageFormats = [
-        'jpeg',
-        'png',
-        'ico',
-        'gif',
-        'tiff',
-        'webp',
-        'eps',
-        'svg',
-        'psd',
-        'jpg',
-      ];
+      const arrayFromImageInput = userImageInput.value.split('.');
       const promise = new Promise((res, rej) => {
         if (
           !imageFormats.includes(
-            arrayFromimageInput[arrayFromimageInput.length - 1].toLowerCase()
+            arrayFromImageInput[arrayFromImageInput.length - 1].toLowerCase()
           )
         ) {
           rej('Invalid file format');
@@ -2338,10 +2383,10 @@ function setEventOnUserPage() {
 
       promise
         .then(() => {
-          data.photo = photo.src;
+          data.photo = photo.src.split(',')[1];
         })
         .catch(() => {
-          photo.src = controller.list.user.photo;
+          photo.src = controller.api.user.photo;
           errorMessage.classList.add('signin-error-open');
           errorMessage.innerText = 'Invalid file format.';
           setTimeout(() => {
@@ -2400,25 +2445,25 @@ function setEventOnUserPage() {
 
     data.userName = nameInput.value
       ? nameInput.value
-      : controller.list.user.userName;
+      : controller.api.user.userName;
     data.password = confirmPasswordInput.value
       ? confirmPasswordInput.value
-      : controller.list.user.password;
-    data.photo = userImage.src;
+      : controller.api.user.password;
+    data.retypedPassword = confirmPasswordInput.value;
+    data.photo = data.photo ? data.photo : photo.src.split(',')[1];
 
-    controller.editUser(controller.list._user._id, data);
-    controller.saveUsers();
-    controller.setCurrentUser(
-      controller.users._registeredUsers.find(
-        (user) => user._id === controller.list._user._id
-      )
-    );
-    window.localStorage.setItem(
-      'currentUser',
-      JSON.stringify(controller.list.user)
-    );
-    main.classList.remove('edit-mode');
-    setEventOnUserPage();
+    loader = true;
+    setLoader('main', loader, body);
+    controller.editUser(controller.api.user.id, data).then(() => {
+      controller.getMyProfile().then((user) => {
+        controller.setCurrentUser(user);
+        window.localStorage.setItem('currentUser', JSON.stringify(user));
+        main.classList.remove('edit-mode');
+        setEventOnUserPage();
+        loader = false;
+        setLoader('main', loader, body);
+      });
+    });
   });
 
   form.addEventListener('reset', () => {
@@ -2433,7 +2478,7 @@ function setEventOnUserPage() {
     }
     container.classList.add('container-main');
     renderAsideSection(main);
-    controller.getFeed(itemsOnPageToRender);
+    controller.getFeed();
     setEventOnFilters();
     setEventOnNewTask();
     setEventOnNewTaskMobile(body);
@@ -2441,8 +2486,9 @@ function setEventOnUserPage() {
   });
 }
 
-function setEventOnNewTask() {
-  controller.showNewTask();
+async function setEventOnNewTask() {
+  const registeredUsers = await controller.getAllUsers();
+  controller.showNewTask(registeredUsers);
 
   const form = document.querySelector('.new-task-form');
   const { elements } = form;
@@ -2483,7 +2529,7 @@ function setEventOnNewTask() {
   });
 
   taskAssignee.addEventListener('change', () => {
-    const list = form.querySelector('[id="assignee-list"]');
+    const list = form.querySelector('[id="list"]');
 
     for (let i = 0; i < list.options.length; i++) {
       if (list.options[i].value === taskAssignee.value) {
@@ -2494,15 +2540,16 @@ function setEventOnNewTask() {
 
   resetChangesButton.addEventListener('click', (e) => {
     e.preventDefault();
+
     const confirmResetModal = document.createElement('div');
     confirmResetModal.className = 'task-confirm-modal';
     confirmResetModal.innerHTML = `
-        <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO RESET ALL CHANGES?</p>
-        <div class="task-confirm-modal__buttons-wrapper">
-            <button id="cancelReset" class="button cancel">CANCEL</button>
-            <button id="confirmReset" class="button delete delete-confirm">RESET</button>
-        </div>
-      `;
+          <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO RESET ALL CHANGES?</p>
+          <div class="task-confirm-modal__buttons-wrapper">
+              <button id="cancelReset" class="button cancel">CANCEL</button>
+              <button id="confirmReset" class="button delete delete-confirm">RESET</button>
+          </div>
+        `;
     body.classList.add('confirm');
     main.prepend(confirmResetModal);
 
@@ -2535,20 +2582,27 @@ function setEventOnNewTask() {
     task.name = taskName.value;
     task.description = taskDescription.value;
     task.assignee = registeredUsers.find(
-      (user) => user._id === taskAssignee.getAttribute('userId')
-    );
+      (user) => user.id === taskAssignee.getAttribute('userId')
+    ).id;
     task.status = taskStatus.value;
     task.priority = taskPriority.value;
     task.isPrivate = Boolean(Number(taskPrivacy.value));
-    task.creator = controller.list._user;
+    task.creator = controller.api.user;
 
-    controller.addTask(task);
-    controller.saveTasks();
-    controller.getFeed(itemsOnPageToRender);
-    form.reset();
-    createTaskButton.setAttribute('disabled', true);
-    setEventOnNewTaskMobile(body);
-    setListenerOnStatusGroupButtons();
+    loader = true;
+    setLoader('article', loader, body);
+
+    controller.postTask(task).then(() => {
+      controller.getTasks().then(() => {
+        loader = false;
+        setLoader('article', loader, body);
+        controller.getFeed();
+        form.reset();
+        createTaskButton.setAttribute('disabled', true);
+        setEventOnNewTaskMobile(body);
+        setListenerOnStatusGroupButtons();
+      });
+    });
   });
 }
 
