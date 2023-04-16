@@ -2774,5 +2774,3 @@ setEventOnTaskCard();
 setEventOnHeader();
 setEventOnNewTask();
 setEventOnFilters();
-
-console.log(controller.api.registeredUsers);
