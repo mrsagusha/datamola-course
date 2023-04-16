@@ -2,6 +2,7 @@ const regExpLogin = /^(?=^.{0,}$)[A-Za-z]+$/;
 const regExpUsername = /^(?=.{0,100}$)([а-яё\s]+|[a-z\s]+)$/iu;
 const regExPassword = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$/;
 const regExpComment = /^(?=^.{0,280}$)/;
+const regExpTaskName = /^(?=^.{0,100}$)/;
 
 function renderAsideSection(el) {
   el.innerHTML = `
@@ -25,6 +26,9 @@ function renderAsideSection(el) {
               CLEAR
           </button>
       </form>
+      <button class="new-task-button-laptop">Add new task
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
           </div>
           <button class="new-task-button-mobile">Add new task
                     <i class="fa-solid fa-plus"></i>
@@ -53,19 +57,19 @@ function renderAsideSection(el) {
   el.classList.remove('main-task');
 }
 
-function validateField(el, controller) {
+function validateField(el, controller, registeredUsers) {
   const password = document.getElementById('password');
   const newPassword = document.getElementById('newPassword');
 
   if (el.name === 'taskNameTaskPage') {
-    if (el.value === '') {
+    if (el.value.trim() === '') {
       el.previousElementSibling.innerText = "Task name can't be empty.";
       el.classList.add('form__input-error');
       return false;
     }
 
-    if (!regExpUsername.test(el.value)) {
-      el.previousElementSibling.innerText = 'Enter correct task name';
+    if (!regExpTaskName.test(el.value)) {
+      el.previousElementSibling.innerText = 'Maximum of 100 charactersю';
       el.classList.add('form__input-error');
       return false;
     }
@@ -75,13 +79,13 @@ function validateField(el, controller) {
   }
 
   if (el.name === 'taskName') {
-    if (el.value === '') {
-      el.previousElementSibling.innerText = 'Please enter task name.';
+    if (el.value.trim() === '') {
+      el.previousElementSibling.innerText = 'Maximum 100 characters.';
       el.classList.add('form__input-error');
       return false;
     }
 
-    if (!regExpUsername.test(el.value)) {
+    if (!regExpTaskName.test(el.value)) {
       el.previousElementSibling.innerText = 'Enter correct task name.';
       el.classList.add('form__input-error');
       return false;
@@ -103,15 +107,11 @@ function validateField(el, controller) {
       return false;
     }
 
-    // if (
-    //   !controller.users._registeredUsers.find(
-    //     (elem) => elem.userName === el.value
-    //   )
-    // ) {
-    //   el.previousElementSibling.innerText = 'User not found.';
-    //   el.classList.add('form__input-error');
-    //   return false;
-    // }
+    if (!registeredUsers.find((elem) => elem.userName === el.value)) {
+      el.previousElementSibling.innerText = 'User not found.';
+      el.classList.add('form__input-error');
+      return false;
+    }
 
     el.previousElementSibling.innerText = '';
     el.classList.remove('form__input-error');
@@ -166,14 +166,14 @@ function validateField(el, controller) {
   }
 
   if (el.name === 'usernameUserPage') {
-    if (el.value === controller.list.user.userName) {
+    if (el.value === controller.api.user.userName) {
       el.previousElementSibling.innerText =
         "The name can't be the same as the old one.";
       el.parentElement.classList.add('form__input-error');
       return false;
     }
 
-    if (!regExpUsername.test(el.value) && el.value !== '') {
+    if (!regExpUsername.test(el.value)) {
       el.previousElementSibling.innerText = 'Enter correct username.';
       el.parentElement.classList.add('form__input-error');
       return false;
@@ -189,7 +189,7 @@ function validateField(el, controller) {
     el.parentElement.classList.remove('form__input-error');
   }
 
-  if (el.name === 'password') {
+  if (el.name === 'password' || el.name === 'newPassword') {
     if (el.value === '') {
       el.previousElementSibling.innerText = 'Please enter password.';
       el.parentElement.classList.add('form__input-error');
@@ -212,77 +212,50 @@ function validateField(el, controller) {
     el.parentElement.classList.remove('form__input-error');
   }
 
-  if (el.name === 'newPassword') {
-    if (el.value.length >= 1 && el.value.length < 8) {
-      el.previousElementSibling.innerText = 'Minimum 8 characters.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    if (!regExPassword.test(el.value) && el.value !== '') {
-      el.previousElementSibling.innerText =
-        'At least 1 uppercase, 1 lowercase letters and numbers are required.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    el.previousElementSibling.innerText = '';
-    el.parentElement.classList.remove('form__input-error');
-  }
-
   if (el.name === 'confirmPassword') {
-    if (password.value === '') {
-      el.previousElementSibling.innerText = 'First enter the password.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    if (password.value !== el.value && el.value !== '') {
-      el.previousElementSibling.innerText = "Passwords don't match.";
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    if (el.value === '') {
-      el.previousElementSibling.innerText = 'Please confirm password.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    if (!regExPassword.test(el.value)) {
-      el.previousElementSibling.innerText = 'Enter correct password.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    el.previousElementSibling.innerText = '';
-    el.parentElement.classList.remove('form__input-error');
+    validatePassword(el, password);
   }
 
   if (el.name === 'confirmNewPassword') {
-    if (newPassword.value !== el.value) {
-      el.previousElementSibling.innerText = "Passwords don't match.";
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    if (newPassword.value !== '' && el.value === '') {
-      el.previousElementSibling.innerText = 'Please confirm password.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    if (!regExPassword.test(el.value) && el.value !== '') {
-      el.previousElementSibling.innerText = 'Enter correct password.';
-      el.parentElement.classList.add('form__input-error');
-      return false;
-    }
-
-    el.previousElementSibling.innerText = '';
-    el.parentElement.classList.remove('form__input-error');
+    validatePassword(el, newPassword);
   }
 
   return true;
+}
+
+function validatePassword(confirmPassword, password) {
+  if (password.value === '') {
+    confirmPassword.previousElementSibling.innerText =
+      'First enter the password.';
+    confirmPassword.parentElement.classList.add('form__input-error');
+    return false;
+  }
+
+  if (
+    password.value !== confirmPassword.value &&
+    confirmPassword.value !== ''
+  ) {
+    confirmPassword.previousElementSibling.innerText = "Passwords don't match.";
+    confirmPassword.parentElement.classList.add('form__input-error');
+    return false;
+  }
+
+  if (confirmPassword.value === '') {
+    confirmPassword.previousElementSibling.innerText =
+      'Please confirm password.';
+    confirmPassword.parentElement.classList.add('form__input-error');
+    return false;
+  }
+
+  if (!regExPassword.test(confirmPassword.value)) {
+    confirmPassword.previousElementSibling.innerText =
+      'Enter correct password.';
+    confirmPassword.parentElement.classList.add('form__input-error');
+    return false;
+  }
+
+  confirmPassword.previousElementSibling.innerText = '';
+  confirmPassword.parentElement.classList.remove('form__input-error');
 }
 
 function validateComment(el) {
@@ -501,6 +474,31 @@ function setEventOnNewTaskMobile(body) {
   });
 }
 
+function setEventOnNewTaskLaptop(body) {
+  const aside = document.getElementById('aside');
+  const newTaskLaptopButton = document.querySelector('.new-task-button-laptop');
+  if (newTaskLaptopButton) {
+    newTaskLaptopButton.addEventListener('click', () => {
+      body.classList.add('confirm');
+      if (aside) {
+        aside.classList.add('new-task-form-open-laptop');
+      }
+    });
+  }
+
+  window.addEventListener('click', (e) => {
+    if (aside.classList.contains('new-task-form-open-laptop')) {
+      if (
+        !e.target.closest('.aside') &&
+        !e.target.classList.contains('new-task-button-laptop')
+      ) {
+        body.classList.remove('confirm');
+        aside.classList.remove('new-task-form-open-laptop');
+      }
+    }
+  });
+}
+
 function closeSideMenu(burgerMenu, sideMenu, body) {
   burgerMenu.classList.add('burger-menu-close');
   sideMenu.classList.add('side-menu-close');
@@ -584,6 +582,7 @@ export {
   setListenerOnStatusGroupButtons,
   closeSideMenu,
   setEventOnNewTaskMobile,
+  setEventOnNewTaskLaptop,
   convertImageToBase64,
   setLoader,
 };

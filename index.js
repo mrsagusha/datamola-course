@@ -9,6 +9,7 @@ import {
   setListenerOnStatusGroupButtons,
   closeSideMenu,
   setEventOnNewTaskMobile,
+  setEventOnNewTaskLaptop,
   convertImageToBase64,
   setLoader,
 } from './utils.js';
@@ -44,6 +45,27 @@ class TaskFeedApiService {
     this._user = user;
   }
 
+  _getToken() {
+    return window.localStorage.getItem('token');
+  }
+
+  _getRequestOptions(method, data) {
+    const options = {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        accept: '*/*',
+        authorization: `Bearer ${this._getToken()}`,
+      },
+    };
+
+    if (method !== 'GET' && method !== 'DELETE') {
+      options.body = JSON.stringify(data);
+    }
+
+    return options;
+  }
+
   async getTasks(skip, top, status) {
     try {
       const res = await fetch(
@@ -62,8 +84,13 @@ class TaskFeedApiService {
 
   async getTask(id) {
     try {
-      const res = await fetch(`${this.server}/tasks/${id}`);
-      const json = await res.json();
+      const response = await fetch(`${this.server}/tasks/${id}`);
+      const json = await response.json();
+
+      if (!response.ok) {
+        return response;
+      }
+
       return json;
     } catch (error) {
       console.log(error);
@@ -74,6 +101,7 @@ class TaskFeedApiService {
     try {
       const res = await fetch(`${this.server}/tasks/${id}/comments`);
       const json = await res.json();
+      console.log(json);
     } catch (error) {
       console.log(error);
     }
@@ -81,8 +109,12 @@ class TaskFeedApiService {
 
   async getAllUsers() {
     try {
-      const res = await fetch(`${this.server}/user/allUsers`);
-      const json = await res.json();
+      const response = await fetch(`${this.server}/user/allUsers`);
+      const json = await response.json();
+
+      if (!response.ok) {
+        return response;
+      }
 
       return json;
     } catch (error) {
@@ -92,13 +124,10 @@ class TaskFeedApiService {
 
   async registerUser(data) {
     try {
-      const res = await fetch(`${this.server}/user/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${this.server}/user/register`,
+        this._getRequestOptions('POST', data)
+      );
       const json = await res.json();
       if (!res.ok) {
         return json.message;
@@ -110,15 +139,14 @@ class TaskFeedApiService {
 
   async loginUser(data) {
     try {
-      const res = await fetch(`${this.server}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${this.server}/auth/login`,
+        this._getRequestOptions('POST', data)
+      );
       const json = await res.json();
+
       window.localStorage.setItem('token', json.token);
+
       if (!res.ok) {
         return json.message;
       }
@@ -127,18 +155,12 @@ class TaskFeedApiService {
     }
   }
 
-  getToken() {
-    return window.localStorage.getItem('token');
-  }
-
   async getMyProfile() {
     try {
-      const res = await fetch(`${this.server}/user/myProfile`, {
-        headers: {
-          accept: '*/*',
-          authorization: `Bearer ${this.getToken()}`,
-        },
-      });
+      const res = await fetch(
+        `${this.server}/user/myProfile`,
+        this._getRequestOptions('GET')
+      );
       const json = await res.json();
       return json;
     } catch (error) {
@@ -148,15 +170,10 @@ class TaskFeedApiService {
 
   async postComment(id, data) {
     try {
-      const res = await fetch(`${this.server}/tasks/${id}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: '*/*',
-          authorization: `Bearer ${this.getToken()}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${this.server}/tasks/${id}/comments`,
+        this._getRequestOptions('POST', data)
+      );
     } catch (error) {
       console.log(error.message);
     }
@@ -164,15 +181,10 @@ class TaskFeedApiService {
 
   async postTask(data) {
     try {
-      const res = await fetch(`${this.server}/tasks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: '*/*',
-          authorization: `Bearer ${this.getToken()}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${this.server}/tasks`,
+        this._getRequestOptions('POST', data)
+      );
       const json = await res.json();
     } catch (error) {
       console.log(error.message);
@@ -181,14 +193,10 @@ class TaskFeedApiService {
 
   async deleteTask(id) {
     try {
-      const res = await fetch(`${this.server}/tasks/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: '*/*',
-          authorization: `Bearer ${this.getToken()}`,
-        },
-      });
+      const res = await fetch(
+        `${this.server}/tasks/${id}`,
+        this._getRequestOptions('DELETE')
+      );
       const json = await res.json();
     } catch (error) {
       console.log(error.message);
@@ -197,15 +205,10 @@ class TaskFeedApiService {
 
   async editTask(id, data) {
     try {
-      const res = await fetch(`${this.server}/tasks/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: '*/*',
-          authorization: `Bearer ${this.getToken()}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${this.server}/tasks/${id}`,
+        this._getRequestOptions('PATCH', data)
+      );
     } catch (error) {
       console.log(error.message);
     }
@@ -213,17 +216,14 @@ class TaskFeedApiService {
 
   async editUser(id, data) {
     try {
-      const res = await fetch(`${this.server}/user/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          accept: '*/*',
-          authorization: `Bearer ${this.getToken()}`,
-        },
-        body: JSON.stringify(data),
-      });
+      const res = await fetch(
+        `${this.server}/user/${id}`,
+        this._getRequestOptions('PATCH', data)
+      );
       const json = await res.json();
-      console.log(json);
+      if (!res.ok) {
+        return json.message;
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -232,7 +232,7 @@ class TaskFeedApiService {
 
 class UserCollection {
   constructor() {
-    this._registeredUsers = this.restore();
+    this._registeredUsers;
   }
 
   get users() {
@@ -269,15 +269,6 @@ class UserCollection {
     this._registeredUsers = this._registeredUsers.map((user) => {
       return user._id === id ? (user = editUser) : user;
     });
-  }
-
-  save() {
-    window.localStorage.setItem('users', JSON.stringify(this._registeredUsers));
-  }
-
-  restore() {
-    const users = JSON.parse(window.localStorage.getItem('users'));
-    return users ? users : [];
   }
 }
 
@@ -377,207 +368,209 @@ class TaskFeedView {
       return tasksFeedGroupWraperr;
     }
 
-    if (!viewToggleSection.classList.contains('list-view')) {
-      tasksFeed.append(toDoGroup);
-      tasksFeed.append(inProgressGroup);
-      tasksFeed.append(completeGroup);
+    if (viewToggleSection) {
+      if (!viewToggleSection.classList.contains('list-view')) {
+        tasksFeed.append(toDoGroup);
+        tasksFeed.append(inProgressGroup);
+        tasksFeed.append(completeGroup);
 
-      for (let i = 0; i < tasks.length; i++) {
-        if (
-          tasks[i].isPrivate &&
-          tasks[i].assignee.id !== controller.api.user.id &&
-          tasks[i].creator.id !== controller.api.user.id
-        ) {
-          continue;
-        }
-        const newTask = document.createElement('div');
-        newTask.classList.add('card');
-        newTask.setAttribute('id', tasks[i].id);
-        newTask.setAttribute('status', tasks[i].status);
-        newTask.innerHTML = `
-        <i class="fa-solid fa-ellipsis-vertical ${
-          controller.api.user.id === tasks[i].creator.id ? '' : 'forbidden'
-        }"><div class="card-options">
-            <i class="fa-solid fa-trash delete-task-board"></i>
-            <i class="fa-solid fa-pen edit-task-board"></i>
-        </div></i>
-        <div class="card__main-info">
-            <div class="card__task-info">
-                <div class="card__task-name-wrapper">
-                  <p class="card__task-name">${tasks[i].name}</p>
-                  <p class="card__privacy card__privacy-laptop">${
+        for (let i = 0; i < tasks.length; i++) {
+          if (
+            tasks[i].isPrivate &&
+            tasks[i].assignee.id !== controller.api.user.id &&
+            tasks[i].creator.id !== controller.api.user.id
+          ) {
+            continue;
+          }
+          const newTask = document.createElement('div');
+          newTask.classList.add('card');
+          newTask.setAttribute('id', tasks[i].id);
+          newTask.setAttribute('status', tasks[i].status);
+          newTask.innerHTML = `
+          <i class="fa-solid fa-ellipsis-vertical ${
+            controller.api.user.id === tasks[i].creator.id ? '' : 'forbidden'
+          }"><div class="card-options">
+              <i class="fa-solid fa-trash delete-task-board"></i>
+              <i class="fa-solid fa-pen edit-task-board"></i>
+          </div></i>
+          <div class="card__main-info">
+              <div class="card__task-info">
+                  <div class="card__task-name-wrapper">
+                    <p class="card__task-name">${tasks[i].name}</p>
+                    <p class="card__privacy card__privacy-laptop">${
+                      tasks[i].isPrivate ? 'Private' : 'Public'
+                    }</p>
+                  </div>
+                  <div class="card__task-assignee-wrapper">
+                      <i class="fa-solid fa-user"></i>
+                      <p  class="card__task-assignee">${
+                        tasks[i].assignee.userName
+                      }</p>
+                  </div>
+                  <p class="card__task-description">${tasks[i].description} </p>
+              </div>
+              <div class="card__status-info">
+                  <p class="card__privacy">${
                     tasks[i].isPrivate ? 'Private' : 'Public'
                   }</p>
-                </div>
-                <div class="card__task-assignee-wrapper">
-                    <i class="fa-solid fa-user"></i>
-                    <p  class="card__task-assignee">${
-                      tasks[i].assignee.userName
-                    }</p>
-                </div>
-                <p class="card__task-description">${tasks[i].description} </p>
-            </div>
-            <div class="card__status-info">
-                <p class="card__privacy">${
-                  tasks[i].isPrivate ? 'Private' : 'Public'
-                }</p>
-                <p class="card__status ${tasks[i].status
-                  .split(' ')
-                  .join('-')
-                  .toLowerCase()}">${tasks[i].status}</p>
-                <p class="card__priority ${tasks[i].priority.toLowerCase()}">${
-          tasks[i].priority
-        }</p>
-            </div>
-        </div>
-        <div class="card__footer">
-            <i class="fa-regular fa-message">
-            ${
-              tasks[i].comments.length > 0
-                ? `<span class="message-quantity">
-                  ${tasks[i].comments.length}
-                </span>`
-                : ''
-            }                             
-            </i>
-            <div class="task-date-wrapper">
-                <time class="card__date">${
-                  ('0' + new Date(tasks[i].createdAt).getDate()).slice(-2) +
-                  '.' +
-                  ('0' + (new Date(tasks[i].createdAt).getMonth() + 1)).slice(
-                    -2
-                  ) +
-                  '.' +
-                  new Date(tasks[i].createdAt).getFullYear()
-                }</time>
-                <time class="card__date">
-                  ${
+                  <p class="card__status ${tasks[i].status
+                    .split(' ')
+                    .join('-')
+                    .toLowerCase()}">${tasks[i].status}</p>
+                  <p class="card__priority ${tasks[
+                    i
+                  ].priority.toLowerCase()}">${tasks[i].priority}</p>
+              </div>
+          </div>
+          <div class="card__footer">
+              <i class="fa-regular fa-message">
+              ${
+                tasks[i].comments.length > 0
+                  ? `<span class="message-quantity">
+                    ${tasks[i].comments.length}
+                  </span>`
+                  : ''
+              }                             
+              </i>
+              <div class="task-date-wrapper">
+                  <time class="card__date">${
+                    ('0' + new Date(tasks[i].createdAt).getDate()).slice(-2) +
+                    '.' +
+                    ('0' + (new Date(tasks[i].createdAt).getMonth() + 1)).slice(
+                      -2
+                    ) +
+                    '.' +
+                    new Date(tasks[i].createdAt).getFullYear()
+                  }</time>
+                  <time class="card__date">
+                    ${
+                      new Date(tasks[i].createdAt).getHours() +
+                      ':' +
+                      (String(new Date(tasks[i].createdAt).getMinutes())
+                        .length === 1
+                        ? '0' + new Date(tasks[i].createdAt).getMinutes()
+                        : new Date(tasks[i].createdAt).getMinutes())
+                    }
+                  </time>
+              </div>
+          </div>
+          `;
+
+          if (tasks[i].status === 'To Do') {
+            toDoGroup.lastElementChild.append(newTask);
+          }
+
+          if (tasks[i].status === 'In progress') {
+            inProgressGroup.lastElementChild.append(newTask);
+          }
+
+          if (tasks[i].status === 'Complete') {
+            completeGroup.lastElementChild.append(newTask);
+          }
+        }
+      } else {
+        tasksFeed.classList.add('list-view-wrapper');
+        const toDoGroup = createTasksGroupSections('to-do-group');
+        const inProgressGroup = createTasksGroupSections('in-progress-group');
+        const completeGroup = createTasksGroupSections('complete-group');
+
+        function createTasksGroupSections(groupName) {
+          const section = document.createElement('section');
+          const tasksWrapper = document.createElement('div');
+          tasksWrapper.classList.add('tasks-wrapper-list-view');
+          const tasksWrapperInformation = document.createElement('div');
+          tasksWrapperInformation.classList.add('article__cards-group-info');
+          const sectionName = document.createElement('h3');
+          sectionName.classList.add('article__cards-group__group-name');
+          section.classList.add('article__cards-group-list-view');
+          section.classList.add(`${groupName}`);
+          if (groupName === 'to-do-group') {
+            section.classList.add('group-open');
+          }
+          sectionName.textContent = formatGroupName(groupName);
+          tasksWrapper.append(tasksWrapperInformation);
+          section.append(sectionName);
+          section.append(tasksWrapper);
+
+          tasksWrapperInformation.innerHTML = `
+            <span>Task name</span>
+            <span>Assignee</span>
+            <span>Date</span>
+            <span>Description</span>
+            <span>Comments</span>
+            <span>Status</span>
+            <span>Priority</span>
+            <span>Privacy</span>
+        `;
+
+          return section;
+        }
+
+        for (let i = 0; i < tasks.length; i++) {
+          if (
+            tasks[i].isPrivate &&
+            tasks[i].assignee.id !== controller.api.user.id &&
+            tasks[i].creator.id !== controller.api.user.id
+          ) {
+            continue;
+          }
+          const newTask = document.createElement('div');
+          newTask.classList.add('card-list-view');
+          newTask.setAttribute('id', tasks[i].id);
+          newTask.setAttribute('status', tasks[i].status);
+          newTask.innerHTML = `
+                <span class="card-name-list-view">${tasks[i].name}</span>
+                <span>${tasks[i].assignee.userName}</span>
+                <div class="task-date-list-view-wrapper">
+                  <time>${
+                    ('0' + new Date(tasks[i].createdAt).getDate()).slice(-2) +
+                    '.' +
+                    ('0' + (new Date(tasks[i].createdAt).getMonth() + 1)).slice(
+                      -2
+                    ) +
+                    '.' +
+                    new Date(tasks[i].createdAt).getFullYear()
+                  }</time>
+                  <time>${
                     new Date(tasks[i].createdAt).getHours() +
                     ':' +
                     (String(new Date(tasks[i].createdAt).getMinutes())
                       .length === 1
                       ? '0' + new Date(tasks[i].createdAt).getMinutes()
                       : new Date(tasks[i].createdAt).getMinutes())
-                  }
-                </time>
-            </div>
-        </div>
-        `;
+                  }</time>
+                </div>
+                <span class="card-description-list-view">${
+                  tasks[i].description
+                }</span>
+                <span>${tasks[i].comments.length}</span>
+                <span class="card-status-list-view ${tasks[i].status
+                  .toLowerCase()
+                  .split(' ')
+                  .join('-')}">${tasks[i].status}</span>
+                <span class="card-priority-list-view ${tasks[
+                  i
+                ].priority.toLowerCase()}">${tasks[i].priority}</span>
+                <span>${tasks[i].isPrivate ? 'Private' : 'Public'}</span>
+          `;
 
-        if (tasks[i].status === 'To Do') {
-          toDoGroup.lastElementChild.append(newTask);
+          if (tasks[i].status === 'To Do') {
+            toDoGroup.lastElementChild.append(newTask);
+          }
+
+          if (tasks[i].status === 'In progress') {
+            inProgressGroup.lastElementChild.append(newTask);
+          }
+
+          if (tasks[i].status === 'Complete') {
+            completeGroup.lastElementChild.append(newTask);
+          }
         }
 
-        if (tasks[i].status === 'In progress') {
-          inProgressGroup.lastElementChild.append(newTask);
-        }
-
-        if (tasks[i].status === 'Complete') {
-          completeGroup.lastElementChild.append(newTask);
-        }
+        tasksFeed.append(toDoGroup);
+        tasksFeed.append(inProgressGroup);
+        tasksFeed.append(completeGroup);
       }
-    } else {
-      tasksFeed.classList.add('list-view-wrapper');
-      const toDoGroup = createTasksGroupSections('to-do-group');
-      const inProgressGroup = createTasksGroupSections('in-progress-group');
-      const completeGroup = createTasksGroupSections('complete-group');
-
-      function createTasksGroupSections(groupName) {
-        const section = document.createElement('section');
-        const tasksWrapper = document.createElement('div');
-        tasksWrapper.classList.add('tasks-wrapper-list-view');
-        const tasksWrapperInformation = document.createElement('div');
-        tasksWrapperInformation.classList.add('article__cards-group-info');
-        const sectionName = document.createElement('h3');
-        sectionName.classList.add('article__cards-group__group-name');
-        section.classList.add('article__cards-group-list-view');
-        section.classList.add(`${groupName}`);
-        if (groupName === 'to-do-group') {
-          section.classList.add('group-open');
-        }
-        sectionName.textContent = formatGroupName(groupName);
-        tasksWrapper.append(tasksWrapperInformation);
-        section.append(sectionName);
-        section.append(tasksWrapper);
-
-        tasksWrapperInformation.innerHTML = `
-          <span>Task name</span>
-          <span>Assignee</span>
-          <span>Date</span>
-          <span>Description</span>
-          <span>Comments</span>
-          <span>Status</span>
-          <span>Priority</span>
-          <span>Privacy</span>
-      `;
-
-        return section;
-      }
-
-      for (let i = 0; i < tasks.length; i++) {
-        if (
-          tasks[i].isPrivate &&
-          tasks[i].assignee.id !== controller.api.user.id &&
-          tasks[i].creator.id !== controller.api.user.id
-        ) {
-          continue;
-        }
-        const newTask = document.createElement('div');
-        newTask.classList.add('card-list-view');
-        newTask.setAttribute('id', tasks[i].id);
-        newTask.setAttribute('status', tasks[i].status);
-        newTask.innerHTML = `
-              <span class="card-name-list-view">${tasks[i].name}</span>
-              <span>${tasks[i].assignee.userName}</span>
-              <div class="task-date-list-view-wrapper">
-                <time>${
-                  ('0' + new Date(tasks[i].createdAt).getDate()).slice(-2) +
-                  '.' +
-                  ('0' + (new Date(tasks[i].createdAt).getMonth() + 1)).slice(
-                    -2
-                  ) +
-                  '.' +
-                  new Date(tasks[i].createdAt).getFullYear()
-                }</time>
-                <time>${
-                  new Date(tasks[i].createdAt).getHours() +
-                  ':' +
-                  (String(new Date(tasks[i].createdAt).getMinutes()).length ===
-                  1
-                    ? '0' + new Date(tasks[i].createdAt).getMinutes()
-                    : new Date(tasks[i].createdAt).getMinutes())
-                }</time>
-              </div>
-              <span class="card-description-list-view">${
-                tasks[i].description
-              }</span>
-              <span>${tasks[i].comments.length}</span>
-              <span class="card-status-list-view ${tasks[i].status
-                .toLowerCase()
-                .split(' ')
-                .join('-')}">${tasks[i].status}</span>
-              <span class="card-priority-list-view ${tasks[
-                i
-              ].priority.toLowerCase()}">${tasks[i].priority}</span>
-              <span>${tasks[i].isPrivate ? 'Private' : 'Public'}</span>
-        `;
-
-        if (tasks[i].status === 'To Do') {
-          toDoGroup.lastElementChild.append(newTask);
-        }
-
-        if (tasks[i].status === 'In progress') {
-          inProgressGroup.lastElementChild.append(newTask);
-        }
-
-        if (tasks[i].status === 'Complete') {
-          completeGroup.lastElementChild.append(newTask);
-        }
-      }
-
-      tasksFeed.append(toDoGroup);
-      tasksFeed.append(inProgressGroup);
-      tasksFeed.append(completeGroup);
     }
 
     if (
@@ -1143,7 +1136,7 @@ class RegistrationView {
             <input class="form__file-input" id="imageInput" type="file">
             <div class="form__file-name"></div>
         </label>
-        <img class="form__registration-image" src="./assets/user.png" alt="image">
+        <img class="form__registration-image" src="./assets/default1.png" alt="image">
     </div>
     <button class="form__signin-button">Already have an account?<span>SIGN IN</span></button>
     <input class="button form__register-button" type="submit" value="REGISTER" disabled></input>
@@ -1248,6 +1241,37 @@ class NewTaskView {
   }
 }
 
+class ErrorView {
+  constructor(id) {
+    this._id = id;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  display(status, statusText) {
+    const main = document.getElementById(this.id);
+    main.classList.add('error-page');
+
+    main.innerHTML = `
+    <div class="main__error-wrapper">
+        <button class="return-to-main-button">
+            <i class="fa-solid fa-arrow-left"></i>
+        Return to the main page
+        </button>
+        <div class="main__error-info-wrapper">
+            <div class="main__error-description">
+                <p class="main__error-status">${status}</p>
+                <p class="main__error-message">OOPS! ${statusText}</p>
+            </div>
+            <img src="./assets/robot-big.png" alt="">
+        </div>
+    </div>
+    `;
+  }
+}
+
 class TasksController {
   constructor(
     users,
@@ -1258,7 +1282,8 @@ class TasksController {
     logIn,
     registrationPage,
     userPage,
-    newTask
+    newTask,
+    error
   ) {
     this.api = new TaskFeedApiService('http://169.60.206.50:7777/api');
     this.users = users;
@@ -1270,6 +1295,7 @@ class TasksController {
     this.registrationPage = registrationPage;
     this.userPage = userPage;
     this.newTask = newTask;
+    this.error = error;
   }
 
   setCurrentUser(user) {
@@ -1296,9 +1322,7 @@ class TasksController {
       : this.taskFeed.display(this.api.tasks);
 
     function getPage(filterConfig) {
-      console.log(filterConfig);
       let tasksCopy = controller.api.tasks;
-      console.log(tasksCopy);
       if (filterConfig) {
         tasksCopy = tasksCopy
           .filter((task) => {
@@ -1345,7 +1369,6 @@ class TasksController {
           });
       }
 
-      console.log(tasksCopy);
       return tasksCopy.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
@@ -1357,8 +1380,14 @@ class TasksController {
   }
 
   async showTask(id, registeredUsers) {
-    const task = await this.api.getTask(id);
-    this.taskPage.display(task, registeredUsers);
+    const response = await this.api.getTask(id);
+
+    if (response.id) {
+      this.taskPage.display(response, registeredUsers);
+    } else {
+      this.error.display(response.status, response.statusText);
+      throw Error(response.status);
+    }
   }
 
   async registerUser(data) {
@@ -1406,6 +1435,11 @@ class TasksController {
   async getAllUsers() {
     const response = await this.api.getAllUsers();
 
+    if (response.status) {
+      this.error.display(response.status, response.statusText);
+      throw Error(response.status);
+    }
+
     return response;
   }
 
@@ -1430,6 +1464,10 @@ class TasksController {
   showNewTask(registeredUsers) {
     this.newTask.display(registeredUsers);
   }
+
+  showError() {
+    this.error.display();
+  }
 }
 
 const users = new UserCollection();
@@ -1441,6 +1479,7 @@ const logIn = new LogInView('main');
 const registrationPage = new RegistrationView('main');
 const userPage = new UserView('main');
 const newTask = new NewTaskView('aside');
+const error = new ErrorView('main');
 const controller = new TasksController(
   users,
   header,
@@ -1450,15 +1489,44 @@ const controller = new TasksController(
   logIn,
   registrationPage,
   userPage,
-  newTask
+  newTask,
+  error
 );
 
+const allTasks = await controller.getTasks();
 const main = document.getElementById('main');
 const body = document.getElementById('body');
+const container = document.querySelector('.container');
+const userProfileButton = document.querySelector('.side-menu__profile-button');
+const burgerMenu = document.querySelector('.burger-menu');
+const sideMenu = document.querySelector('.side-menu');
+const sideMenuProfileImage = document.querySelector(
+  '.side-menu__profile-image'
+);
+const sideMenuUser = document.querySelector('.side-menu__user-name');
+const sideMenuProfileButton = document.querySelector('.side-menu__button');
+const form = document.getElementById('filters');
+const imageFormats = [
+  'jpeg',
+  'png',
+  'ico',
+  'gif',
+  'tiff',
+  'webp',
+  'eps',
+  'svg',
+  'psd',
+  'jpg',
+];
+
 let loader = false;
-const allTasks = await controller.getTasks();
-controller.api.tasks = [];
 let tasksToSkip = 0;
+let currentTaskId = null;
+const editConfig = {};
+const currentTaskConfig = {};
+let filterConfig = {};
+
+controller.api.tasks = [];
 
 window.localStorage.getItem('currentUser')
   ? controller.setCurrentUser(
@@ -1479,251 +1547,251 @@ controller
     tasksToSkip += 10;
   });
 
-const container = document.querySelector('.container');
-const userProfileButton = document.querySelector('.side-menu__profile-button');
-const burgerMenu = document.querySelector('.burger-menu');
-const sideMenu = document.querySelector('.side-menu');
-const sideMenuProfileImage = document.querySelector(
-  '.side-menu__profile-image'
-);
-const sideMenuUser = document.querySelector('.side-menu__user-name');
-const sideMenuProfileButton = document.querySelector('.side-menu__button');
-const imageFormats = [
-  'jpeg',
-  'png',
-  'ico',
-  'gif',
-  'tiff',
-  'webp',
-  'eps',
-  'svg',
-  'psd',
-  'jpg',
-];
-const editConfig = {};
-const currentTaskConfig = {};
-let filterConfig = {};
-let currentTaskId = null;
-
 async function setEventOnTaskCard() {
-  const registeredUsers = await controller.getAllUsers();
-  setListenerOnStatusGroupButtons();
+  try {
+    const registeredUsers = await controller.getAllUsers();
+    setListenerOnStatusGroupButtons();
 
-  main.addEventListener('click', (e) => {
-    if (
-      (e.target.className === 'card' ||
-        e.target.className === 'card-list-view') &&
-      controller.api.user.id
-    ) {
-      currentTaskId = e.target.getAttribute('id');
-      loader = true;
-      setLoader('article', loader, body);
-      controller.showTask(currentTaskId, registeredUsers, loader).then(() => {
-        setEventsOnTaskPage();
-        loader = false;
-        setLoader('main', loader, body);
-      });
-      container.classList.remove('container-main');
-    }
-
-    if (e.target.classList.contains('load-more')) {
-      e.target.classList.add('loading');
-      loader = true;
-      e.target.innerHTML = '';
-      setLoader('loadMoreButton', loader, body, 'load-more');
-      controller
-        .getTasks(tasksToSkip, 10, 1)
-        .then(() => {
-          return controller.getTasks(tasksToSkip, 10, 2);
-        })
-        .then(() => {
-          return controller.getTasks(tasksToSkip, 10, 3);
-        })
-        .finally(() => {
-          loader = false;
-          controller.getFeed();
-          tasksToSkip += 10;
-          if (!(allTasks.length > controller.api.tasks.length)) {
-            document.querySelector('.load-more').setAttribute('disabled', true);
-          }
-        });
-    }
-
-    if (e.target.classList.contains('article__cards-group-list-view')) {
-      if (!e.target.classList.contains('group-open')) {
-        e.target.classList.add('group-open');
-      } else {
-        e.target.classList.add('group-close');
-        setTimeout(() => {
-          e.target.classList.remove('group-open');
-          e.target.classList.remove('group-close');
-        }, 200);
+    main.addEventListener('click', (e) => {
+      if (
+        (e.target.className === 'card' ||
+          e.target.className === 'card-list-view') &&
+        controller.api.user.id
+      ) {
+        currentTaskId = e.target.getAttribute('id');
+        loader = true;
+        setLoader('article', loader, body);
+        controller
+          .showTask(currentTaskId, registeredUsers, loader)
+          .then(() => {
+            setEventsOnTaskPage();
+          })
+          .catch(() => {
+            setEventOnError();
+          })
+          .finally(() => {
+            loader = false;
+            setLoader('main', loader, body);
+          });
+        container.classList.remove('container-main');
       }
-    }
 
-    if (e.target.classList.contains('fa-ellipsis-vertical')) {
-      const cardOptions = e.target.querySelector('.card-options');
-      if (!cardOptions.classList.contains('card-options-open')) {
-        cardOptions.classList.add('card-options-open');
-      } else {
-        cardOptions.classList.add('card-options-close');
-        setTimeout(() => {
-          cardOptions.classList.remove('card-options-close');
-          cardOptions.classList.remove('card-options-open');
-        }, 100);
+      if (e.target.classList.contains('load-more')) {
+        e.target.classList.add('loading');
+        form.reset();
+        loader = true;
+        e.target.innerHTML = '';
+        setLoader('loadMoreButton', loader, body, 'load-more');
+        controller
+          .getTasks(tasksToSkip, 10, 1)
+          .then(() => {
+            return controller.getTasks(tasksToSkip, 10, 2);
+          })
+          .then(() => {
+            return controller.getTasks(tasksToSkip, 10, 3);
+          })
+          .finally(() => {
+            loader = false;
+            controller.getFeed();
+            tasksToSkip += 10;
+            if (!(allTasks.length > controller.api.tasks.length)) {
+              document
+                .querySelector('.load-more')
+                .setAttribute('disabled', true);
+            }
+          });
       }
-    }
 
-    if (e.target.classList.contains('delete-task-board')) {
-      const confirmDeleteModal = document.createElement('div');
-      confirmDeleteModal.className = 'task-confirm-modal';
-      confirmDeleteModal.setAttribute('id', 'confirmDeleteModal');
-      confirmDeleteModal.innerHTML = `
+      if (e.target.classList.contains('article__cards-group-list-view')) {
+        if (!e.target.classList.contains('group-open')) {
+          e.target.classList.add('group-open');
+        } else {
+          e.target.classList.add('group-close');
+          setTimeout(() => {
+            e.target.classList.remove('group-open');
+            e.target.classList.remove('group-close');
+          }, 200);
+        }
+      }
+
+      if (e.target.classList.contains('fa-ellipsis-vertical')) {
+        const cardOptions = e.target.querySelector('.card-options');
+        if (!cardOptions.classList.contains('card-options-open')) {
+          cardOptions.classList.add('card-options-open');
+        } else {
+          cardOptions.classList.add('card-options-close');
+          setTimeout(() => {
+            cardOptions.classList.remove('card-options-close');
+            cardOptions.classList.remove('card-options-open');
+          }, 100);
+        }
+      }
+
+      if (e.target.classList.contains('delete-task-board')) {
+        const confirmDeleteModal = document.createElement('div');
+        confirmDeleteModal.className = 'task-confirm-modal';
+        confirmDeleteModal.setAttribute('id', 'confirmDeleteModal');
+        confirmDeleteModal.innerHTML = `
             <p class="task-confirm-modal__text">ARE YOU SURE YOU WANT TO DELETE THE TASK?</p>
             <div class="task-confirm-modal__buttons-wrapper">
                 <button id="cancelDelete" class="button cancel">CANCEL</button>
                 <button id="confirmDelete" class="button delete delete-confirm">DELETE</button>
             </div>
           `;
-      body.classList.add('confirm');
-      main.prepend(confirmDeleteModal);
-      const cancelDelete = document.getElementById('cancelDelete');
-      const confirmDelete = document.getElementById('confirmDelete');
+        body.classList.add('confirm');
+        main.prepend(confirmDeleteModal);
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
 
-      confirmDelete.addEventListener('click', () => {
-        loader = true;
-        confirmDeleteModal.innerHTML = '';
-        setLoader('confirmDeleteModal', loader, body, 'modal');
-        controller
-          .deleteTask(e.target.closest('.card').getAttribute('id'))
-          .then(() => {
-            controller.getTasks().then(() => {
-              body.classList.remove('confirm');
-              confirmDeleteModal.remove();
-              controller.getFeed();
-              setListenerOnStatusGroupButtons();
-              loader = false;
+        confirmDelete.addEventListener('click', () => {
+          loader = true;
+          confirmDeleteModal.innerHTML = '';
+          setLoader('confirmDeleteModal', loader, body, 'modal');
+          controller
+            .deleteTask(e.target.closest('.card').getAttribute('id'))
+            .then(() => {
+              controller.api.tasks = [];
+              tasksToSkip = 0;
+              controller
+                .getTasks(tasksToSkip, 10, 1)
+                .then(() => {
+                  return controller.getTasks(tasksToSkip, 10, 2);
+                })
+                .then(() => {
+                  return controller.getTasks(tasksToSkip, 10, 3);
+                })
+                .finally(() => {
+                  body.classList.remove('confirm');
+                  confirmDeleteModal.remove();
+                  controller.getFeed();
+                  tasksToSkip += 10;
+                  setListenerOnStatusGroupButtons();
+                  loader = false;
+                });
             });
-          });
-      });
+        });
 
-      cancelDelete.addEventListener('click', () => {
-        body.classList.remove('confirm');
-        confirmDeleteModal.remove();
-      });
-    }
+        cancelDelete.addEventListener('click', () => {
+          body.classList.remove('confirm');
+          confirmDeleteModal.remove();
+        });
+      }
 
-    if (e.target.classList.contains('edit-task-board')) {
-      currentTaskId = e.target.closest('.card').getAttribute('id');
-      loader = true;
-      setLoader('article', loader, body);
-      controller
-        .showTask(currentTaskId, registeredUsers)
-        .then(() => {
-          setInputsValuesToCurrentTaskConfig(
-            currentTaskConfig,
-            registeredUsers
-          );
-          container.classList.remove('container-main');
-          main.classList.add('edit-mode');
-        })
-        .then(() => {
-          controller.showTask(currentTaskId, registeredUsers).then(() => {
-            setEventsOnTaskPage();
-            setInputsValuesToEditConfig(
-              editConfig,
+      if (e.target.classList.contains('edit-task-board')) {
+        currentTaskId = e.target.closest('.card').getAttribute('id');
+        loader = true;
+        setLoader('article', loader, body);
+        controller
+          .showTask(currentTaskId, registeredUsers)
+          .then(() => {
+            setInputsValuesToCurrentTaskConfig(
               currentTaskConfig,
               registeredUsers
             );
-            loader = false;
-            setLoader('main', loader, body);
+            container.classList.remove('container-main');
+            main.classList.add('edit-mode');
+          })
+          .then(() => {
+            controller.showTask(currentTaskId, registeredUsers).then(() => {
+              setEventsOnTaskPage();
+              setInputsValuesToEditConfig(
+                editConfig,
+                currentTaskConfig,
+                registeredUsers
+              );
+              loader = false;
+              setLoader('main', loader, body);
+            });
           });
-        });
-    }
+      }
 
-    if (e.target.classList.contains('fa-list-ul')) {
-      const viewTiggle = document.querySelector('.view-wrapper');
-      const defautlViewButton = document.querySelector('.fa-table-columns');
-      viewTiggle.classList.add('list-view');
-      defautlViewButton.classList.remove('view-selected');
-      e.target.classList.add('view-selected');
-      controller.getFeed(filterConfig);
-    }
-
-    if (e.target.classList.contains('fa-table-columns')) {
-      const viewTiggle = document.querySelector('.view-wrapper');
-      const listViewButton = document.querySelector('.fa-list-ul');
-      if (viewTiggle.classList.contains('list-view')) {
-        viewTiggle.classList.remove('list-view');
-        listViewButton.classList.remove('view-selected');
+      if (e.target.classList.contains('fa-list-ul')) {
+        const viewTiggle = document.querySelector('.view-wrapper');
+        const defautlViewButton = document.querySelector('.fa-table-columns');
+        viewTiggle.classList.add('list-view');
+        defautlViewButton.classList.remove('view-selected');
         e.target.classList.add('view-selected');
         controller.getFeed(filterConfig);
       }
-    }
-  });
 
-  if (burgerMenu) {
-    burgerMenu.addEventListener('click', () => {
-      if (!sideMenu.classList.contains('side-menu-open')) {
-        burgerMenu.classList.add('burger-menu-open');
-        sideMenu.classList.add('side-menu-open');
-        body.classList.add('confirm');
-        if (!controller.api.user.id) {
-          userProfileButton.style.display = 'none';
-          sideMenuProfileImage.style.display = 'none';
-          sideMenuUser.textContent = 'Guest';
-          sideMenuProfileButton.textContent = 'Sign in';
-          sideMenuProfileButton.classList.add('sign-in');
-          sideMenuProfileButton.addEventListener('click', () => {
-            closeSideMenu(burgerMenu, sideMenu, body);
-            main.classList.remove('main-task');
-            main.classList.remove('edit-mode');
-            setEventOnLogIn();
-            controller.setCurrentUser({});
-          });
-        } else {
-          console.log(controller.api.user.photo);
-          sideMenuProfileImage.src = `data:image/png;base64,${controller.api.user.photo}`;
-          sideMenuUser.textContent = controller.api.user.userName;
-          userProfileButton.style.display = 'flex';
-          sideMenuProfileImage.style.display = 'block';
-          sideMenuUser.textContent = `${controller.api.user.userName}`;
-          sideMenuProfileButton.textContent = 'Logout';
-          sideMenuProfileButton.classList.remove('sign-in');
-          sideMenuProfileButton.addEventListener('click', () => {
-            closeSideMenu(burgerMenu, sideMenu, body);
-            main.classList.remove('main-task');
-            main.classList.remove('edit-mode');
-            setEventOnLogIn();
-            controller.setCurrentUser('');
-          });
+      if (e.target.classList.contains('fa-table-columns')) {
+        const viewTiggle = document.querySelector('.view-wrapper');
+        const listViewButton = document.querySelector('.fa-list-ul');
+        if (viewTiggle.classList.contains('list-view')) {
+          viewTiggle.classList.remove('list-view');
+          listViewButton.classList.remove('view-selected');
+          e.target.classList.add('view-selected');
+          controller.getFeed(filterConfig);
         }
-      } else {
-        closeSideMenu(burgerMenu, sideMenu, body);
       }
     });
-  }
 
-  setEventOnNewTaskMobile(body);
-
-  window.addEventListener('click', (e) => {
-    if (sideMenu.classList.contains('side-menu-open')) {
-      if (
-        !e.target.closest('.side-menu') &&
-        !e.target.classList.contains('burger-menu')
-      ) {
-        closeSideMenu(burgerMenu, sideMenu, body);
-      }
+    if (burgerMenu) {
+      burgerMenu.addEventListener('click', () => {
+        if (!sideMenu.classList.contains('side-menu-open')) {
+          burgerMenu.classList.add('burger-menu-open');
+          sideMenu.classList.add('side-menu-open');
+          body.classList.add('confirm');
+          if (!controller.api.user.id) {
+            userProfileButton.style.display = 'none';
+            sideMenuProfileImage.style.display = 'none';
+            sideMenuUser.textContent = 'Guest';
+            sideMenuProfileButton.textContent = 'Sign in';
+            sideMenuProfileButton.classList.add('sign-in');
+            sideMenuProfileButton.addEventListener('click', () => {
+              closeSideMenu(burgerMenu, sideMenu, body);
+              main.classList.remove('main-task');
+              main.classList.remove('edit-mode');
+              setEventOnLogIn();
+              controller.setCurrentUser({});
+            });
+          } else {
+            sideMenuProfileImage.src = `data:image/png;base64,${controller.api.user.photo}`;
+            sideMenuUser.textContent = controller.api.user.userName;
+            userProfileButton.style.display = 'flex';
+            sideMenuProfileImage.style.display = 'block';
+            sideMenuUser.textContent = `${controller.api.user.userName}`;
+            sideMenuProfileButton.textContent = 'Logout';
+            sideMenuProfileButton.classList.remove('sign-in');
+            sideMenuProfileButton.addEventListener('click', () => {
+              closeSideMenu(burgerMenu, sideMenu, body);
+              main.classList.remove('main-task');
+              main.classList.remove('edit-mode');
+              setEventOnLogIn();
+              controller.setCurrentUser('');
+            });
+          }
+        } else {
+          closeSideMenu(burgerMenu, sideMenu, body);
+        }
+      });
     }
-  });
 
-  userProfileButton.addEventListener('click', () => {
-    closeSideMenu(burgerMenu, sideMenu, body);
-    main.classList.remove('main-task');
-    main.classList.remove('edit-mode');
-    setEventOnUserPage();
-  });
-  setListenerOnStatusGroupButtons();
+    setEventOnNewTaskMobile(body);
+    setEventOnNewTaskLaptop(body);
+
+    window.addEventListener('click', (e) => {
+      if (sideMenu.classList.contains('side-menu-open')) {
+        if (
+          !e.target.closest('.side-menu') &&
+          !e.target.classList.contains('burger-menu')
+        ) {
+          closeSideMenu(burgerMenu, sideMenu, body);
+        }
+      }
+    });
+
+    userProfileButton.addEventListener('click', () => {
+      closeSideMenu(burgerMenu, sideMenu, body);
+      main.classList.remove('main-task');
+      main.classList.remove('edit-mode');
+      setEventOnUserPage();
+    });
+    setListenerOnStatusGroupButtons();
+  } catch (error) {
+    console.log(error);
+    setEventOnError();
+  }
 }
 
 async function setEventsOnTaskPage() {
@@ -1741,13 +1809,13 @@ async function setEventsOnTaskPage() {
   Array.from(taskPageInputs).forEach((el) => {
     el.addEventListener('input', () => {
       Array.from(taskPageInputs).some(
-        (element) => !validateField(element, controller)
+        (element) => !validateField(element, controller, registeredUsers)
       ) ||
       !validateDescription(descriptionTextArea) ||
       descriptionTextArea.value === ''
         ? editButton.setAttribute('disabled', true)
         : editButton.removeAttribute('disabled');
-      validateField(el, controller);
+      validateField(el, controller, registeredUsers);
     });
   });
 
@@ -1771,9 +1839,9 @@ async function setEventsOnTaskPage() {
         container.classList.add('container-main');
         renderAsideSection(main);
         controller.getFeed();
+        setEventOnFilters();
         setEventOnNewTaskMobile(body);
         setListenerOnStatusGroupButtons();
-        setEventOnFilters();
         setEventOnNewTask();
         loader = false;
         setLoader('article', loader, body);
@@ -1851,7 +1919,7 @@ async function setEventsOnTaskPage() {
     descriptionTextArea.addEventListener('input', () => {
       !validateDescription(descriptionTextArea) ||
       Array.from(taskPageInputs).some(
-        (element) => !validateField(element, controller)
+        (element) => !validateField(element, controller, registeredUsers)
       ) ||
       descriptionTextArea.value === ''
         ? editButton.setAttribute('disabled', true)
@@ -1890,9 +1958,9 @@ async function setEventsOnTaskPage() {
 }
 
 async function setEventOnFilters() {
+  const form = document.getElementById('filters');
   const registeredUsers = await controller.getAllUsers();
   controller.getFilters(registeredUsers);
-  const form = document.getElementById('filters');
   const filtersHead = form.querySelector('.filters-closed-wrapper');
   const filters = document.getElementById('filters');
   const taskNameInput = document.querySelector('.search-input');
@@ -1918,8 +1986,6 @@ async function setEventOnFilters() {
 
   assigneeInput.addEventListener('input', () => {
     const list = form.querySelector('[id="assignee-list"]');
-
-    console.log(filterConfig);
 
     assigneeInput.removeAttribute('userId');
 
@@ -2063,6 +2129,12 @@ function setEventOnRegistration() {
     toggleShowPassword(e);
   });
 
+  if (!data.photo) {
+    convertImageToBase64(_DEFAULT_SRC).then((url) => {
+      data.photo = url.split(',')[1];
+    });
+  }
+
   registrationForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const login = registrationForm.querySelector('[name="login"]');
@@ -2074,36 +2146,43 @@ function setEventOnRegistration() {
     data.userName = user.value;
     data.password = password.value;
     data.retypedPassword = confirmPassword.value;
-    data.photo = data.photo ? data.photo : photo.src.split(',')[1];
 
-    controller.registerUser(data).then((message) => {
-      if (message) {
-        errorMessage.classList.add('signin-error-open');
-        errorMessage.innerText = `${message[0]}`;
+    loader = true;
+    setLoader('main', loader, body);
+    controller
+      .registerUser(data)
+      .then((message) => {
+        if (message) {
+          errorMessage.classList.add('signin-error-open');
+          errorMessage.innerText = `${message[0]}`;
 
-        setTimeout(() => {
-          errorMessage.classList.add('signin-error-close');
-          errorMessage.classList.remove('signin-error-open');
           setTimeout(() => {
-            errorMessage.classList.remove('signin-error-close');
-          }, 1000);
-        }, 2000);
-      } else {
-        controller.showLogIn();
-        setEventOnLogIn();
-      }
-    });
+            errorMessage.classList.add('signin-error-close');
+            errorMessage.classList.remove('signin-error-open');
+            setTimeout(() => {
+              errorMessage.classList.remove('signin-error-close');
+            }, 1000);
+          }, 2000);
+        } else {
+          controller.showLogIn();
+          setEventOnLogIn();
+        }
+      })
+      .finally(() => {
+        loader = false;
+        setLoader('main', loader, body);
+      });
   });
 
   Array.from(elements).forEach((el) => {
     if (el.classList.contains('form__input')) {
       el.addEventListener('input', () => {
         Array.from(elements).some(
-          (element) => !validateField(element, controller)
+          (element) => !validateField(element, controller, registeredUsers)
         )
           ? registerButton.setAttribute('disabled', true)
           : registerButton.removeAttribute('disabled');
-        validateField(el, controller);
+        validateField(el, controller, registeredUsers);
       });
     }
   });
@@ -2181,7 +2260,7 @@ function setEventOnLogIn() {
   elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
       el.addEventListener('input', () => {
-        validateField(el, controller);
+        validateField(el, controller, registeredUsers);
       });
     }
   });
@@ -2192,6 +2271,8 @@ function setEventOnLogIn() {
     const password = signInForm.querySelector('[name="password"]');
     const errorMessage = document.querySelector('.signin-error');
 
+    loader = true;
+    setLoader('main', loader, body);
     controller
       .loginUser({
         login: login.value,
@@ -2223,6 +2304,10 @@ function setEventOnLogIn() {
             }, 1000);
           }, 2000);
         }
+      })
+      .finally(() => {
+        loader = false;
+        setLoader('main', loader, body);
       });
   });
 
@@ -2327,10 +2412,12 @@ function setEventOnUserPage() {
         e.target.classList.contains('user-info-form__name') ||
         e.target.classList.contains('user-info-form__password')
       ) {
-        elementsArray.some((element) => !validateField(element, controller))
+        elementsArray.some(
+          (element) => !validateField(element, controller, registeredUsers)
+        )
           ? saveChangesButton.setAttribute('disabled', true)
           : saveChangesButton.removeAttribute('disabled');
-        validateField(el, controller);
+        validateField(el, controller, registeredUsers);
       }
     });
   });
@@ -2454,15 +2541,28 @@ function setEventOnUserPage() {
 
     loader = true;
     setLoader('main', loader, body);
-    controller.editUser(controller.api.user.id, data).then(() => {
-      controller.getMyProfile().then((user) => {
-        controller.setCurrentUser(user);
-        window.localStorage.setItem('currentUser', JSON.stringify(user));
-        main.classList.remove('edit-mode');
-        setEventOnUserPage();
-        loader = false;
-        setLoader('main', loader, body);
-      });
+    controller.editUser(controller.api.user.id, data).then((message) => {
+      if (message) {
+        errorMessage.classList.add('signin-error-open');
+        errorMessage.innerText = `${message[0]}`;
+
+        setTimeout(() => {
+          errorMessage.classList.add('signin-error-close');
+          errorMessage.classList.remove('signin-error-open');
+          setTimeout(() => {
+            errorMessage.classList.remove('signin-error-close');
+          }, 1000);
+        }, 2000);
+      } else {
+        controller.getMyProfile().then((user) => {
+          controller.setCurrentUser(user);
+          window.localStorage.setItem('currentUser', JSON.stringify(user));
+          main.classList.remove('edit-mode');
+          setEventOnUserPage();
+          loader = false;
+          setLoader('main', loader, body);
+        });
+      }
     });
   });
 
@@ -2509,19 +2609,23 @@ async function setEventOnNewTask() {
   elementsArray.forEach((el) => {
     if (el.classList.contains('form__input')) {
       el.addEventListener('input', () => {
-        elementsArray.some((element) => !validateField(element, controller)) ||
+        elementsArray.some(
+          (element) => !validateField(element, controller, registeredUsers)
+        ) ||
         !validateDescription(newTaskDescription) ||
         newTaskDescription.value === ''
           ? createTaskButton.setAttribute('disabled', true)
           : createTaskButton.removeAttribute('disabled');
-        validateField(el, controller);
+        validateField(el, controller, registeredUsers);
       });
     }
   });
 
   newTaskDescription.addEventListener('input', () => {
     !validateDescription(newTaskDescription) ||
-    elementsArray.some((element) => !validateField(element, controller)) ||
+    elementsArray.some(
+      (element) => !validateField(element, controller, registeredUsers)
+    ) ||
     newTaskDescription.value === ''
       ? createTaskButton.setAttribute('disabled', true)
       : createTaskButton.removeAttribute('disabled');
@@ -2593,16 +2697,62 @@ async function setEventOnNewTask() {
     setLoader('article', loader, body);
 
     controller.postTask(task).then(() => {
-      controller.getTasks().then(() => {
-        loader = false;
-        setLoader('article', loader, body);
+      controller.api.tasks = [];
+      tasksToSkip = 0;
+      controller
+        .getTasks(tasksToSkip, 10, 1)
+        .then(() => {
+          return controller.getTasks(tasksToSkip, 10, 2);
+        })
+        .then(() => {
+          return controller.getTasks(tasksToSkip, 10, 3);
+        })
+        .finally(() => {
+          loader = false;
+          setLoader('article', loader, body);
+          controller.getFeed();
+          form.reset();
+          resetChangesButton.setAttribute('disabled', true);
+          createTaskButton.setAttribute('disabled', true);
+          setEventOnNewTaskMobile(body);
+          setListenerOnStatusGroupButtons();
+        });
+    });
+  });
+}
+
+function setEventOnError() {
+  const returnButton = document.querySelector('.return-to-main-button');
+
+  returnButton.addEventListener('click', () => {
+    tasksToSkip = 0;
+    loader = true;
+    setLoader('main', loader, body);
+    controller.api.tasks = [];
+    controller
+      .getTasks(0, 10, 1)
+      .then(() => {
+        return controller.getTasks(0, 10, 2);
+      })
+      .then(() => {
+        return controller.getTasks(0, 10, 3);
+      })
+      .then(() => {
+        if (main.classList.contains('edit-mode')) {
+          main.classList.remove('edit-mode');
+        }
+        main.classList.remove('error-page');
+        main.classList.add('main-page');
+        container.classList.add('container-main');
+        renderAsideSection(main);
         controller.getFeed();
-        form.reset();
-        createTaskButton.setAttribute('disabled', true);
+        setEventOnFilters();
         setEventOnNewTaskMobile(body);
         setListenerOnStatusGroupButtons();
+        setEventOnNewTask();
+        loader = false;
+        setLoader('article', loader, body);
       });
-    });
   });
 }
 
@@ -2610,3 +2760,5 @@ setEventOnTaskCard();
 setEventOnHeader();
 setEventOnNewTask();
 setEventOnFilters();
+
+console.log(controller.api.registeredUsers);
