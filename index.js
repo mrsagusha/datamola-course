@@ -157,11 +157,16 @@ class TaskFeedApiService {
 
   async getMyProfile() {
     try {
-      const res = await fetch(
+      const response = await fetch(
         `${this.server}/user/myProfile`,
         this._getRequestOptions('GET')
       );
-      const json = await res.json();
+      const json = await response.json();
+
+      if (!response.ok) {
+        return response;
+      }
+
       return json;
     } catch (error) {
       console.log(error);
@@ -170,10 +175,15 @@ class TaskFeedApiService {
 
   async postComment(id, data) {
     try {
-      const res = await fetch(
+      const response = await fetch(
         `${this.server}/tasks/${id}/comments`,
         this._getRequestOptions('POST', data)
       );
+      const json = await response.json();
+
+      if (!response.ok) {
+        return response;
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -1494,6 +1504,7 @@ const controller = new TasksController(
 );
 
 const allTasks = await controller.getTasks();
+const registeredUsers = await controller.getAllUsers();
 const main = document.getElementById('main');
 const body = document.getElementById('body');
 const container = document.querySelector('.container');
@@ -1816,6 +1827,7 @@ async function setEventsOnTaskPage() {
         ? editButton.setAttribute('disabled', true)
         : editButton.removeAttribute('disabled');
       validateField(el, controller, registeredUsers);
+      a;
     });
   });
 
@@ -2183,6 +2195,7 @@ function setEventOnRegistration() {
           ? registerButton.setAttribute('disabled', true)
           : registerButton.removeAttribute('disabled');
         validateField(el, controller, registeredUsers);
+        a;
       });
     }
   });
@@ -2418,6 +2431,7 @@ function setEventOnUserPage() {
           ? saveChangesButton.setAttribute('disabled', true)
           : saveChangesButton.removeAttribute('disabled');
         validateField(el, controller, registeredUsers);
+        a;
       }
     });
   });
