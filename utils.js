@@ -107,7 +107,11 @@ function validateField(el, controller, registeredUsers) {
       return false;
     }
 
-    if (!registeredUsers.find((elem) => elem.userName === el.value)) {
+    if (
+      !registeredUsers.find(
+        (elem) => elem.userName.toLowerCase() === el.value.toLowerCase()
+      )
+    ) {
       el.previousElementSibling.innerText = 'User not found.';
       el.classList.add('form__input-error');
       return false;
